@@ -5,6 +5,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"os/exec"
 )
 
 func main() {
@@ -29,13 +30,17 @@ func main() {
 	}()
 
 	cmd := container.Exec("/bin/acbs-build", "-c", "nano")
+	redirectStdOutErr(cmd)
+	if err := cmd.Run(); err != nil {
+		log.Println("acbs-build", err)
+	}
+}
+
+func redirectStdOutErr(cmd *exec.Cmd) {
 	stdout, _ := cmd.StdoutPipe()
 	stderr, _ := cmd.StderrPipe()
 	pipeIO(stdout, os.Stdout)
 	pipeIO(stderr, os.Stderr)
-	if err := cmd.Run(); err != nil {
-		log.Println("acbs-build", err)
-	}
 }
 
 func pipeIO(r io.Reader, w io.Writer) {
