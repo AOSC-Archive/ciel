@@ -7,7 +7,7 @@ import (
 
 type ContainerInstance struct {
 	Name string
-	FS *ContainerFilesystem
+	FS   *ContainerFilesystem
 	Wait chan struct{}
 }
 
