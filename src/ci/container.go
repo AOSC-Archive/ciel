@@ -7,6 +7,7 @@ import (
 
 type ContainerInstance struct {
 	Name string
+	FS *ContainerFilesystem
 	Wait chan struct{}
 }
 
@@ -24,7 +25,7 @@ func NewContainer(fs *ContainerFilesystem, machine string) (*ContainerInstance, 
 		close(wait)
 	}()
 
-	container := &ContainerInstance{Name: machine, Wait: wait}
+	container := &ContainerInstance{Name: machine, FS: fs, Wait: wait}
 	for !container.IsAlive() { // Wait for booting
 	}
 	return container, nil
