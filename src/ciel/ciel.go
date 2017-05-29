@@ -32,6 +32,8 @@ func main() {
 	cmd := container.Exec(ACBSPath, "-c", "nano") // FIXME: configurability
 	redirectStdOutErr(cmd)
 	if err := cmd.Run(); err != nil {
-		log.Println("acbs-build", err)
+		log.Panicln("acbs-build", err)
 	}
+
+	// TODO: pick up the package; collect acbs-build log, autobuild log ...
 }
