@@ -59,3 +59,7 @@ func mount(path string, upperdir string, workdir string, lowerdirs ...string) er
 func unmount(path string) error {
 	return syscall.Unmount(path, 0)
 }
+
+func (fs *ContainerFilesystem) DiffDir(path string) string {
+	return fs.diff + path
+}
