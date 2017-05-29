@@ -3,9 +3,11 @@
 *.dll
 *.so
 *.dylib
+/ciel
 
 # Test binary, build with `go test -c`
 *.test
+/buildkit*
 
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
