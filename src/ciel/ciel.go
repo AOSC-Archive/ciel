@@ -9,7 +9,7 @@ const MachineName = "buildkit"
 const ACBSPath = "/bin/acbs-build"
 
 func main() {
-	fs, err := ci.InitFilesystem("/root/ciel/buildkit")
+	fs, err := ci.InitFilesystem("/root/ciel/buildkit") // FIXME: configurability
 	if err != nil {
 		log.Panicln("fs", err)
 	}
@@ -29,7 +29,7 @@ func main() {
 		}
 	}()
 
-	cmd := container.Exec(ACBSPath, "-c", "nano")
+	cmd := container.Exec(ACBSPath, "-c", "nano") // FIXME: configurability
 	redirectStdOutErr(cmd)
 	if err := cmd.Run(); err != nil {
 		log.Println("acbs-build", err)
