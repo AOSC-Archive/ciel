@@ -2,11 +2,11 @@ package main
 
 import (
 	"ci"
-	"io"
 	"log"
-	"os"
-	"os/exec"
 )
+
+const MachineName = "buildkit"
+const ACBSPath = "/bin/acbs-build"
 
 func main() {
 	fs, err := ci.InitFilesystem("/root/ciel/buildkit")
@@ -19,7 +19,7 @@ func main() {
 		}
 	}()
 
-	container, err := ci.NewContainer(fs, "buildkit")
+	container, err := ci.NewContainer(fs, MachineName)
 	if err != nil {
 		log.Panicln("container", err)
 	}
@@ -29,26 +29,9 @@ func main() {
 		}
 	}()
 
-	cmd := container.Exec("/bin/acbs-build", "-c", "nano")
+	cmd := container.Exec(ACBSPath, "-c", "nano")
 	redirectStdOutErr(cmd)
 	if err := cmd.Run(); err != nil {
 		log.Println("acbs-build", err)
 	}
-}
-
-func redirectStdOutErr(cmd *exec.Cmd) {
-	stdout, _ := cmd.StdoutPipe()
-	stderr, _ := cmd.StderrPipe()
-	pipeIO(stdout, os.Stdout)
-	pipeIO(stderr, os.Stderr)
-}
-
-func pipeIO(r io.Reader, w io.Writer) {
-	go func() {
-		for {
-			if _, err := io.Copy(w, r); err != nil {
-				return
-			}
-		}
-	}()
 }
