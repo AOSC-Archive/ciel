@@ -11,24 +11,27 @@ type ContainerInstance struct {
 	Wait chan struct{}
 }
 
-func NewContainer(fs *ContainerFilesystem, machine string) (*ContainerInstance, error) {
-	cmd := exec.Command("/usr/bin/systemd-nspawn", "-qb", "-M", machine, "-D", fs.TargetDir)
-	if err := cmd.Start(); err != nil { // Create and boot the container
-		return nil, err
-	}
+func NewContainer(fs *ContainerFilesystem, machine string) *ContainerInstance {
+	container := &ContainerInstance{Name: machine, FS: fs}
+	return container
+}
 
+func (c *ContainerInstance) Startup() error {
+	cmd := exec.Command("/usr/bin/systemd-nspawn", "-b", "-M", c.Name, "-D", c.FS.TargetDir)
+	if err := cmd.Start(); err != nil { // Create and boot the container
+		return err
+	}
 	wait := make(chan struct{}) // Exit signal channel
+	c.Wait = wait
 	go func() {
 		if err := cmd.Wait(); err != nil {
 			log.Panic(err) // systemd-nspawn exited with non-zero exit code
 		}
 		close(wait)
 	}()
-
-	container := &ContainerInstance{Name: machine, FS: fs, Wait: wait}
-	for !container.IsAlive() { // Wait for booting
+	for !c.IsAlive() { // Wait for booting
 	}
-	return container, nil
+	return nil
 }
 
 func (c *ContainerInstance) Shutdown() error {

@@ -2,8 +2,10 @@ package main
 
 import (
 	"io"
+	"io/ioutil"
 	"os"
 	"os/exec"
+	"strings"
 )
 
 func redirectStdIO(cmd *exec.Cmd) {
@@ -20,4 +22,25 @@ func pipeIO(r io.Reader, w io.Writer) {
 			}
 		}
 	}()
+}
+
+func findBuildLog(path string) string {
+	b, err := ioutil.ReadFile(path)
+	if err != nil {
+		return ""
+	}
+	s := string(b)
+	const prefix = " Build log: "
+	const suffix = "\n"
+	prefixindex := strings.LastIndex(s, prefix)
+	if prefixindex == -1 {
+		return ""
+	}
+	s = s[prefixindex+len(prefix):]
+	suffixindex := strings.Index(s, suffix)
+	if suffixindex == -1 {
+		return ""
+	}
+	s = s[:suffixindex]
+	return s
 }

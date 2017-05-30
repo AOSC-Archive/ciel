@@ -2,8 +2,10 @@ package ci
 
 import (
 	"encoding/base64"
+	"log"
 	"math/rand"
 	"os"
+	"path/filepath"
 	"strings"
 	"syscall"
 )
@@ -18,23 +20,27 @@ type ContainerFilesystem struct {
 	TargetDir string // overlayfs: target
 }
 
-func InitFilesystem(bkdir string) (*ContainerFilesystem, error) {
+func InitFilesystem(bkdir string) *ContainerFilesystem {
 	fs := &ContainerFilesystem{Base: bkdir}
 	fs.overlay = fs.Base + ".overlay"
 	fs.diff = fs.Base + ".diff"
 	fs.work = fs.Base + ".temp"
-	rd := make([]byte, 8)
-	if _, err := rand.Read(rd); err != nil {
-		return nil, err
-	}
-	fs.TargetDir = os.TempDir() + "/ciel." + base64.RawURLEncoding.EncodeToString(rd)
 	os.Mkdir(fs.diff, 0755)
 	os.Mkdir(fs.work, 0755)
+	return fs
+}
+
+func (fs *ContainerFilesystem) Startup() error {
+	rd := make([]byte, 8)
+	if _, err := rand.Read(rd); err != nil {
+		return err
+	}
+	fs.TargetDir = os.TempDir() + "/ciel." + base64.RawURLEncoding.EncodeToString(rd)
 	os.Mkdir(fs.TargetDir, 0755)
 	if _, err := os.Stat(fs.overlay); os.IsNotExist(err) {
-		return fs, mount(fs.TargetDir, fs.diff, fs.work, fs.Base)
+		return mount(fs.TargetDir, fs.diff, fs.work, fs.Base)
 	} else {
-		return fs, mount(fs.TargetDir, fs.diff, fs.work, fs.overlay, fs.Base)
+		return mount(fs.TargetDir, fs.diff, fs.work, fs.overlay, fs.Base)
 	}
 }
 
@@ -62,4 +68,30 @@ func unmount(path string) error {
 
 func (fs *ContainerFilesystem) DiffDir(path string) string {
 	return fs.diff + path
+}
+
+func (fs *ContainerFilesystem) OverlayDir(path string) string {
+	return fs.overlay + path
+}
+
+func (fs *ContainerFilesystem) Merge(path string) error {
+	os.Mkdir(fs.overlay, 0755)
+	err := filepath.Walk(fs.DiffDir(path), func(path string, info os.FileInfo, err error) error {
+		if info == nil {
+			return err
+		}
+		rel, err := filepath.Rel(fs.DiffDir("/"), path)
+		if err != nil {
+			return err
+		}
+		rel = "/" + rel
+		if info.IsDir() {
+			os.MkdirAll(fs.OverlayDir(rel), 755)
+		}
+		if err := os.Rename(path, fs.OverlayDir(rel)); err == nil {
+			log.Println("clean: merge", rel)
+		}
+		return nil
+	})
+	return err
 }
