@@ -6,11 +6,10 @@ import (
 	"os/exec"
 )
 
-func redirectStdOutErr(cmd *exec.Cmd) {
-	stdout, _ := cmd.StdoutPipe()
-	stderr, _ := cmd.StderrPipe()
-	pipeIO(stdout, os.Stdout)
-	pipeIO(stderr, os.Stderr)
+func redirectStdIO(cmd *exec.Cmd) {
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
 }
 
 func pipeIO(r io.Reader, w io.Writer) {

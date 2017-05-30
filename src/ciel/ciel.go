@@ -68,17 +68,17 @@ commands:
 
 func cielshell(container *ci.ContainerInstance, args []string) error {
 	cmd := container.Exec(ShellPath)
-	redirectStdOutErr(cmd)
+	redirectStdIO(cmd)
 	return cmd.Run()
 }
 func cielrun(container *ci.ContainerInstance, args []string) error {
 	cmd := container.Exec(os.Args[2:]...)
-	redirectStdOutErr(cmd)
+	redirectStdIO(cmd)
 	return cmd.Run()
 }
 func cielbuild(container *ci.ContainerInstance, args []string) error {
 	cmd := container.Exec(ACBSPath, "-c", os.Args[2]) // TODO: multi-package building
-	redirectStdOutErr(cmd)
+	redirectStdIO(cmd)
 	if err := cmd.Run(); err != nil {
 		return err
 	}
