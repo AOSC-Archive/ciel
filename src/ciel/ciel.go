@@ -3,6 +3,7 @@ package main
 import (
 	"ci"
 	"log"
+	"os"
 )
 
 const MachineName = "buildkit"
@@ -29,7 +30,7 @@ func main() {
 		}
 	}()
 
-	cmd := container.Exec(ACBSPath, "-c", "nano") // FIXME: configurability
+	cmd := container.Exec(ACBSPath, "-c", os.Args[1]) // TODO: multi-package building
 	redirectStdOutErr(cmd)
 	if err := cmd.Run(); err != nil {
 		log.Panicln("acbs-build", err)
