@@ -9,13 +9,13 @@ import (
 )
 
 type ContainerFilesystem struct {
-	Base string
+	Base string // overlayfs: lowerdir 1
 
-	overlay string
-	diff    string
-	work    string
+	overlay string // overlayfs: lowerdir 2
+	diff    string // overlayfs: upperdir
+	work    string // overlayfs: workdir
 
-	TargetDir string
+	TargetDir string // overlayfs: target
 }
 
 func InitFilesystem(bkdir string) (*ContainerFilesystem, error) {
