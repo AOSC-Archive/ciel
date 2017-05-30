@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 )
 
 const MachineName = "buildkit"
@@ -72,16 +73,19 @@ func cielshell(container *ci.ContainerInstance, args []string) error {
 	return cmd.Run()
 }
 func cielrun(container *ci.ContainerInstance, args []string) error {
-	cmd := container.Exec(os.Args[2:]...)
+	cmdline := strings.Join(args, " ")
+	arg := []string{ShellPath, "-l", "-c", cmdline}
+	cmd := container.Exec(arg...)
 	redirectStdIO(cmd)
 	return cmd.Run()
 }
 func cielbuild(container *ci.ContainerInstance, args []string) error {
-	cmd := container.Exec(ACBSPath, "-c", os.Args[2]) // TODO: multi-package building
-	redirectStdIO(cmd)
-	if err := cmd.Run(); err != nil {
+	arg := []string{ACBSPath, "-c"}
+	arg = append(arg, args...)
+	if err := cielrun(container, args); err != nil {
 		return err
 	}
+	// TODO: handling multi-package building
 	// TODO: pick up the package; collect acbs-build log, autobuild log ...
 	return nil
 }
