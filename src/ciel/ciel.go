@@ -28,7 +28,7 @@ func main() {
 		return
 	}
 
-	fs, err := ci.InitFilesystem("/root/ciel/buildkit") // FIXME: configurability
+	fs, err := ci.InitFilesystem("buildkit") // FIXME: configurability
 	if err != nil {
 		log.Panicln("fs", err)
 	}
