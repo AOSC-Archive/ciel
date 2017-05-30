@@ -74,13 +74,13 @@ func cielshell(container *ci.ContainerInstance, args []string) error {
 }
 func cielrun(container *ci.ContainerInstance, args []string) error {
 	cmdline := strings.Join(args, " ")
-	arg := []string{ShellPath, "-l", "-c", cmdline}
+	arg := []string{ShellPath, "--login", "-c", cmdline}
 	cmd := container.Exec(arg...)
 	redirectStdIO(cmd)
 	return cmd.Run()
 }
 func cielbuild(container *ci.ContainerInstance, args []string) error {
-	arg := []string{ACBSPath, "-c"}
+	arg := []string{ACBSPath, "--clear"}
 	arg = append(arg, args...)
 	if err := cielrun(container, arg); err != nil {
 		return err
