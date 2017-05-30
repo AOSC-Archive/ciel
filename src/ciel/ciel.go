@@ -82,7 +82,7 @@ func cielrun(container *ci.ContainerInstance, args []string) error {
 func cielbuild(container *ci.ContainerInstance, args []string) error {
 	arg := []string{ACBSPath, "-c"}
 	arg = append(arg, args...)
-	if err := cielrun(container, args); err != nil {
+	if err := cielrun(container, arg); err != nil {
 		return err
 	}
 	// TODO: handling multi-package building
