@@ -3,10 +3,16 @@ package main
 import (
 	"io"
 	"io/ioutil"
+	"math/rand"
 	"os"
 	"os/exec"
 	"strings"
+	"time"
 )
+
+func init() {
+	rand.Seed(time.Now().UnixNano())
+}
 
 func redirectStdIO(cmd *exec.Cmd) {
 	cmd.Stdin = os.Stdin
