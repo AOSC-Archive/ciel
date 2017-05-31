@@ -2,6 +2,7 @@ package ci
 
 import (
 	"log"
+	"os"
 	"os/exec"
 )
 
@@ -17,7 +18,18 @@ func NewContainer(fs *ContainerFilesystem, machine string) *ContainerInstance {
 }
 
 func (c *ContainerInstance) Startup() error {
-	cmd := exec.Command("/usr/bin/systemd-nspawn", "-b", "-M", c.Name, "-D", c.FS.TargetDir)
+	args := []string{
+		"--quiet",
+		"--boot",
+		"--property=CPUQuota=80%", // FIXME: configurability
+		"--property=MemoryMax=70%",
+		"--property=MemoryHigh=60%",
+		"--property=MemoryLow=40%",
+		"-M", c.Name,
+		"-D", c.FS.TargetDir,
+	}
+	cmd := exec.Command("/usr/bin/systemd-nspawn", args...)
+	cmd.Stderr = os.Stderr
 	if err := cmd.Start(); err != nil { // Create and boot the container
 		return err
 	}
