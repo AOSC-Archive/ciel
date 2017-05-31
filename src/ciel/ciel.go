@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/exec"
 	"strings"
 )
 
@@ -143,28 +144,41 @@ func cielrbuild(container *ci.ContainerInstance, args []string) error {
 	return nil
 }
 func cielcollect(container *ci.ContainerInstance, args []string) error {
-	fs := container.FS
 	const CollectedDir = "collected"
+	const ReportDir = CollectedDir + "/report"
+	const ReportFile = CollectedDir + "/report.tar.xz"
+	const PackageDir = CollectedDir + "/pkg"
+	var Targets = []string{
+		"amd64",
+		"noarch", // FIXME: other possibilities
+	}
+	fs := container.FS
 	os.RemoveAll(CollectedDir)
 	os.Mkdir(CollectedDir, 0755)
-	os.Mkdir(CollectedDir+"/repo", 0755)
-	if err := os.Rename(fs.DiffDir("/var/log/apt/history.log"), CollectedDir+"/apt-history.log"); err == nil {
-		log.Println("collect:", fs.DiffDir("/var/log/apt/history.log"))
+	os.Mkdir(ReportDir, 0755)
+	collectlist := [][2]string{
+		{"/var/log/apt/history.log", "/apt-history.log"},
+		{"/var/log/apt/term.log", "/apt-term.log"},
+		{"/var/log/acbs/acbs-build.log", "/acbs-build.log"},
 	}
-	if err := os.Rename(fs.DiffDir("/var/log/apt/term.log"), CollectedDir+"/apt-term.log"); err == nil {
-		log.Println("collect:", fs.DiffDir("/var/log/apt/term.log"))
-	}
-	if err := os.Rename(fs.DiffDir("/var/log/acbs/acbs-build.log"), CollectedDir+"/acbs-build.log"); err == nil {
-		log.Println("collect:", fs.DiffDir("/var/log/acbs/acbs-build.log"))
-	}
-	if err := os.Rename(fs.DiffDir(findBuildLog(CollectedDir+"/acbs-build.log")), CollectedDir+"/autobuild.log"); err == nil {
-		log.Println("collect:", fs.DiffDir(findBuildLog(CollectedDir+"/acbs-build.log")))
-	}
-	targets := []string{"amd64", "noarch"}
-	for _, target := range targets {
-		if err := os.Rename(fs.DiffDir("/os-"+target), CollectedDir+"/repo/os-"+target); err == nil {
-			log.Println("collect: move", fs.DiffDir("/os-"+target))
+	for _, pair := range collectlist {
+		if err := os.Rename(fs.DiffDir(pair[0]), ReportDir+pair[1]); err == nil {
+			log.Println("collect:", pair[0], "->", pair[1])
 		}
+	}
+	if err := os.Rename(fs.DiffDir(findBuildLog(ReportDir+"/acbs-build.log")), ReportDir+"/autobuild.log"); err == nil {
+		log.Println("collect:", findBuildLog(ReportDir+"/acbs-build.log"), "->", "/autobuild.log")
+	}
+	os.Mkdir(CollectedDir+"/pkg", 0755)
+	for _, target := range Targets {
+		if err := os.Rename(fs.DiffDir("/os-"+target), PackageDir+"/os-"+target); err == nil {
+			log.Println("collect: move", "/os-"+target)
+		}
+	}
+	tarcmd := exec.Command("/bin/tar", "-caf", ReportFile, ReportDir)
+	if err := tarcmd.Run(); err == nil {
+		log.Println("collect: packed report to", ReportFile)
+		os.RemoveAll(ReportDir)
 	}
 	return nil
 }
