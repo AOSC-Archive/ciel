@@ -37,6 +37,7 @@ func (c *ContainerInstance) Startup() error {
 	c.Wait = wait
 	go func() {
 		if err := cmd.Wait(); err != nil {
+			defer c.FS.Shutdown()
 			log.Panic(err) // systemd-nspawn exited with non-zero exit code
 		}
 		close(wait)
