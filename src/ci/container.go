@@ -26,7 +26,7 @@ func (c *ContainerInstance) Startup() error {
 		"--property=MemoryHigh=60%",
 		"--property=MemoryLow=40%",
 		"-M", c.Name,
-		"-D", c.FS.TargetDir,
+		"-D", c.FS.Target,
 	}
 	cmd := exec.Command("/usr/bin/systemd-nspawn", args...)
 	cmd.Stderr = os.Stderr

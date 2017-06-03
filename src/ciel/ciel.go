@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"os/exec"
-	"strings"
 )
 
 const MachineName = "buildkit"
@@ -23,6 +21,8 @@ type Route struct {
 }
 
 var router = []Route{
+	{"init", 1, true, true, cielpostinit},
+	{"update", 0, true, true, cielupdate},
 	{"shell", 0, true, true, cielshell},
 	{"run", -1, true, true, cielrun},
 	{"build", 1, true, true, cielbuild},
@@ -39,6 +39,7 @@ func main() {
 		cielhelp()
 		return
 	}
+
 	for _, xroute := range router {
 		if os.Args[1] == xroute.name && (xroute.argc == -1 || len(os.Args)-2 == xroute.argc) {
 			route = &xroute
@@ -50,8 +51,15 @@ func main() {
 		return
 	}
 
-	fs := ci.InitFilesystem("buildkit") // FIXME: configurability
+	fs := ci.InitFilesystem("container-layers") // FIXME: configurability
 	container := ci.NewContainer(fs, MachineName)
+
+	if os.Args[1] == "init" && len(os.Args)-2 == 1 {
+
+		if err := cielinit(os.Args[2]); err != nil {
+			log.Panicln("init", err)
+		}
+	}
 
 	if route.needfs {
 		if err := fs.Startup(); err != nil {
@@ -87,112 +95,43 @@ func main() {
 func cielhelp() {
 	fmt.Print(`Usage:	` + os.Args[0] + ` <command> [arg...]
 
-Most used commands:
-	(default)       Show this information
-	shell           Shell in container
-	run     <cmd>   Run command in container
-	build   <pkg>   Equivalent to "rbuild + collect + clean"
-	tbuild  <pkg>   Build package, but stay in shell to test the package
+Commands:
 
-Underlying operations:
-	rbuild  <pkg>   Build package
-	collect         Collect packaging output and log files
-	clean           Merge cache to "overlay" and reset container
+	Preparing:
+		init    <tar>   Bootstrap from "stub" tarball
+		update          Update packages for BuildKit layer
+
+	Most used commands:
+		(default)       Show this information
+		shell           Shell in container
+		run     <cmd>   Run command in container
+		build   <pkg>   Equivalent to "rbuild + collect + clean"
+		tbuild  <pkg>   Build package, but stay in shell to test the package
+
+	Underlying operations:
+		rbuild  <pkg>   Build package
+		collect         Collect packaging output and log files
+		clean           Merge cache to "overlay" and reset container
+
+Filesystem:
+
+	(Current directory)
+	|
+	|-- container-layers/
+	| |-- 00-stub/           extracted from tarball
+	| |-- 01-stub-config/    /etc/apt will be merged to here
+	| |-- 10-buildkit/
+	| |-- 50-cache/          /var/cache will be merged to here
+	| |-- 99-upperdir/       the surface of filesystem
+	| \-- 99-upperdir-work/  temporary directory for overlayfs
+	|
+	\-- collected/
+	  |-- report.tar.xz
+	  \-- pkg/
+	    \-- os-amd64/
+	      \-- os3-dpkg/
+	        \-- ?/
+	          \-- ?????.deb
+
 `)
-}
-
-func cielshell(container *ci.ContainerInstance, args []string) error {
-	cmd := container.Exec(ShellPath)
-	redirectStdIO(cmd)
-	return cmd.Run()
-}
-func cielrun(container *ci.ContainerInstance, args []string) error {
-	cmdline := strings.Join(args, " ")
-	arg := []string{ShellPath, "--login", "-c", cmdline}
-	cmd := container.Exec(arg...)
-	redirectStdIO(cmd)
-	return cmd.Run()
-}
-func cielbuild(container *ci.ContainerInstance, args []string) error {
-	if err := cielrbuild(container, args); err != nil {
-		return err
-	}
-	if err := cielcollect(container, []string{}); err != nil {
-		return err
-	}
-	if err := cielclean(container, []string{}); err != nil {
-		return err
-	}
-	return nil
-}
-func cieltbuild(container *ci.ContainerInstance, args []string) error {
-	if err := cielrbuild(container, args); err != nil {
-		return err
-	}
-	if err := cielshell(container, []string{}); err != nil {
-		return err
-	}
-	return nil
-}
-func cielrbuild(container *ci.ContainerInstance, args []string) error {
-	// TODO: handling multi-package building
-	arg := []string{ACBSPath, "--clear"}
-	arg = append(arg, args[0])
-	if err := cielrun(container, arg); err != nil {
-		return err
-	}
-	return nil
-}
-func cielcollect(container *ci.ContainerInstance, args []string) error {
-	const CollectedDir = "collected"
-	const ReportDir = CollectedDir + "/report"
-	const ReportFile = CollectedDir + "/report.tar.xz"
-	const PackageDir = CollectedDir + "/pkg"
-	var Targets = []string{
-		"amd64",
-		"noarch", // FIXME: other possibilities
-	}
-	fs := container.FS
-	os.RemoveAll(CollectedDir)
-	os.Mkdir(CollectedDir, 0755)
-	os.Mkdir(ReportDir, 0755)
-	collectlist := [][2]string{
-		{"/var/log/apt/history.log", "/apt-history.log"},
-		{"/var/log/apt/term.log", "/apt-term.log"},
-		{"/var/log/acbs/acbs-build.log", "/acbs-build.log"},
-	}
-	for _, pair := range collectlist {
-		if err := os.Rename(fs.DiffDir(pair[0]), ReportDir+pair[1]); err == nil {
-			log.Println("collect:", pair[0], "->", pair[1])
-		}
-	}
-	if err := os.Rename(fs.DiffDir(findBuildLog(ReportDir+"/acbs-build.log")), ReportDir+"/autobuild.log"); err == nil {
-		log.Println("collect:", findBuildLog(ReportDir+"/acbs-build.log"), "->", "/autobuild.log")
-	}
-	os.Mkdir(CollectedDir+"/pkg", 0755)
-	for _, target := range Targets {
-		if err := os.Rename(fs.DiffDir("/os-"+target), PackageDir+"/os-"+target); err == nil {
-			log.Println("collect: move", "/os-"+target)
-		}
-	}
-	tarcmd := exec.Command("/bin/tar", "-caf", ReportFile, ReportDir)
-	if err := tarcmd.Run(); err == nil {
-		log.Println("collect: packed report to", ReportFile)
-		os.RemoveAll(ReportDir)
-	}
-	return nil
-}
-func cielclean(container *ci.ContainerInstance, args []string) error {
-	fs := container.FS
-	targets := []string{
-		"/var/cache/apt",
-		"/var/cache/acbs/tarballs",
-		"/var/lib/apt",
-		"/etc/apt",
-	}
-	for _, target := range targets {
-		fs.Merge(target)
-	}
-	os.RemoveAll(fs.DiffDir("/"))
-	return nil
 }

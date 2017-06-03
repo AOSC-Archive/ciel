@@ -11,47 +11,63 @@ import (
 )
 
 type ContainerFilesystem struct {
-	Base string // overlayfs: lowerdir 1
+	Base string
 
-	overlay string // overlayfs: lowerdir 2
-	diff    string // overlayfs: upperdir
-	work    string // overlayfs: workdir
+	Stub         string
+	StubConfig   string
+	Buildkit     string
+	Cache        string
+	Upperdir     string
+	UpperdirWork string
 
-	TargetDir string // overlayfs: target
+	Target string
 }
 
 func InitFilesystem(bkdir string) *ContainerFilesystem {
 	fs := &ContainerFilesystem{Base: bkdir}
-	fs.overlay = fs.Base + ".overlay"
-	fs.diff = fs.Base + ".diff"
-	fs.work = fs.Base + ".temp"
-	os.Mkdir(fs.diff, 0755)
-	os.Mkdir(fs.work, 0755)
+	fs.Stub = fs.Base + "/00-stub"
+	fs.StubConfig = fs.Base + "/01-stub"
+	fs.Buildkit = fs.Base + "/10-buildkit"
+	fs.Cache = fs.Base + "/50-cache"
+	fs.Upperdir = fs.Base + "/99-upperdir"
+	fs.UpperdirWork = fs.Base + "/99-upperdir-work"
+	os.Mkdir(fs.Base, 0755)
+	os.Mkdir(fs.Stub, 0755)
+	os.Mkdir(fs.StubConfig, 0755)
+	os.Mkdir(fs.Buildkit, 0755)
+	os.Mkdir(fs.Cache, 0755)
+	os.Mkdir(fs.Upperdir, 0755)
 	return fs
 }
 
-func (fs *ContainerFilesystem) Startup() error {
-	rd := make([]byte, 8)
+func randomFilename(size int) string {
+	rd := make([]byte, size)
 	if _, err := rand.Read(rd); err != nil {
-		return err
+		panic(err)
 	}
-	fs.TargetDir = os.TempDir() + "/ciel." + base64.RawURLEncoding.EncodeToString(rd)
-	os.Mkdir(fs.TargetDir, 0755)
-	if _, err := os.Stat(fs.overlay); os.IsNotExist(err) {
-		return mount(fs.TargetDir, fs.diff, fs.work, fs.Base)
-	} else {
-		return mount(fs.TargetDir, fs.diff, fs.work, fs.overlay, fs.Base)
-	}
+	return base64.RawURLEncoding.EncodeToString(rd)
+}
+
+func (fs *ContainerFilesystem) Startup() error {
+	os.Mkdir(fs.UpperdirWork, 0755)
+	fs.Target = os.TempDir() + "/ciel." + randomFilename(8)
+	os.Mkdir(fs.Target, 0755)
+	return mount(fs.Target, fs.Upperdir, fs.UpperdirWork,
+		fs.Cache,
+		fs.Buildkit,
+		fs.StubConfig,
+		fs.Stub,
+	)
 }
 
 func (fs *ContainerFilesystem) Shutdown() error {
-	if err := unmount(fs.TargetDir); err != nil {
+	if err := unmount(fs.Target); err != nil {
 		return err
 	}
-	if err := os.Remove(fs.TargetDir); err != nil {
+	if err := os.Remove(fs.Target); err != nil {
 		return err
 	}
-	if err := os.RemoveAll(fs.work); err != nil {
+	if err := os.RemoveAll(fs.UpperdirWork); err != nil {
 		return err
 	}
 	return nil
@@ -66,29 +82,24 @@ func unmount(path string) error {
 	return syscall.Unmount(path, 0)
 }
 
-func (fs *ContainerFilesystem) DiffDir(path string) string {
-	return fs.diff + path
+func (fs *ContainerFilesystem) UpperDir(path string) string {
+	return fs.Upperdir + path
 }
 
-func (fs *ContainerFilesystem) OverlayDir(path string) string {
-	return fs.overlay + path
-}
-
-func (fs *ContainerFilesystem) Merge(path string) error {
-	os.Mkdir(fs.overlay, 0755)
-	err := filepath.Walk(fs.DiffDir(path), func(path string, info os.FileInfo, err error) error {
+func (fs *ContainerFilesystem) Merge(path string, targetLayer string) error {
+	err := filepath.Walk(fs.UpperDir(path), func(path string, info os.FileInfo, err error) error {
 		if info == nil {
 			return err
 		}
-		rel, err := filepath.Rel(fs.DiffDir("/"), path)
+		rel, err := filepath.Rel(fs.UpperDir("/"), path)
 		if err != nil {
 			return err
 		}
 		rel = "/" + rel
 		if info.IsDir() {
-			os.MkdirAll(fs.OverlayDir(rel), 755)
+			os.MkdirAll(targetLayer+rel, 755)
 		}
-		if err := os.Rename(path, fs.OverlayDir(rel)); err == nil {
+		if err := os.Rename(path, targetLayer+rel); err == nil {
 			log.Println("clean: merge", rel)
 		}
 		return nil
