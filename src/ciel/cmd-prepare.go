@@ -8,7 +8,7 @@ import (
 )
 
 func cielinit(fs *ci.ContainerFilesystem, tarball string) error {
-	tarcmd := exec.Command("/bin/tar", "-xf", tarball, fs.Stub)
+	tarcmd := exec.Command("/bin/tar", "-xf", tarball, "-C", fs.Stub)
 	if err := tarcmd.Run(); err == nil {
 		return errors.New("init: " + err.Error())
 	}
@@ -36,6 +36,7 @@ func cielpostinit(container *ci.ContainerInstance, args []string) error {
 	if err := cielrun(container, append(aptinstall, pkgs...)); err != nil {
 		return err
 	}
+	systemctlDisable := []string{"systemctl", "disable"}
 	log.Println("init: FIXME: clean up")
 	return nil
 }
