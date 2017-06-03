@@ -56,7 +56,7 @@ func main() {
 
 	if os.Args[1] == "init" && len(os.Args)-2 == 1 {
 
-		if err := cielinit(os.Args[2]); err != nil {
+		if err := cielinit(fs, os.Args[2]); err != nil {
 			log.Panicln("init", err)
 		}
 	}
