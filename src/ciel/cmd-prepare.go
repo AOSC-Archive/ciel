@@ -29,7 +29,8 @@ func cielpostinit(container *ci.ContainerInstance, args []string) error {
 		"devel-base",
 		"debug-base",
 		"autobuild3",
-		"acbs",
+		// "acbs",
+		// TODO: aosc-os-abbs: add acbs.
 		"git",
 	}
 	if err := cielrun(container, append(aptinstall, pkgs...)); err != nil {
