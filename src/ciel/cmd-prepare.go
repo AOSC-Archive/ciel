@@ -9,7 +9,7 @@ import (
 
 func cielinit(fs *ci.ContainerFilesystem, tarball string) error {
 	tarcmd := exec.Command("/bin/tar", "-xf", tarball, "-C", fs.Stub)
-	if err := tarcmd.Run(); err == nil {
+	if err := tarcmd.Run(); err != nil {
 		return errors.New("init: " + err.Error())
 	}
 	log.Println("init: extracted stub into", fs.Stub)
