@@ -16,7 +16,7 @@ func cielinit(fs *ci.ContainerFilesystem, tarball string) error {
 	return nil
 }
 func cielpostinit(container *ci.ContainerInstance, args []string) error {
-	aptinstall := []string{"apt", "install"}
+	aptInstall := []string{"apt", "install"}
 	pkgs := []string{
 		"admin-base",
 		"core-base",
@@ -33,10 +33,15 @@ func cielpostinit(container *ci.ContainerInstance, args []string) error {
 		// TODO: aosc-os-abbs: add acbs.
 		"git",
 	}
-	if err := cielrun(container, append(aptinstall, pkgs...)); err != nil {
+	if err := cielrun(container, append(aptInstall, pkgs...)); err != nil {
 		return err
 	}
-	systemctlDisable := []string{"systemctl", "disable"}
+	disableUnits := []string{}
+	for _, unit := range disableUnits {
+		if err := cielrun(container, append([]string{"systemctl", "disable"}, unit)); err != nil {
+			log.Println("init: disable unit "+unit+" failed", err)
+		}
+	}
 	log.Println("init: FIXME: clean up")
 	return nil
 }
