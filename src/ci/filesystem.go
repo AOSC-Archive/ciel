@@ -26,7 +26,7 @@ type ContainerFilesystem struct {
 func InitFilesystem(bkdir string) *ContainerFilesystem {
 	fs := &ContainerFilesystem{Base: bkdir}
 	fs.Stub = fs.Base + "/00-stub"
-	fs.StubConfig = fs.Base + "/01-stub"
+	fs.StubConfig = fs.Base + "/01-stub-config"
 	fs.Buildkit = fs.Base + "/10-buildkit"
 	fs.Cache = fs.Base + "/50-cache"
 	fs.Upperdir = fs.Base + "/99-upperdir"
