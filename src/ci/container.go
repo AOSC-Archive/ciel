@@ -61,6 +61,7 @@ func (c *ContainerInstance) startupBoot() error {
 }
 
 func (c *ContainerInstance) startupChroot() error {
+	log.Println("container: run in chroot mode")
 	args := []string{
 		"--quiet",
 		"-M", c.Name,

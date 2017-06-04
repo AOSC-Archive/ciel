@@ -33,9 +33,7 @@ func cielinitAptInstallSystemd(container *ci.ContainerInstance, tarball string) 
 	return nil
 }
 func cielpostinit(container *ci.ContainerInstance, args []string) error {
-	if container.NoBooting {
-		return nil // end of Stage 1
-	}
+	log.Println("init.3: apt install bases")
 	aptInstall := []string{"apt", "install"}
 	pkgs := []string{
 		"admin-base",
