@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/signal"
 )
 
 const MachineName = "buildkit"
@@ -34,6 +35,10 @@ var router = []Route{
 
 func main() {
 	var route *Route
+	var cielInitStage = 0
+	var fsStarted = false
+	var fs *ci.ContainerFilesystem
+	var container *ci.ContainerInstance
 
 	if len(os.Args) == 1 {
 		cielhelp()
@@ -51,16 +56,16 @@ func main() {
 		return
 	}
 
-	var cielInitStage = 0
-
 	if os.Args[1] == "init" && len(os.Args)-2 == 1 {
 		cielInitStage = 1
 	}
 
 BEGIN_MAIN:
 
-	fs := ci.InitFilesystem("container-layers") // FIXME: configurability
-	container := ci.NewContainer(fs, MachineName)
+	if !fsStarted {
+		fs = ci.InitFilesystem("container-layers") // FIXME: configurability
+	}
+	container = ci.NewContainer(fs, MachineName)
 
 	switch cielInitStage {
 	case 1:
@@ -74,24 +79,37 @@ BEGIN_MAIN:
 	}
 
 	if route.needfs {
-		if err := fs.Startup(); err != nil {
-			log.Panicln("fs", err)
-		}
-		defer func() {
-			if err := fs.Shutdown(); err != nil {
-				log.Panicln("shutdownfs", err)
+		if !fsStarted {
+			if err := fs.Startup(); err != nil {
+				log.Panicln("fs", err)
 			}
-		}()
+			fsStarted = true
+			defer func() {
+				if err := fs.Shutdown(); err != nil {
+					log.Panicln("shutdownfs", err)
+				}
+			}()
+			go func() {
+				c := make(chan os.Signal, 1)
+				signal.Notify(c, os.Interrupt, os.Kill)
+				<-c
+				if err := fs.Shutdown(); err != nil {
+					log.Panicln("shutdownfs", err)
+				}
+			}()
+		}
 
 		if route.needci {
 			if err := container.Startup(); err != nil {
 				log.Panicln("container", err)
 			}
-			defer func() {
-				if err := container.Shutdown(); err != nil {
-					log.Panicln("shutdown", err)
-				}
-			}()
+			if !container.NoBooting {
+				defer func() {
+					if err := container.Shutdown(); err != nil {
+						log.Panicln("shutdown", err)
+					}
+				}()
+			}
 		}
 	}
 
