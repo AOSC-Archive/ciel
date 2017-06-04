@@ -51,13 +51,25 @@ func main() {
 		return
 	}
 
+	var cielInitStage = 0
+
+	if os.Args[1] == "init" && len(os.Args)-2 == 1 {
+		cielInitStage = 1
+	}
+
+BEGIN_MAIN:
+
 	fs := ci.InitFilesystem("container-layers") // FIXME: configurability
 	container := ci.NewContainer(fs, MachineName)
 
-	if os.Args[1] == "init" && len(os.Args)-2 == 1 {
-
-		if err := cielinit(fs, os.Args[2]); err != nil {
-			log.Panicln("init", err)
+	switch cielInitStage {
+	case 1:
+		if err := cielinitAptUpdate(container, os.Args[2]); err != nil {
+			log.Panicln(err)
+		}
+	case 2:
+		if err := cielinitAptInstallSystemd(container, os.Args[2]); err != nil {
+			log.Panicln(err)
 		}
 	}
 
@@ -81,6 +93,15 @@ func main() {
 				}
 			}()
 		}
+	}
+
+	switch cielInitStage {
+	case 1:
+		cielInitStage = 2
+		goto BEGIN_MAIN
+	case 2:
+		cielInitStage = 3
+		goto BEGIN_MAIN
 	}
 
 	args := []string{}

@@ -9,6 +9,11 @@ import (
 type ContainerInstance struct {
 	Name string
 	FS   *ContainerFilesystem
+
+	NoBooting bool
+	Cmd       string
+	Args      []string
+
 	Wait chan struct{}
 }
 
@@ -18,6 +23,14 @@ func NewContainer(fs *ContainerFilesystem, machine string) *ContainerInstance {
 }
 
 func (c *ContainerInstance) Startup() error {
+	if !c.NoBooting {
+		return c.startupBoot()
+	} else {
+		return c.startupChroot()
+	}
+}
+
+func (c *ContainerInstance) startupBoot() error {
 	args := []string{
 		"--quiet",
 		"--boot",
@@ -47,7 +60,25 @@ func (c *ContainerInstance) Startup() error {
 	return nil
 }
 
+func (c *ContainerInstance) startupChroot() error {
+	args := []string{
+		"--quiet",
+		"-M", c.Name,
+		"-D", c.FS.Target,
+	}
+	args = append(args, c.Cmd)
+	args = append(args, c.Args...)
+	cmd := exec.Command("/usr/bin/systemd-nspawn", args...)
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	return cmd.Run()
+}
+
 func (c *ContainerInstance) Shutdown() error {
+	if c.NoBooting {
+		return nil
+	}
 	cmd := exec.Command("/usr/bin/machinectl", "poweroff", c.Name)
 	if err := cmd.Run(); err != nil {
 		return err
