@@ -27,6 +27,7 @@ func cielinitAptInstallSystemd(container *ci.ContainerInstance, tarball string) 
 	container.Cmd = "/usr/bin/apt"
 	container.Args = []string{
 		"install",
+		"--yes",
 		"systemd",
 	}
 	return nil
