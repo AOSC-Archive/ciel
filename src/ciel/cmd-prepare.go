@@ -21,8 +21,18 @@ func cielinitAptUpdate(container *ci.ContainerInstance, tarball string) error {
 	}
 	return nil
 }
+func cielinitAptFullUpgrade(container *ci.ContainerInstance, tarball string) error {
+	log.Println("init.2: apt full-upgrade")
+	container.NoBooting = true
+	container.Cmd = "/usr/bin/apt"
+	container.Args = []string{
+		"full-upgrade",
+		"--yes",
+	}
+	return nil
+}
 func cielinitAptInstallSystemd(container *ci.ContainerInstance, tarball string) error {
-	log.Println("init.2: apt install systemd")
+	log.Println("init.3: apt install systemd")
 	container.NoBooting = true
 	container.Cmd = "/usr/bin/apt"
 	container.Args = []string{
@@ -33,7 +43,7 @@ func cielinitAptInstallSystemd(container *ci.ContainerInstance, tarball string) 
 	return nil
 }
 func cielpostinit(container *ci.ContainerInstance, args []string) error {
-	log.Println("init.3: apt install bases")
+	log.Println("init.4: apt install bases")
 	aptInstall := []string{"apt", "install"}
 	pkgs := []string{
 		"admin-base",

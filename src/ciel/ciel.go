@@ -73,6 +73,10 @@ BEGIN_MAIN:
 			log.Panicln(err)
 		}
 	case 2:
+		if err := cielinitAptFullUpgrade(container, os.Args[2]); err != nil {
+			log.Panicln(err)
+		}
+	case 3:
 		if err := cielinitAptInstallSystemd(container, os.Args[2]); err != nil {
 			log.Panicln(err)
 		}
@@ -119,6 +123,9 @@ BEGIN_MAIN:
 		goto BEGIN_MAIN
 	case 2:
 		cielInitStage = 3
+		goto BEGIN_MAIN
+	case 3:
+		cielInitStage = 4
 		goto BEGIN_MAIN
 	}
 
