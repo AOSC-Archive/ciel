@@ -6,7 +6,9 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"os"
 	"os/exec"
+	"path/filepath"
 )
 
 func cielinitAptUpdate(container *ci.ContainerInstance, tarball string) error {
@@ -83,8 +85,23 @@ func cielupdate(container *ci.ContainerInstance, args []string) error {
 	if err != nil {
 		return err
 	}
-	dict = dict
-	return nil
+	fs := container.FS
+	err = filepath.Walk(fs.UpperDir("/etc"), func(path string, info os.FileInfo, err error) error {
+		if info == nil {
+			return err
+		}
+		rel, err := filepath.Rel(fs.UpperDir("/"), path)
+		if err != nil {
+			return err
+		}
+		rel = "/" + rel
+		_, ok := dict[rel]
+		if !ok {
+			log.Println(rel)
+		}
+		return nil
+	})
+	return err
 }
 func getPkgFiles(container *ci.ContainerInstance) (map[string]bool, error) {
 	cmdline := `dpkg-query --listfiles $(dpkg-query --show --showformat=\$"{Package}\n")`
