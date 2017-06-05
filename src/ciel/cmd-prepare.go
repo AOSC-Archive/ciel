@@ -64,13 +64,16 @@ func cielpostinit(container *ci.ContainerInstance, args []string) error {
 	if err := cielrun(container, append(aptInstall, pkgs...)); err != nil {
 		return err
 	}
-	disableUnits := []string{}
+	log.Println("init.4: systemctl disable units")
+	disableUnits := []string{
+		"fc-cache",
+	}
 	for _, unit := range disableUnits {
 		if err := cielrun(container, append([]string{"systemctl", "disable"}, unit)); err != nil {
 			log.Println("init: disable unit "+unit+" failed", err)
 		}
 	}
-	log.Println("init: FIXME: clean up")
+	log.Println("init.4: FIXME: clean up")
 	return nil
 }
 func cielupdate(container *ci.ContainerInstance, args []string) error {
