@@ -1,8 +1,10 @@
 package main
 
 import (
+	"bufio"
 	"ci"
 	"errors"
+	"fmt"
 	"log"
 	"os/exec"
 )
@@ -77,5 +79,45 @@ func cielpostinit(container *ci.ContainerInstance, args []string) error {
 	return nil
 }
 func cielupdate(container *ci.ContainerInstance, args []string) error {
-	return errors.New("not implemented")
+	dict, err := getPkgFiles(container)
+	if err != nil {
+		return err
+	}
+	dict = dict
+	return nil
+}
+func getPkgFiles(container *ci.ContainerInstance) (map[string]bool, error) {
+	cmdline := `dpkg-query --listfiles $(dpkg-query --show --showformat=\$"{Package}\n")`
+	arg := []string{ShellPath, "--login", "-c", cmdline}
+	cmd := container.Exec(arg...)
+	stdout, err := cmd.StdoutPipe()
+	stdoutbuf := bufio.NewReaderSize(stdout, 1*1024*1024)
+	if err != nil {
+		return nil, err
+	}
+	if err := cmd.Start(); err != nil {
+		return nil, err
+	}
+	dict := make(map[string]bool, 50000)
+	var line string
+	var loop int
+	for {
+		slice, isPrefix, err := stdoutbuf.ReadLine()
+		if err != nil {
+			break
+		}
+		line = line + string(slice)
+		if !isPrefix {
+			dict[line] = true
+			if loop%200 == 0 {
+				fmt.Printf("unique path: %d\r", len(dict))
+			}
+			line = ""
+		}
+	}
+	fmt.Printf("unique path: %d\n", len(dict))
+	if err := cmd.Wait(); err != nil {
+		return nil, err
+	}
+	return dict, nil
 }
