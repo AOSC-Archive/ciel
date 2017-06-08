@@ -48,3 +48,6 @@ func (c *Container) Mount() error {
 func (c *Container) Unmount() error {
 	return c.fs.unmount()
 }
+func (c *Container) Shutdown() error {
+	return c.machinectlPoweroff()
+}
