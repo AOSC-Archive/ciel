@@ -70,17 +70,26 @@ func (fs *filesystem) mount() error {
 		}
 	}
 	fs.target = "/tmp/ciel." + randomFilename()
-	return mount(fs.target, fs.upperdir, fs.workdir, lowerdirs...)
+	reterr := mount(fs.target, fs.upperdir, fs.workdir, lowerdirs...)
+	if reterr == nil {
+		fs.active = true
+	}
+	return reterr
 }
 func (fs *filesystem) unmount() error {
 	if err := unmount(fs.target); err != nil {
 		return err
 	}
-	if err := os.Remove(fs.target); err != nil {
-		return err
+	defer func() {
+		fs.active = false
+	}()
+	err1 := os.Remove(fs.target)
+	err2 := os.RemoveAll(fs.workdir)
+	if err2 != nil {
+		return err2
 	}
-	if err := os.RemoveAll(fs.workdir); err != nil {
-		return err
+	if err1 != nil {
+		return err1
 	}
 	return nil
 }
