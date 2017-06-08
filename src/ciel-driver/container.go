@@ -39,8 +39,8 @@ func (c *Container) CommandRaw(proc string, args ...string) int {
 func (c *Container) SetBaseDir(path string) {
 	c.fs.setBaseDir(path)
 }
-func (c *Container) Bootable() bool {
-	return c.fs.bootable()
+func (c *Container) IsBootable() bool {
+	return c.fs.isBootable()
 }
 func (c *Container) Mount() error {
 	return c.fs.mount()

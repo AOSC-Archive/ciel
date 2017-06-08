@@ -23,7 +23,7 @@ type filesystem struct {
 
 const _SYSTEMDPATH = "/usr/lib/systemd/systemd"
 
-func (fs *filesystem) bootable() bool {
+func (fs *filesystem) isBootable() bool {
 	if !fs.active {
 		return false
 	}
