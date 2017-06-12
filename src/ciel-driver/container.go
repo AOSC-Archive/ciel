@@ -54,9 +54,9 @@ func (c *Container) CommandRaw(proc string, args ...string) int {
 		if !c.active {
 			c.systemdNspawnBoot()
 		}
-		return c.systemdRun()
+		return c.systemdRun(proc, args...)
 	} else {
-		return c.systemdNspawnRun()
+		return c.systemdNspawnRun(proc, args...)
 	}
 }
 
@@ -86,28 +86,28 @@ func (c *Container) SetPreference(boot bool) {
 
 // IsFileSystemActive returns whether the file system has been mounted or not.
 func (c *Container) IsFileSystemActive() bool {
-	return c.fs.isActive()
+	return c.fs.IsActive()
 }
 
 // IsBootable returns whether the file system is bootable or not.
 //
 // NOTE: The basis of determining is the file /usr/lib/systemd/systemd.
 func (c *Container) IsBootable() bool {
-	return c.fs.isBootable()
+	return c.fs.IsBootable()
 }
 
 // SetBaseDir sets the base directory for components of the container.
 func (c *Container) SetBaseDir(path string) {
-	c.fs.setBaseDir(path)
+	c.fs.SetBaseDir(path)
 }
 
 // Mount the file system to a temporary directory.
 // It will be called automatically by CommandRaw().
 func (c *Container) Mount() error {
-	return c.fs.mount()
+	return c.fs.Mount()
 }
 
 // Unmount the file system, and cleans the temporary directories.
 func (c *Container) Unmount() error {
-	return c.fs.unmount()
+	return c.fs.Unmount()
 }

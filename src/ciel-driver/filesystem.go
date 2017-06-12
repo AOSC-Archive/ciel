@@ -26,7 +26,7 @@ type filesystem struct {
 
 const _SYSTEMDPATH = "/usr/lib/systemd/systemd"
 
-func (fs *filesystem) isBootable() bool {
+func (fs *filesystem) IsBootable() bool {
 	fs.lock.RLock()
 	defer fs.lock.RUnlock()
 
@@ -39,13 +39,13 @@ func (fs *filesystem) isBootable() bool {
 	return true
 }
 
-func (fs *filesystem) isActive() bool {
+func (fs *filesystem) IsActive() bool {
 	fs.lock.RLock()
 	defer fs.lock.RUnlock()
 	return fs.active
 }
 
-func (fs *filesystem) setBaseDir(path string) {
+func (fs *filesystem) SetBaseDir(path string) {
 	fs.lock.Lock()
 	defer fs.lock.Unlock()
 
@@ -70,7 +70,7 @@ func (fs *filesystem) setBaseDir(path string) {
 	}
 }
 
-func (fs *filesystem) mount() error {
+func (fs *filesystem) Mount() error {
 	fs.lock.Lock()
 	defer fs.lock.Unlock()
 
@@ -92,7 +92,7 @@ func (fs *filesystem) mount() error {
 	return reterr
 }
 
-func (fs *filesystem) unmount() error {
+func (fs *filesystem) Unmount() error {
 	fs.lock.Lock()
 	defer fs.lock.Unlock()
 
