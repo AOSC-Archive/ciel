@@ -14,6 +14,8 @@ type Container struct {
 
 	bootPreferred bool
 	active        bool
+
+	cancel chan struct{}
 }
 
 // New creates a container descriptor, but it won't start the container immediately.
@@ -25,6 +27,7 @@ func New(name, baseDir string) *Container {
 		fs:            new(filesystem),
 		bootPreferred: true,
 		active:        false,
+		cancel:        make(chan struct{}),
 	}
 	c.SetBaseDir(baseDir)
 	return c
@@ -46,7 +49,7 @@ func (c *Container) Command(cmdline string) int {
 // It will mount the root file system and start the container automatically,
 // when they are not active. It can also choose boot-mode and chroot-mode automatically.
 // You may change this behaviour by SetPreference().
-func (c *Container) CommandRaw(proc string, args ...string) int {
+func (c *Container) CommandRaw(proc string, args ...string) (exitCode int) {
 	if !c.fs.active {
 		if err := c.Mount(); err != nil {
 			panic(err)
@@ -56,24 +59,24 @@ func (c *Container) CommandRaw(proc string, args ...string) int {
 		if !c.active {
 			c.systemdNspawnBoot()
 		}
-		return c.systemdRun(proc, args...)
+		exitCode = c.systemdRun(proc, args...)
 	} else {
-		return c.systemdNspawnRun(proc, args...)
+		c.lock.Lock()
+		c.active = true
+		c.lock.Unlock()
+		exitCode = c.systemdNspawnRun(proc, args...)
+		c.lock.Lock()
+		c.active = false
+		c.lock.Unlock()
 	}
+	return
 }
 
 // Shutdown the container and unmount file system.
 func (c *Container) Shutdown() {
-	defer func() {
-		if err := c.Unmount(); err != nil {
-			panic(err)
-		}
-	}()
-	defer func() {
-		if err := c.machinectlPoweroff(); err != nil {
-			panic(err)
-		}
-	}()
+	if err := c.machinectlPoweroff(); err != nil {
+		panic(err)
+	}
 }
 
 // IsContainerActive returns whether the container is running or not.
