@@ -48,7 +48,9 @@ func (c *Container) Command(cmdline string) int {
 // You may change this behaviour by SetPreference().
 func (c *Container) CommandRaw(proc string, args ...string) int {
 	if !c.fs.active {
-		c.Mount()
+		if err := c.Mount(); err != nil {
+			panic(err)
+		}
 	}
 	if c.bootPreferred && c.IsBootable() {
 		if !c.active {

@@ -169,7 +169,7 @@ Filesystem:
 	| |-- 10-buildkit/
 	| |-- 50-cache/          /var/cache will be merged to here
 	| |-- 99-upperdir/       the surface of filesystem
-	| \-- 99-upperdir-work/  temporary directory for overlayfs
+	| \-- 99-workdir/        temporary directory for overlayfs
 	|
 	\-- collected/
 	  |-- report.tar.xz

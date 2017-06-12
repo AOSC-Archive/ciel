@@ -13,15 +13,16 @@ import (
 type filesystem struct {
 	lock sync.RWMutex
 
-	workdir    string `role:"work"  dir:"99-workdir"`
-	upperdir   string `role:"upper" dir:"99-upperdir"`
-	cache      string `role:"lower" dir:"50-cache"`
-	buildkit   string `role:"lower" dir:"10-buildkit"`
-	stubConfig string `role:"lower" dir:"01-stub-config"`
-	stub       string `role:"lower" dir:"00-stub"`
-	base       string
-	target     string
-	active     bool
+	Workdir    string `role:"work"  dir:"99-workdir"`
+	Upperdir   string `role:"upper" dir:"99-upperdir"`
+	Cache      string `role:"lower" dir:"50-cache"`
+	Buildkit   string `role:"lower" dir:"10-buildkit"`
+	StubConfig string `role:"lower" dir:"01-stub-config"`
+	Stub       string `role:"lower" dir:"00-stub"`
+
+	base   string
+	target string
+	active bool
 }
 
 const _SYSTEMDPATH = "/usr/lib/systemd/systemd"
@@ -85,7 +86,9 @@ func (fs *filesystem) Mount() error {
 		}
 	}
 	fs.target = "/tmp/ciel." + randomFilename()
-	reterr := mount(fs.target, fs.upperdir, fs.workdir, lowerdirs...)
+	os.Mkdir(fs.target, 0775)
+	os.Mkdir(fs.Workdir, 0775)
+	reterr := mount(fs.target, fs.Upperdir, fs.Workdir, lowerdirs...)
 	if reterr == nil {
 		fs.active = true
 	}
@@ -95,6 +98,9 @@ func (fs *filesystem) Mount() error {
 func (fs *filesystem) Unmount() error {
 	fs.lock.Lock()
 	defer fs.lock.Unlock()
+	if !fs.active {
+		return nil
+	}
 
 	if err := unmount(fs.target); err != nil {
 		return err
@@ -103,7 +109,7 @@ func (fs *filesystem) Unmount() error {
 		fs.active = false
 	}()
 	err1 := os.Remove(fs.target)
-	err2 := os.RemoveAll(fs.workdir)
+	err2 := os.RemoveAll(fs.Workdir)
 	if err2 != nil {
 		return err2
 	}

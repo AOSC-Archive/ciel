@@ -25,6 +25,9 @@ func (c *Container) systemdNspawnBoot() {
 }
 
 func (c *Container) machinectlPoweroff() error {
+	if !c.active {
+		return nil
+	}
 	cmd := exec.Command("/usr/bin/machinectl", "poweroff", c.name)
 	return cmd.Run()
 }
@@ -59,7 +62,7 @@ func cmd(proc string, args ...string) int {
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	err := cmd.Start()
-	if err == nil {
+	if err != nil {
 		panic(err)
 	}
 	err = cmd.Wait()
