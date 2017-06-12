@@ -60,9 +60,18 @@ func (c *Container) CommandRaw(proc string, args ...string) int {
 	}
 }
 
-// Shutdown the container.
-func (c *Container) Shutdown() error {
-	return c.machinectlPoweroff()
+// Shutdown the container and unmount file system.
+func (c *Container) Shutdown() {
+	defer func() {
+		if err := c.Unmount(); err != nil {
+			panic(err)
+		}
+	}()
+	defer func() {
+		if err := c.machinectlPoweroff(); err != nil {
+			panic(err)
+		}
+	}()
 }
 
 // IsContainerActive returns whether the container is running or not.
