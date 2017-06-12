@@ -1,32 +1,56 @@
 package ciel
 
+import (
+	"sync"
+)
+
 const _SHELLPATH = "/bin/bash"
 
 type Container struct {
+	lock sync.RWMutex
+
 	name string
 	fs   *filesystem
 
-	BootPreferred bool
+	bootPreferred bool
 	active        bool
 }
 
-func New(name, fsPath string) *Container {
-	return &Container{
+// New creates a container descriptor, but it won't start the container immediately.
+//
+// You may want to call Command() after this.
+func New(name, baseDir string) *Container {
+	c := &Container{
 		name:          name,
 		fs:            new(filesystem),
-		BootPreferred: true,
+		bootPreferred: true,
 		active:        false,
 	}
+	c.SetBaseDir(baseDir)
+	return c
 }
 
+// Command is the most useful function.
+// It calls the command line with shell (bash) in container, returns the exit code.
+//
+// Don't worry about mounting file system, starting container and the mode of booting.
+// Please check out CommandRaw() for more details.
+//
+// NOTE: It calls CommandRaw() internally.
 func (c *Container) Command(cmdline string) int {
 	return c.CommandRaw(_SHELLPATH, "-l", "-c", cmdline)
 }
+
+// CommandRaw runs command in container.
+//
+// It will mount the root file system and start the container automatically,
+// when they are not active. It can also choose boot-mode and chroot-mode automatically.
+// You may change this behaviour by SetPreference().
 func (c *Container) CommandRaw(proc string, args ...string) int {
 	if !c.fs.active {
 		c.Mount()
 	}
-	if c.BootPreferred && c.Bootable() {
+	if c.bootPreferred && c.IsBootable() {
 		if !c.active {
 			c.systemdNspawnBoot()
 		}
@@ -36,18 +60,54 @@ func (c *Container) CommandRaw(proc string, args ...string) int {
 	}
 }
 
-func (c *Container) SetBaseDir(path string) {
-	c.fs.setBaseDir(path)
+// Shutdown the container.
+func (c *Container) Shutdown() error {
+	return c.machinectlPoweroff()
 }
+
+// IsContainerActive returns whether the container is running or not.
+func (c *Container) IsContainerActive() bool {
+	c.lock.RLock()
+	defer c.lock.RUnlock()
+	return c.active
+}
+
+// SetPreference changes the preference of container.
+//
+// <boot>: (default: true) CommandRaw() will boot system on container,
+// if the file system is bootable.
+// When you set it to "false", CommandRaw() will only chroot,
+// even the file system is bootable.
+func (c *Container) SetPreference(boot bool) {
+	c.lock.Lock()
+	c.bootPreferred = boot
+	c.lock.Unlock()
+}
+
+// IsFileSystemActive returns whether the file system has been mounted or not.
+func (c *Container) IsFileSystemActive() bool {
+	return c.fs.isActive()
+}
+
+// IsBootable returns whether the file system is bootable or not.
+//
+// NOTE: The basis of determining is the file /usr/lib/systemd/systemd.
 func (c *Container) IsBootable() bool {
 	return c.fs.isBootable()
 }
+
+// SetBaseDir sets the base directory for components of the container.
+func (c *Container) SetBaseDir(path string) {
+	c.fs.setBaseDir(path)
+}
+
+// Mount the file system to a temporary directory.
+// It will be called automatically by CommandRaw().
 func (c *Container) Mount() error {
 	return c.fs.mount()
 }
+
+// Unmount the file system, and cleans the temporary directories.
 func (c *Container) Unmount() error {
 	return c.fs.unmount()
-}
-func (c *Container) Shutdown() error {
-	return c.machinectlPoweroff()
 }

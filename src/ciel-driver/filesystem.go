@@ -6,10 +6,13 @@ import (
 	"os"
 	"reflect"
 	"strings"
+	"sync"
 	"syscall"
 )
 
 type filesystem struct {
+	lock sync.RWMutex
+
 	workdir    string `role:"work"  dir:"99-workdir"`
 	upperdir   string `role:"upper" dir:"99-upperdir"`
 	cache      string `role:"lower" dir:"50-cache"`
@@ -24,6 +27,9 @@ type filesystem struct {
 const _SYSTEMDPATH = "/usr/lib/systemd/systemd"
 
 func (fs *filesystem) isBootable() bool {
+	fs.lock.RLock()
+	defer fs.lock.RUnlock()
+
 	if !fs.active {
 		return false
 	}
@@ -32,7 +38,21 @@ func (fs *filesystem) isBootable() bool {
 	}
 	return true
 }
+
+func (fs *filesystem) isActive() bool {
+	fs.lock.RLock()
+	defer fs.lock.RUnlock()
+	return fs.active
+}
+
 func (fs *filesystem) setBaseDir(path string) {
+	fs.lock.Lock()
+	defer fs.lock.Unlock()
+
+	if fs.active {
+		panic("setBaseDir when filesystem is active")
+	}
+
 	fs.base = path
 	t := reflect.TypeOf(*fs)
 	v := reflect.ValueOf(fs).Elem()
@@ -49,16 +69,11 @@ func (fs *filesystem) setBaseDir(path string) {
 		}
 	}
 }
-func randomFilename() string {
-	const SIZE = 8
-	rd := make([]byte, SIZE)
-	if _, err := rand.Read(rd); err != nil {
-		panic(err)
-	}
-	return base64.RawURLEncoding.EncodeToString(rd)
-}
+
 func (fs *filesystem) mount() error {
-	// NOTE: reflect c.fs, create all directories, stack lowerdirs into argument, mount.
+	fs.lock.Lock()
+	defer fs.lock.Unlock()
+
 	lowerdirs := []string{}
 	t := reflect.TypeOf(*fs)
 	v := reflect.ValueOf(fs).Elem()
@@ -76,7 +91,11 @@ func (fs *filesystem) mount() error {
 	}
 	return reterr
 }
+
 func (fs *filesystem) unmount() error {
+	fs.lock.Lock()
+	defer fs.lock.Unlock()
+
 	if err := unmount(fs.target); err != nil {
 		return err
 	}
@@ -92,6 +111,15 @@ func (fs *filesystem) unmount() error {
 		return err1
 	}
 	return nil
+}
+
+func randomFilename() string {
+	const SIZE = 8
+	rd := make([]byte, SIZE)
+	if _, err := rand.Read(rd); err != nil {
+		panic(err)
+	}
+	return base64.RawURLEncoding.EncodeToString(rd)
 }
 func mount(path string, upperdir string, workdir string, lowerdirs ...string) error {
 	return syscall.Mount("overlay", path, "overlay", 0,
