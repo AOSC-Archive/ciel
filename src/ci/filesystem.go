@@ -30,7 +30,7 @@ func InitFilesystem(bkdir string) *ContainerFilesystem {
 	fs.Buildkit = fs.Base + "/10-buildkit"
 	fs.Cache = fs.Base + "/50-cache"
 	fs.Upperdir = fs.Base + "/99-upperdir"
-	fs.UpperdirWork = fs.Base + "/99-upperdir-work"
+	fs.UpperdirWork = fs.Base + "/99-workdir"
 	os.Mkdir(fs.Base, 0755)
 	os.Mkdir(fs.Stub, 0755)
 	os.Mkdir(fs.StubConfig, 0755)
