@@ -32,13 +32,13 @@ func main() {
 	if exitCode != 0 {
 		log.Panicln("exit code:", exitCode)
 	}
-	c.Shutdown()
 	println("\n[ciel] apt install {base}")
 	exitCode = c.Command("apt install -y admin-base core-base editor-base python-base" +
 		" network-base systemd-base web-base util-base devel-base debug-base autobuild3 git")
 	if exitCode != 0 {
 		log.Panicln("exit code:", exitCode)
 	}
+	c.Shutdown()
 }
 
 func init() {
