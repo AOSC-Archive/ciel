@@ -1,0 +1,3 @@
+[submodule "src/ciel-driver"]
+	path = src/ciel-driver
+	url = https://github.com/AOSC-Dev/ciel-driver.git
