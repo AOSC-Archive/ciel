@@ -1,2 +1,2 @@
 export GOPATH="$PWD"
-go build ciel
+go build ciel2

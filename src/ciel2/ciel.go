@@ -9,36 +9,23 @@ import (
 
 func main() {
 	c := ciel.New("buildkit", "/root/ciel/test/container-layers")
-	defer func() {
-		c.Unmount()
-	}()
-	defer func() {
-		c.Shutdown()
-	}()
+	defer c.Unmount()
+	defer c.Shutdown()
 
-	var exitCode int
-	println("[ciel] apt update")
-	exitCode = c.Command("apt update -y")
-	if exitCode != 0 {
-		log.Panicln("exit code:", exitCode)
+	if err := updateStub(c); err != nil {
+		log.Panicln("clean stub error:", err)
 	}
-	println("\n[ciel] apt full-upgrade")
-	exitCode = c.Command("apt full-upgrade -y")
-	if exitCode != 0 {
-		log.Panicln("exit code:", exitCode)
+
+	if ec := c.Command("apt install -y systemd"); ec != 0 {
+		log.Panicln("apt install systemd exit code:", ec)
 	}
-	println("\n[ciel] apt install systemd")
-	exitCode = c.Command("apt install -y systemd")
-	if exitCode != 0 {
-		log.Panicln("exit code:", exitCode)
+	if ec := c.Command("apt install -y admin-base core-base editor-base python-base" +
+		" network-base systemd-base web-base util-base devel-base debug-base autobuild3 git"); ec != 0 {
+		log.Panicln("apt install {base} exit code:", ec)
 	}
-	println("\n[ciel] apt install {base}")
-	exitCode = c.Command("apt install -y admin-base core-base editor-base python-base" +
-		" network-base systemd-base web-base util-base devel-base debug-base autobuild3 git")
-	if exitCode != 0 {
-		log.Panicln("exit code:", exitCode)
+	if err := cleanStub(c); err != nil {
+		log.Panicln("clean stub error:", err)
 	}
-	c.Shutdown()
 }
 
 func init() {

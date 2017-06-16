@@ -3,7 +3,7 @@
 *.dll
 *.so
 *.dylib
-/ciel
+/ciel*
 
 # Test binary, build with `go test -c`
 *.test
