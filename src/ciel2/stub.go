@@ -67,9 +67,9 @@ func cleanStub(c *ciel.Container) error {
 }
 
 func mergeStub(c *ciel.Container) error {
+	tmp := c.Fs.Stub + "." + randomFilename()
 	c.Mount()
 	{
-		tmp := c.Fs.Stub + "." + randomFilename()
 		os.Mkdir(tmp, 0775)
 		cmd := exec.Command("/bin/cp", "-prT", c.Fs.Target, tmp)
 		cmd.Stdout = os.Stdout
