@@ -8,6 +8,7 @@ import (
 )
 
 func updateStub(c *ciel.Container) error {
+	c.Unmount()
 	os.RemoveAll(c.Fs.UpperDir)
 	defer func() {
 		c.Fs.MaskCache = false
@@ -21,7 +22,6 @@ func updateStub(c *ciel.Container) error {
 	c.Fs.MaskBuildKit = true
 	c.Fs.MaskStubConfig = false
 	c.Fs.MaskStub = false
-	c.Unmount()
 	if ec := c.Command("apt update -y"); ec != 0 {
 		return errors.New("apt update: failed")
 	}
