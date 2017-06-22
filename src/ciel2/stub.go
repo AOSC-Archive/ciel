@@ -44,14 +44,14 @@ func cleanStub(c *ciel.Container) error {
 	return clean(c, []string{
 		`^/dev`,
 		`^/efi`,
-		`/\.updated$`,
 		`^/etc`,
-		`^/home/aosc`,
-		`^/root`,
 		`^/run`,
 		`^/usr`,
 		`^/var/lib/dpkg`,
 		`^/var/log/journal$`,
+		`^/root`,
+		`^/home/aosc`,
+		`/\.updated$`,
 	}, []string{
 		`^/etc/.*-$`,
 		`^/etc/ssh/ssh_host_.*`,
@@ -59,8 +59,6 @@ func cleanStub(c *ciel.Container) error {
 	}, func(path string, info os.FileInfo, err error) error {
 		if err := os.RemoveAll(path); err != nil {
 			println(path, err.Error())
-		} else {
-			println(path)
 		}
 		return nil
 	})
