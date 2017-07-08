@@ -42,7 +42,7 @@ func router(command string, args []string) {
 		os.Exit(exitcode)
 	case "init":
 		panicIfNotEnough(args, 1)
-		err := gensis(args[0], CielRoot)
+		err := genesis(args[0], CielRoot)
 		if err != nil {
 			log.Fatalln(err)
 		}

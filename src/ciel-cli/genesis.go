@@ -7,7 +7,7 @@ import (
 	"os/exec"
 )
 
-func gensis(tar, fsroot string) error {
+func genesis(tar, fsroot string) error {
 	os.Mkdir(fsroot, 0755)
 	c := ciel.New("temp", fsroot)
 	if err := c.Fs.BuildDirs(); err != nil {
