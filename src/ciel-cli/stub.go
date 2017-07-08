@@ -2,7 +2,6 @@ package main
 
 import (
 	"ciel-driver"
-	"errors"
 	"os"
 )
 
@@ -14,15 +13,12 @@ func updateStub(c *ciel.Container) error {
 
 	c.Fs.Unmount()
 	os.RemoveAll(c.Fs.TopLayer())
-	os.RemoveAll(c.Fs.Layer("buildkit"))
+	os.RemoveAll(c.Fs.Layer("dist"))
 	c.Fs.DisableAll()
-	c.Fs.EnableLayer("stub", "stub-config")
+	c.Fs.EnableLayer("stub", "stub-overlay")
 
-	if ec := c.Command("apt update -y"); ec != 0 {
-		return errors.New("apt update: failed")
-	}
-	if ec := c.Command("apt full-upgrade -y"); ec != 0 {
-		return errors.New("apt full-upgrade: failed")
+	if err := aptUpdate(c); err != nil {
+		return err
 	}
 
 	c.Fs.Unmount()

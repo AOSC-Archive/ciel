@@ -46,9 +46,21 @@ func router(command string, args []string) {
 		if err != nil {
 			log.Fatalln(err)
 		}
-	case "stub-update":
+	case "stub-upd":
 		c := ciel.New(CielMachineName, CielRoot)
 		err := updateStub(c)
+		if err != nil {
+			log.Fatalln(err)
+		}
+	case "dist-cfg":
+		c := ciel.New(CielMachineName, CielRoot)
+		err := configDist(c)
+		if err != nil {
+			log.Fatalln(err)
+		}
+	case "dist-upd":
+		c := ciel.New(CielMachineName, CielRoot)
+		err := updateDist(c)
 		if err != nil {
 			log.Fatalln(err)
 		}
@@ -57,7 +69,7 @@ func router(command string, args []string) {
 
 func panicIfNotEnough(a []string, c int) {
 	if len(a) != c {
-		panic("argument count mismatched")
+		panic("argument count mismatch")
 	}
 }
 

@@ -24,18 +24,13 @@ func cleanRelease(c *ciel.Container) error {
 		`^/etc/.*-$`,
 		`^/etc/machine-id`,
 		`^/etc/ssh/ssh_host_.*`,
-		`^/var/lib/dpkg/status-old`,
+		`^/var/lib/dpkg/[^/]*-old`,
 	}, func(path string, info os.FileInfo, err error) error {
 		if err := os.RemoveAll(path); err != nil {
 			println(path, err.Error())
 		}
 		return nil
 	})
-}
-
-func cleanBoot(c *ciel.Container) error {
-	// TODO
-	return nil
 }
 
 func clean(c *ciel.Container, re []string, reN []string, fn filepath.WalkFunc) error {

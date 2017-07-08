@@ -11,12 +11,13 @@ func printHelp() {
 	fmt.Println("")
 
 	fmt.Println("Commands:")
-	fmt.Println("\tinit <tar>  \tinit and extract \"stub\" tarball")
-	fmt.Println("\tstub-update \tupdate all packages for stub, reset dist")
+	fmt.Println("\tinit <tar>\tinit and extract \"stub\" tarball")
+	fmt.Println("\tstub-upd  \tupdate all packages for stub, reset dist")
 	// fmt.Println("\tstub-release\tbuild tarball for stub")
-	// fmt.Println("\tdist-release\tbuild tarball for dist")
-	fmt.Println("\tshell       \topen shell (bash)")
+	fmt.Println("\tdist-cfg  \tinstall packages, etc.")
+	// fmt.Println("\tdist-upd  \tupdate all packages for dist")
+	fmt.Println("\tshell     \tlaunch shell (bash)")
 	// fmt.Println("\tmount       \tmount, run a shell ON HOST, unmount")
 
-	fmt.Println("\thelp        \tshow this message")
+	fmt.Println("\thelp      \tshow this message")
 }
