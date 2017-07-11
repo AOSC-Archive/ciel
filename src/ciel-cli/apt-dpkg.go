@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"ciel-driver"
 	"errors"
+	"strings"
 )
 
 func aptUpdate(c *ciel.Container) error {
@@ -27,13 +28,13 @@ func dpkgPackageFiles(c *ciel.Container) map[string]bool {
 		return nil
 	}
 	hashmap := make(map[string]bool, 100000)
-	dataset := bytes.Split(stdout.Bytes(), []byte{'\n'})
+	dataset := bytes.Split(stdout.Bytes(), []byte("\n"))
 	root := c.Fs.TargetDir()
 	for _, record := range dataset {
 		if len(record) == 0 {
 			continue
 		}
-		path := string(record)
+		path := strings.TrimSpace(string(record))
 		evalSymlinksCleanCache()
 		path = evalSymlinks(root, path, true)
 		hashmap[path] = true
