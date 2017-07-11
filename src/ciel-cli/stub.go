@@ -15,7 +15,7 @@ func updateStub(c *ciel.Container) error {
 	os.RemoveAll(c.Fs.TopLayer())
 	os.RemoveAll(c.Fs.Layer("dist"))
 	c.Fs.DisableAll()
-	c.Fs.EnableLayer("stub", "stub-overlay")
+	c.Fs.EnableLayer("stub", "override")
 
 	if err := aptUpdate(c); err != nil {
 		return err

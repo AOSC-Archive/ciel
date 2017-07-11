@@ -5,6 +5,7 @@ import (
 	"log"
 	"math/rand"
 	"os"
+	"os/exec"
 	"time"
 )
 
@@ -30,15 +31,22 @@ func main() {
 func router(command string, args []string) {
 	switch command {
 	default:
-		printHelp()
-		os.Exit(127)
+		cmd := exec.Command("ciel-"+command, args...)
+		cmd.Stdin = os.Stdin
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+		err := cmd.Run()
+		// FIXME: exit code
+		if err != nil {
+			os.Exit(1)
+		}
 	case "help":
 		printHelp()
 	case "shell":
 		c := ciel.New(CielMachineName, CielRoot)
 		exitcode := c.Shell()
-		c.Fs.Unmount()
 		c.Shutdown()
+		c.Fs.Unmount()
 		os.Exit(exitcode)
 	case "init":
 		panicIfNotEnough(args, 1)
@@ -49,18 +57,32 @@ func router(command string, args []string) {
 	case "stub-upd":
 		c := ciel.New(CielMachineName, CielRoot)
 		err := updateStub(c)
+		c.Shutdown()
+		c.Fs.Unmount()
 		if err != nil {
 			log.Fatalln(err)
 		}
 	case "dist-cfg":
 		c := ciel.New(CielMachineName, CielRoot)
 		err := configDist(c)
+		c.Shutdown()
+		c.Fs.Unmount()
 		if err != nil {
 			log.Fatalln(err)
 		}
 	case "dist-upd":
 		c := ciel.New(CielMachineName, CielRoot)
 		err := updateDist(c)
+		c.Shutdown()
+		c.Fs.Unmount()
+		if err != nil {
+			log.Fatalln(err)
+		}
+	case "clean":
+		c := ciel.New(CielMachineName, CielRoot)
+		err := cleanRelease(c)
+		c.Shutdown()
+		c.Fs.Unmount()
 		if err != nil {
 			log.Fatalln(err)
 		}
@@ -75,4 +97,11 @@ func panicIfNotEnough(a []string, c int) {
 
 func init() {
 	rand.Seed(time.Now().UnixNano())
+	ciel.FileSystemLayers = ciel.Layers{
+		"99-upperdir",
+		"80-cache",
+		"50-override",
+		"10-dist",
+		"00-stub",
+	}
 }

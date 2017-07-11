@@ -15,9 +15,9 @@ func printHelp() {
 	fmt.Println("\tstub-upd  \tupdate all packages for stub, reset dist")
 	// fmt.Println("\tstub-release\tbuild tarball for stub")
 	fmt.Println("\tdist-cfg  \tinstall packages, etc.")
-	// fmt.Println("\tdist-upd  \tupdate all packages for dist")
+	fmt.Println("\tdist-upd  \tupdate all packages for dist")
 	fmt.Println("\tshell     \tlaunch shell (bash)")
 	// fmt.Println("\tmount       \tmount, run a shell ON HOST, unmount")
-
+	fmt.Println("\tclean     \t")
 	fmt.Println("\thelp      \tshow this message")
 }

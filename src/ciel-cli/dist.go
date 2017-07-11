@@ -12,7 +12,11 @@ func configDist(c *ciel.Container) error {
 	c.Fs.Unmount()
 	os.RemoveAll(c.Fs.TopLayer())
 	c.Fs.DisableAll()
-	c.Fs.EnableLayer("stub", "stub-overlay", "dist", "dist-overlay")
+	c.Fs.EnableLayer("stub", "dist", "override")
+
+	if err := aptUpdate(c); err != nil {
+		return err
+	}
 
 	var packages = []string{
 		"systemd",
@@ -31,9 +35,10 @@ func configDist(c *ciel.Container) error {
 		return errors.New("apt install {base}: failed")
 	}
 
+	c.Shutdown()
 	c.Fs.Unmount()
 	c.Fs.DisableAll()
-	c.Fs.EnableLayer("stub", "stub-overlay", "dist")
+	c.Fs.EnableLayer("stub", "dist")
 	if err := cleanRelease(c); err != nil {
 		return err
 	}
@@ -49,7 +54,7 @@ func updateDist(c *ciel.Container) error {
 	c.Fs.Unmount()
 	os.RemoveAll(c.Fs.TopLayer())
 	c.Fs.DisableAll()
-	c.Fs.EnableLayer("stub", "stub-overlay", "dist", "dist-overlay")
+	c.Fs.EnableLayer("stub", "dist", "override")
 
 	if err := aptUpdate(c); err != nil {
 		return err
@@ -57,7 +62,7 @@ func updateDist(c *ciel.Container) error {
 
 	c.Fs.Unmount()
 	c.Fs.DisableAll()
-	c.Fs.EnableLayer("stub", "stub-overlay", "dist")
+	c.Fs.EnableLayer("stub", "dist")
 	if err := cleanRelease(c); err != nil {
 		return err
 	}
