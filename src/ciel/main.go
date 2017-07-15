@@ -152,6 +152,7 @@ func cielMerge(args []string) {
 // ciel clean [--factory-reset]
 func cielClean(args []string) {
 	c := ciel.New(CielMachineName, CielRoot)
+	c.Fs.DisableLayer("override", "cache")
 	var err error
 	if len(args) == 1 && args[0] == "--factory-reset" {
 		err = cleanFactoryReset(c)
