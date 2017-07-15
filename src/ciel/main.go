@@ -63,7 +63,7 @@ func router(command string, args []string) {
 		cielHelp()
 
 	default:
-		cmd := exec.Command("ciel-"+command, args...)
+		cmd := exec.Command("/usr/libexec/ciel-plugin/ciel-"+command, args...)
 		cmd.Stdin = os.Stdin
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
