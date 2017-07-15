@@ -21,7 +21,9 @@ func cleanNormal(c *ciel.Container) error {
 		`^/root`,
 		`^/home`,
 		`/\.updated$`,
-	}, []string{}, func(path string, info os.FileInfo, err error) error {
+	}, []string{
+		`$^`, // => Nothing
+	}, func(path string, info os.FileInfo, err error) error {
 		if err := os.RemoveAll(path); err != nil {
 			println(path, err.Error())
 		}
@@ -59,14 +61,15 @@ func clean(c *ciel.Container, re []string, reN []string, fn filepath.WalkFunc) e
 	for _, reitem := range re {
 		relst = append(relst, "("+reitem+")")
 	}
-	restr := "(" + strings.Join(relst, "|") + ")"
+
 	relstN := []string{}
 	for _, reitem := range reN {
 		relstN = append(relstN, "("+reitem+")")
 	}
-	restrN := "(" + strings.Join(relstN, "|") + ")"
-	regex := regexp.MustCompile(restr)
-	regexN := regexp.MustCompile(restrN)
+
+	regex := regexp.MustCompile("(" + strings.Join(relst, "|") + ")")
+	regexN := regexp.MustCompile("(" + strings.Join(relstN, "|") + ")")
+
 	dpkgfiles := dpkgPackageFiles(c)
 	if dpkgfiles == nil {
 		return errors.New("no file in dpkg")
