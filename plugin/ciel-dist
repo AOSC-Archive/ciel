@@ -2,9 +2,8 @@
 set -e
 ciel ~update
 ciel shell "apt install -y systemd"
-ciel shell "apt install -y ..........."
-ciel shell "systemctl enable ... && systemctl disable ..."
-ciel shell "apt remove -y ........"
+ciel shell "apt install -y admin-base core-base editor-base python-base network-base systemd-base web-base util-base devel-base debug-base git autobuild3 acbs"
+ciel shell "systemctl preset-all"
 ciel shell "apt autoremove --purge -y"
 ciel clean --factory-reset
 ciel merge dist /

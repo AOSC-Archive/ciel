@@ -1,5 +1,7 @@
 #!/bin/bash
+set -e
 ciel shell "acbs-build $*"
+set +e
 MOUNT_POINT=$(ciel mount)
 # assert "$MOUNT_POINT" != ""
 cp -rp "$MOUNT_POINT"/os-amd64 ./
