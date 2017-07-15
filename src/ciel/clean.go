@@ -61,7 +61,7 @@ func clean(c *ciel.Container, re []string, reN []string, fn filepath.WalkFunc) e
 	}
 	restr := "(" + strings.Join(relst, "|") + ")"
 	relstN := []string{}
-	for _, reitem := range re {
+	for _, reitem := range reN {
 		relstN = append(relstN, "("+reitem+")")
 	}
 	restrN := "(" + strings.Join(relstN, "|") + ")"
