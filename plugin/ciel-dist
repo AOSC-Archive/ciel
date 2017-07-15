@@ -1,0 +1,11 @@
+#!/bin/bash
+set -e
+ciel ~update
+ciel shell "apt install -y systemd"
+ciel shell "apt install -y ..........."
+ciel shell "systemctl enable ... && systemctl disable ..."
+ciel shell "apt remove -y ........"
+ciel shell "apt autoremove --purge -y"
+ciel clean --factory-reset
+ciel merge dist /
+set +e

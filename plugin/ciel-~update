@@ -1,0 +1,9 @@
+#!/bin/bash
+set -e
+ciel drop dist
+ciel shell "apt update -y"
+ciel shell "apt full-upgrade -y"
+ciel shell "apt autoremove --purge -y"
+ciel clean --factory-reset
+ciel merge stub /
+set +e

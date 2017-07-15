@@ -1,0 +1,8 @@
+#!/bin/bash
+set -e
+ciel shell "apt update -y"
+ciel shell "apt full-upgrade -y"
+ciel shell "apt autoremove --purge -y"
+ciel clean --factory-reset
+ciel merge dist /
+set +e

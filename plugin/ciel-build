@@ -1,0 +1,10 @@
+#!/bin/bash
+ciel shell "acbs-build $*"
+MOUNT_POINT=$(ciel mount)
+# assert "$MOUNT_POINT" != ""
+cp -rp "$MOUNT_POINT"/os-amd64 ./
+cp -p "$MOUNT_POINT"/var/log/apt/history.log ./
+umount "$MOUNT_POINT"
+rmdir "$MOUNT_POINT"
+ciel merge-cache
+ciel clean

@@ -1,0 +1,6 @@
+#!/bin/bash
+MOUNT_POINT=$(ciel mount <layer>)
+# assert "$MOUNT_POINT" != ""
+tar cf - * -C "$MOUNT_POINT" | xz ... <filename>
+umount "$MOUNT_POINT"
+rmdir "$MOUNT_POINT"
