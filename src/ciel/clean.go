@@ -8,7 +8,7 @@ import (
 	"regexp"
 )
 
-func cleanRelease(c *ciel.Container) error {
+func cleanNormal(c *ciel.Container) error {
 	return clean(c, []string{
 		`^/dev`,
 		`^/efi`,
@@ -18,7 +18,27 @@ func cleanRelease(c *ciel.Container) error {
 		`^/var/lib/dpkg`,
 		`^/var/log/journal$`,
 		`^/root`,
-		`^/home/aosc`,
+		`^/home`,
+		`/\.updated$`,
+	}, []string{}, func(path string, info os.FileInfo, err error) error {
+		if err := os.RemoveAll(path); err != nil {
+			println(path, err.Error())
+		}
+		return nil
+	})
+}
+
+func cleanFactoryReset(c *ciel.Container) error {
+	return clean(c, []string{
+		`^/dev`,
+		`^/efi`,
+		`^/etc`,
+		`^/run`,
+		`^/usr`,
+		`^/var/lib/dpkg`,
+		`^/var/log/journal$`,
+		`^/root`,
+		`^/home`,
 		`/\.updated$`,
 	}, []string{
 		`^/etc/.*-$`,
