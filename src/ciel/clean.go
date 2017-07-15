@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"strings"
 )
 
 func cleanNormal(c *ciel.Container) error {
@@ -54,16 +55,16 @@ func cleanFactoryReset(c *ciel.Container) error {
 }
 
 func clean(c *ciel.Container, re []string, reN []string, fn filepath.WalkFunc) error {
-	restr := "((" + re[0] + ")"
-	for _, re := range re[1:] {
-		restr += "|(" + re + ")"
+	relst := []string{}
+	for _, reitem := range re {
+		relst = append(relst, "("+reitem+")")
 	}
-	restr += ")"
-	restrN := "((" + reN[0] + ")"
-	for _, re := range reN[1:] {
-		restrN += "|(" + re + ")"
+	restr := "(" + strings.Join(relst, "|") + ")"
+	relstN := []string{}
+	for _, reitem := range re {
+		relstN = append(relstN, "("+reitem+")")
 	}
-	restrN += ")"
+	restrN := "(" + strings.Join(relstN, "|") + ")"
 	regex := regexp.MustCompile(restr)
 	regexN := regexp.MustCompile(restrN)
 	dpkgfiles := dpkgPackageFiles(c)

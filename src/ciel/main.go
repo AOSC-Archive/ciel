@@ -147,7 +147,6 @@ func cielMerge(args []string) {
 	}
 	c := ciel.New(CielMachineName, CielRoot)
 	c.Fs.MergeFile(path, layers[0], layers[1], excludeSelf)
-	fmt.Println(layers)
 }
 
 // ciel clean [--factory-reset]
