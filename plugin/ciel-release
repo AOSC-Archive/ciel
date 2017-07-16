@@ -1,6 +1,8 @@
 #!/bin/bash
-MOUNT_POINT=$(ciel mount <layer>)
-# assert "$MOUNT_POINT" != ""
-tar cf - * -C "$MOUNT_POINT" | xz ... <filename>
+MOUNT_POINT="$(ciel mount $*)"
+WORKDIR="$PWD"
+cd "$MOUNT_POINT"
+tar cvf - *  | xz -T 0 -9 -e --lzma2=preset=9e,nice=273 > "$WORKDIR"/stub-shizitou.tar.xz
+cd "$WORKDIR"
 umount "$MOUNT_POINT"
 rmdir "$MOUNT_POINT"

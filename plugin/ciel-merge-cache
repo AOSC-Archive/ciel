@@ -1,2 +1,3 @@
 #!/bin/bash
+ciel merge cache /var/lib/apt
 ciel merge cache /var/cache/apt
