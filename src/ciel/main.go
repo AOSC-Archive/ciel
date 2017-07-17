@@ -241,7 +241,7 @@ func cielHelp() int {
 	fmt.Println("\tmerge  [<upper>..]<lower> [--no-self] path")
 	fmt.Println("\tclean  [--factory-reset]")
 	fmt.Println("")
-	fmt.Println("\tshell  <cmdline>")
+	fmt.Println("\tshell  [<cmdline>]")
 	fmt.Println("\trawcmd <cmd> <arg1> <arg2> ...")
 	return 0
 }
