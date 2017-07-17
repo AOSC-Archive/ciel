@@ -12,8 +12,9 @@ import (
 )
 
 const (
-	CielMachineName = "ciel"
-	CielRoot        = "./cielfs"
+	MachineName   = "ciel"
+	FileSystemDir = "./cielfs"
+	LibExecDir    = "/usr/libexec"
 )
 
 var (
@@ -63,7 +64,7 @@ func router(command string, args []string) {
 		cielHelp()
 
 	default:
-		cmd := exec.Command("/usr/libexec/ciel-plugin/ciel-"+command, args...)
+		cmd := exec.Command(LibExecDir+"/ciel-plugin/ciel-"+command, args...)
 		cmd.Stdin = os.Stdin
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
@@ -80,7 +81,7 @@ func cielInit(args []string) {
 	if len(args) != 1 {
 		log.Fatalln("init: you may only input one argument")
 	}
-	err := genesis(args[0], CielRoot)
+	err := genesis(args[0], FileSystemDir)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -88,7 +89,7 @@ func cielInit(args []string) {
 
 // ciel drop [<layers>]
 func cielDrop(args []string) {
-	c := ciel.New(CielMachineName, CielRoot)
+	c := ciel.New(MachineName, FileSystemDir)
 	if len(args) == 0 {
 		args = []string{"upperdir"}
 	}
@@ -106,7 +107,7 @@ func cielDrop(args []string) {
 
 // ciel mount [--read-write] [<layers>]
 func cielMount(args []string) {
-	c := ciel.New(CielMachineName, CielRoot)
+	c := ciel.New(MachineName, FileSystemDir)
 	var rw = false
 	if len(args) >= 1 && args[0] == "--read-write" {
 		args = args[1:]
@@ -145,13 +146,13 @@ func cielMerge(args []string) {
 	} else {
 		path = args[1]
 	}
-	c := ciel.New(CielMachineName, CielRoot)
+	c := ciel.New(MachineName, FileSystemDir)
 	c.Fs.MergeFile(path, layers[0], layers[1], excludeSelf)
 }
 
 // ciel clean [--factory-reset]
 func cielClean(args []string) {
-	c := ciel.New(CielMachineName, CielRoot)
+	c := ciel.New(MachineName, FileSystemDir)
 	c.Fs.DisableLayer("override", "cache")
 	var err error
 	if len(args) == 1 && args[0] == "--factory-reset" {
@@ -168,7 +169,7 @@ func cielClean(args []string) {
 
 // ciel shell [<cmdline>]
 func cielShell(args []string) {
-	c := ciel.New(CielMachineName, CielRoot)
+	c := ciel.New(MachineName, FileSystemDir)
 	var exitcode int
 	if len(args) == 0 {
 		exitcode = c.Shell()
@@ -187,7 +188,7 @@ func cielRawcmd(args []string) {
 	if len(args) == 0 {
 		log.Fatalln("init: you must input one argument at least")
 	}
-	c := ciel.New(CielMachineName, CielRoot)
+	c := ciel.New(MachineName, FileSystemDir)
 	exitcode := c.CommandRaw(args[0], os.Stdin, os.Stdout, os.Stderr, args[1:]...)
 	c.Shutdown()
 	c.Fs.Unmount()
