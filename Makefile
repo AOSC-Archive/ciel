@@ -3,6 +3,7 @@ PLGDIR:=$(PREFIX)/libexec/ciel-plugin
 BINDIR:=$(PREFIX)/bin
 
 all:
+	git submodule update --init
 	GOPATH="$$PWD" go build ciel
 
 install:
