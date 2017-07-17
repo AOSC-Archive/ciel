@@ -13,6 +13,8 @@ import (
 	"time"
 )
 
+const Version = "0.3.1"
+
 const (
 	MachineName   = "ciel"
 	FileSystemDir = "./cielfs"
@@ -24,18 +26,19 @@ var (
 	DefaultCommandArgs = []string{}
 )
 
-var subCommand string
-var subArgs []string
+var SubCommand string
+var SubArgs []string
 
-var cmdTable = map[string]func() int{
-	"init":   cielInit,
-	"drop":   cielDrop,
-	"mount":  cielMount,
-	"merge":  cielMerge,
-	"clean":  cielClean,
-	"shell":  cielShell,
-	"rawcmd": cielRawcmd,
-	"help":   cielHelp,
+var CmdTable = map[string]func() int{
+	"init":    cielInit,
+	"drop":    cielDrop,
+	"mount":   cielMount,
+	"merge":   cielMerge,
+	"clean":   cielClean,
+	"shell":   cielShell,
+	"rawcmd":  cielRawcmd,
+	"help":    cielHelp,
+	"version": cielVersion,
 }
 
 func init() {
@@ -50,13 +53,13 @@ func init() {
 }
 func main() {
 	args := os.Args
-	subCommand = DefaultCommand
-	subArgs = DefaultCommandArgs
+	SubCommand = DefaultCommand
+	SubArgs = DefaultCommandArgs
 	if len(os.Args) > 1 {
-		subCommand = args[1]
-		subArgs = args[2:]
+		SubCommand = args[1]
+		SubArgs = args[2:]
 	}
-	route, exists := cmdTable[subCommand]
+	route, exists := CmdTable[SubCommand]
 	if !exists {
 		route = cielPlugin
 	}
@@ -65,7 +68,7 @@ func main() {
 
 func requireEUID0() {
 	if os.Geteuid() != 0 {
-		log.Fatalf("%s: you must be root to run this command\n", subCommand)
+		log.Fatalf("%s: you must be root to run this command\n", SubCommand)
 	}
 }
 func requireFS() {
@@ -74,22 +77,22 @@ func requireFS() {
 		path = FileSystemDir
 	}
 	if fi, err := os.Stat(path); os.IsNotExist(err) {
-		log.Fatalf("%s: ciel file system %s not found\n", subCommand, path)
+		log.Fatalf("%s: ciel file system %s not found\n", SubCommand, path)
 	} else if err != nil {
-		log.Fatalf("%s: cannot access ciel file system %s: %v\n", subCommand, path, err)
+		log.Fatalf("%s: cannot access ciel file system %s: %v\n", SubCommand, path, err)
 	} else if !fi.IsDir() {
-		log.Fatalf("%s: ciel file system %s must be a directory\n", subCommand, path)
+		log.Fatalf("%s: ciel file system %s must be a directory\n", SubCommand, path)
 	}
 }
 
 // ciel init <tarball>
 func cielInit() int {
 	requireEUID0()
-	if len(subArgs) != 1 {
+	if len(SubArgs) != 1 {
 		log.Println("init: you may only input one argument")
 		return 1
 	}
-	err := genesis(subArgs[0], FileSystemDir)
+	err := genesis(SubArgs[0], FileSystemDir)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -101,10 +104,10 @@ func cielDrop() int {
 	requireEUID0()
 	requireFS()
 	c := ciel.New(MachineName, FileSystemDir)
-	if len(subArgs) == 0 {
-		subArgs = []string{"upperdir"}
+	if len(SubArgs) == 0 {
+		SubArgs = []string{"upperdir"}
 	}
-	for _, layer := range subArgs {
+	for _, layer := range SubArgs {
 		path := c.Fs.Layer(layer)
 		if path == "" {
 			log.Printf("drop: layer %s not exist\n", layer)
@@ -123,13 +126,13 @@ func cielMount() int {
 	requireFS()
 	c := ciel.New(MachineName, FileSystemDir)
 	var rw = false
-	if len(subArgs) >= 1 && subArgs[0] == "--read-write" {
-		subArgs = subArgs[1:]
+	if len(SubArgs) >= 1 && SubArgs[0] == "--read-write" {
+		SubArgs = SubArgs[1:]
 		rw = true
 	}
-	if len(subArgs) > 0 {
+	if len(SubArgs) > 0 {
 		c.Fs.DisableAll()
-		c.Fs.EnableLayer(subArgs...)
+		c.Fs.EnableLayer(SubArgs...)
 	}
 	var err error
 	if rw {
@@ -149,7 +152,7 @@ func cielMerge() int {
 	requireEUID0()
 	requireFS()
 	// FIXME: limit arguments
-	layers := strings.SplitN(subArgs[0], "..", 2)
+	layers := strings.SplitN(SubArgs[0], "..", 2)
 	if len(layers) == 1 { // "xx" => ["upperdir" "xx"]
 		layers = append([]string{"upperdir"}, layers[0])
 	} else if layers[0] == "" { // "..xx" => ["upperdir" "xx"]
@@ -157,11 +160,11 @@ func cielMerge() int {
 	}
 	var excludeSelf = false
 	var path string
-	excludeSelf = subArgs[1] == "--no-self"
-	if subArgs[1] == "--no-self" {
-		path = subArgs[2]
+	excludeSelf = SubArgs[1] == "--no-self"
+	if SubArgs[1] == "--no-self" {
+		path = SubArgs[2]
 	} else {
-		path = subArgs[1]
+		path = SubArgs[1]
 	}
 	c := ciel.New(MachineName, FileSystemDir)
 	c.Fs.MergeFile(path, layers[0], layers[1], excludeSelf)
@@ -175,7 +178,7 @@ func cielClean() int {
 	c := ciel.New(MachineName, FileSystemDir)
 	c.Fs.DisableLayer("override", "cache")
 	var err error
-	if len(subArgs) == 1 && subArgs[0] == "--factory-reset" {
+	if len(SubArgs) == 1 && SubArgs[0] == "--factory-reset" {
 		err = cleanFactoryReset(c)
 	} else {
 		err = cleanNormal(c)
@@ -196,10 +199,10 @@ func cielShell() int {
 	defer c.Fs.Unmount()
 	defer c.Shutdown()
 	var exitcode int
-	if len(subArgs) == 0 {
+	if len(SubArgs) == 0 {
 		exitcode = c.Shell()
-	} else if len(subArgs) == 1 {
-		exitcode = c.Command(subArgs[0])
+	} else if len(SubArgs) == 1 {
+		exitcode = c.Command(SubArgs[0])
 	} else {
 		log.Println("shell: you may only input one argument")
 		return 1
@@ -211,14 +214,14 @@ func cielShell() int {
 func cielRawcmd() int {
 	requireEUID0()
 	requireFS()
-	if len(subArgs) == 0 {
+	if len(SubArgs) == 0 {
 		log.Println("init: you must input one argument at least")
 		return 1
 	}
 	c := ciel.New(MachineName, FileSystemDir)
 	defer c.Fs.Unmount()
 	defer c.Shutdown()
-	exitcode := c.CommandRaw(subArgs[0], os.Stdin, os.Stdout, os.Stderr, subArgs[1:]...)
+	exitcode := c.CommandRaw(SubArgs[0], os.Stdin, os.Stdout, os.Stderr, SubArgs[1:]...)
 	return exitcode
 }
 
@@ -229,6 +232,7 @@ func cielHelp() int {
 
 	fmt.Println("Commands:")
 	fmt.Println("\thelp")
+	fmt.Println("\tversion")
 	fmt.Println("")
 	fmt.Println("\tinit   <tarball>")
 	fmt.Println("")
@@ -242,9 +246,14 @@ func cielHelp() int {
 	return 0
 }
 
+func cielVersion() int {
+	fmt.Println(Version)
+	return 0
+}
+
 func cielPlugin() int {
-	proc := LibExecDir + "/ciel-plugin/ciel-" + subCommand
-	cmd := exec.Command(proc, subArgs...)
+	proc := LibExecDir + "/ciel-plugin/ciel-" + SubCommand
+	cmd := exec.Command(proc, SubArgs...)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
@@ -254,7 +263,7 @@ func cielPlugin() int {
 			exitStatus := exitError.Sys().(syscall.WaitStatus)
 			return exitStatus.ExitStatus()
 		}
-		log.Printf("failed to run plugin %s: %v\n", subCommand, err)
+		log.Printf("failed to run plugin %s: %v\n", SubCommand, err)
 		return 1
 	}
 	return 0
