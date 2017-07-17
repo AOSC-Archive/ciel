@@ -7,6 +7,7 @@ import (
 	"math/rand"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 	"syscall"
 	"time"
@@ -67,6 +68,19 @@ func requireEUID0() {
 		log.Fatalf("%s: you must be root to run this command\n", subCommand)
 	}
 }
+func requireFS() {
+	path, err := filepath.Abs(FileSystemDir)
+	if err != nil {
+		path = FileSystemDir
+	}
+	if fi, err := os.Stat(path); os.IsNotExist(err) {
+		log.Fatalf("%s: ciel file system %s not found\n", subCommand, path)
+	} else if err != nil {
+		log.Fatalf("%s: cannot access ciel file system %s: %v\n", subCommand, path, err)
+	} else if !fi.IsDir() {
+		log.Fatalf("%s: ciel file system %s must be a directory\n", subCommand, path)
+	}
+}
 
 // ciel init <tarball>
 func cielInit() int {
@@ -85,6 +99,7 @@ func cielInit() int {
 // ciel drop [<layers>]
 func cielDrop() int {
 	requireEUID0()
+	requireFS()
 	c := ciel.New(MachineName, FileSystemDir)
 	if len(subArgs) == 0 {
 		subArgs = []string{"upperdir"}
@@ -105,6 +120,7 @@ func cielDrop() int {
 // ciel mount [--read-write] [<layers>]
 func cielMount() int {
 	requireEUID0()
+	requireFS()
 	c := ciel.New(MachineName, FileSystemDir)
 	var rw = false
 	if len(subArgs) >= 1 && subArgs[0] == "--read-write" {
@@ -131,6 +147,7 @@ func cielMount() int {
 // ciel merge [<upper>..]<lower> [--no-self] path
 func cielMerge() int {
 	requireEUID0()
+	requireFS()
 	// FIXME: limit arguments
 	layers := strings.SplitN(subArgs[0], "..", 2)
 	if len(layers) == 1 { // "xx" => ["upperdir" "xx"]
@@ -154,6 +171,7 @@ func cielMerge() int {
 // ciel clean [--factory-reset]
 func cielClean() int {
 	requireEUID0()
+	requireFS()
 	c := ciel.New(MachineName, FileSystemDir)
 	c.Fs.DisableLayer("override", "cache")
 	var err error
@@ -173,6 +191,7 @@ func cielClean() int {
 // ciel shell [<cmdline>]
 func cielShell() int {
 	requireEUID0()
+	requireFS()
 	c := ciel.New(MachineName, FileSystemDir)
 	defer c.Fs.Unmount()
 	defer c.Shutdown()
@@ -191,6 +210,7 @@ func cielShell() int {
 // ciel rawcmd <cmd> <arg1> <arg2> ...
 func cielRawcmd() int {
 	requireEUID0()
+	requireFS()
 	if len(subArgs) == 0 {
 		log.Println("init: you must input one argument at least")
 		return 1
