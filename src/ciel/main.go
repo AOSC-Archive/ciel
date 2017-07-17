@@ -62,7 +62,7 @@ func router(command string, args []string) {
 		cielRawcmd(args)
 
 	case "help":
-		cielHelp()
+		cielHelp(args)
 
 	default:
 		proc := LibExecDir + "/ciel-plugin/ciel-" + command
@@ -201,7 +201,7 @@ func cielRawcmd(args []string) {
 	os.Exit(exitcode)
 }
 
-func cielHelp() {
+func cielHelp(args []string) {
 	fmt.Println("Usage: " + os.Args[0] + " [command [...]]")
 	fmt.Println(`Default command is "shell".`)
 	fmt.Println("")
