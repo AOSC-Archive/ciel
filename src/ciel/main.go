@@ -62,8 +62,15 @@ func main() {
 	os.Exit(route())
 }
 
+func requireEUID0() {
+	if os.Geteuid() != 0 {
+		log.Fatalf("%s: you must be root to run this command\n", subCommand)
+	}
+}
+
 // ciel init <tarball>
 func cielInit() int {
+	requireEUID0()
 	if len(subArgs) != 1 {
 		log.Println("init: you may only input one argument")
 		return 1
@@ -77,6 +84,7 @@ func cielInit() int {
 
 // ciel drop [<layers>]
 func cielDrop() int {
+	requireEUID0()
 	c := ciel.New(MachineName, FileSystemDir)
 	if len(subArgs) == 0 {
 		subArgs = []string{"upperdir"}
@@ -96,6 +104,7 @@ func cielDrop() int {
 
 // ciel mount [--read-write] [<layers>]
 func cielMount() int {
+	requireEUID0()
 	c := ciel.New(MachineName, FileSystemDir)
 	var rw = false
 	if len(subArgs) >= 1 && subArgs[0] == "--read-write" {
@@ -121,6 +130,7 @@ func cielMount() int {
 
 // ciel merge [<upper>..]<lower> [--no-self] path
 func cielMerge() int {
+	requireEUID0()
 	// FIXME: limit arguments
 	layers := strings.SplitN(subArgs[0], "..", 2)
 	if len(layers) == 1 { // "xx" => ["upperdir" "xx"]
@@ -143,6 +153,7 @@ func cielMerge() int {
 
 // ciel clean [--factory-reset]
 func cielClean() int {
+	requireEUID0()
 	c := ciel.New(MachineName, FileSystemDir)
 	c.Fs.DisableLayer("override", "cache")
 	var err error
@@ -161,6 +172,7 @@ func cielClean() int {
 
 // ciel shell [<cmdline>]
 func cielShell() int {
+	requireEUID0()
 	c := ciel.New(MachineName, FileSystemDir)
 	defer c.Fs.Unmount()
 	defer c.Shutdown()
@@ -178,6 +190,7 @@ func cielShell() int {
 
 // ciel rawcmd <cmd> <arg1> <arg2> ...
 func cielRawcmd() int {
+	requireEUID0()
 	if len(subArgs) == 0 {
 		log.Println("init: you must input one argument at least")
 		return 1
