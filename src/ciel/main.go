@@ -65,20 +65,7 @@ func router(command string, args []string) {
 		cielHelp(args)
 
 	default:
-		proc := LibExecDir + "/ciel-plugin/ciel-" + command
-		cmd := exec.Command(proc, args...)
-		cmd.Stdin = os.Stdin
-		cmd.Stdout = os.Stdout
-		cmd.Stderr = os.Stderr
-		err := cmd.Run()
-		if err != nil {
-			if exitError, ok := err.(*exec.ExitError); ok {
-				exitStatus := exitError.Sys().(syscall.WaitStatus)
-				os.Exit(exitStatus.ExitStatus())
-			} else {
-				log.Fatalf("plugin %s not found\n", proc)
-			}
-		}
+		cielPlugin(command, args)
 	}
 }
 
@@ -218,4 +205,21 @@ func cielHelp(args []string) {
 	fmt.Println("")
 	fmt.Println("\tshell  <cmdline>")
 	fmt.Println("\trawcmd <cmd> <arg1> <arg2> ...")
+}
+
+func cielPlugin(command string, args []string) {
+	proc := LibExecDir + "/ciel-plugin/ciel-" + command
+	cmd := exec.Command(proc, args...)
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	err := cmd.Run()
+	if err != nil {
+		if exitError, ok := err.(*exec.ExitError); ok {
+			exitStatus := exitError.Sys().(syscall.WaitStatus)
+			os.Exit(exitStatus.ExitStatus())
+		} else {
+			log.Fatalf("plugin %s not found\n", proc)
+		}
+	}
 }
