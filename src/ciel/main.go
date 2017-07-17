@@ -23,6 +23,20 @@ var (
 	DefaultCommandArgs = []string{}
 )
 
+var subCommand string
+var subArgs []string
+
+var cmdTable = map[string]func() int{
+	"init":   cielInit,
+	"drop":   cielDrop,
+	"mount":  cielMount,
+	"merge":  cielMerge,
+	"clean":  cielClean,
+	"shell":  cielShell,
+	"rawcmd": cielRawcmd,
+	"help":   cielHelp,
+}
+
 func init() {
 	rand.Seed(time.Now().UnixNano())
 	ciel.FileSystemLayers = ciel.Layers{
@@ -35,58 +49,39 @@ func init() {
 }
 func main() {
 	args := os.Args
-	if len(os.Args) == 1 {
-		router(DefaultCommand, DefaultCommandArgs)
-	} else {
-		router(args[1], args[2:])
+	subCommand = DefaultCommand
+	subArgs = DefaultCommandArgs
+	if len(os.Args) > 1 {
+		subCommand = args[1]
+		subArgs = args[2:]
 	}
-}
-
-func router(command string, args []string) {
-	switch command {
-	case "init":
-		cielInit(args)
-
-	case "drop":
-		cielDrop(args)
-	case "mount":
-		cielMount(args)
-	case "merge":
-		cielMerge(args)
-	case "clean":
-		cielClean(args)
-
-	case "shell":
-		cielShell(args)
-	case "rawcmd":
-		cielRawcmd(args)
-
-	case "help":
-		cielHelp(args)
-
-	default:
-		cielPlugin(command, args)
+	route, exists := cmdTable[subCommand]
+	if !exists {
+		route = cielPlugin
 	}
+	os.Exit(route())
 }
 
 // ciel init <tarball>
-func cielInit(args []string) {
-	if len(args) != 1 {
-		log.Fatalln("init: you may only input one argument")
+func cielInit() int {
+	if len(subArgs) != 1 {
+		log.Println("init: you may only input one argument")
+		return 1
 	}
-	err := genesis(args[0], FileSystemDir)
+	err := genesis(subArgs[0], FileSystemDir)
 	if err != nil {
 		log.Fatalln(err)
 	}
+	return 0
 }
 
 // ciel drop [<layers>]
-func cielDrop(args []string) {
+func cielDrop() int {
 	c := ciel.New(MachineName, FileSystemDir)
-	if len(args) == 0 {
-		args = []string{"upperdir"}
+	if len(subArgs) == 0 {
+		subArgs = []string{"upperdir"}
 	}
-	for _, layer := range args {
+	for _, layer := range subArgs {
 		path := c.Fs.Layer(layer)
 		if path == "" {
 			log.Printf("drop: layer %s not exist\n", layer)
@@ -96,19 +91,20 @@ func cielDrop(args []string) {
 			log.Println(err)
 		}
 	}
+	return 0
 }
 
 // ciel mount [--read-write] [<layers>]
-func cielMount(args []string) {
+func cielMount() int {
 	c := ciel.New(MachineName, FileSystemDir)
 	var rw = false
-	if len(args) >= 1 && args[0] == "--read-write" {
-		args = args[1:]
+	if len(subArgs) >= 1 && subArgs[0] == "--read-write" {
+		subArgs = subArgs[1:]
 		rw = true
 	}
-	if len(args) > 0 {
+	if len(subArgs) > 0 {
 		c.Fs.DisableAll()
-		c.Fs.EnableLayer(args...)
+		c.Fs.EnableLayer(subArgs...)
 	}
 	var err error
 	if rw {
@@ -120,12 +116,13 @@ func cielMount(args []string) {
 		log.Fatalln(err)
 	}
 	fmt.Println(c.Fs.TargetDir())
+	return 0
 }
 
 // ciel merge [<upper>..]<lower> [--no-self] path
-func cielMerge(args []string) {
+func cielMerge() int {
 	// FIXME: limit arguments
-	layers := strings.SplitN(args[0], "..", 2)
+	layers := strings.SplitN(subArgs[0], "..", 2)
 	if len(layers) == 1 { // "xx" => ["upperdir" "xx"]
 		layers = append([]string{"upperdir"}, layers[0])
 	} else if layers[0] == "" { // "..xx" => ["upperdir" "xx"]
@@ -133,22 +130,23 @@ func cielMerge(args []string) {
 	}
 	var excludeSelf = false
 	var path string
-	excludeSelf = args[1] == "--no-self"
-	if args[1] == "--no-self" {
-		path = args[2]
+	excludeSelf = subArgs[1] == "--no-self"
+	if subArgs[1] == "--no-self" {
+		path = subArgs[2]
 	} else {
-		path = args[1]
+		path = subArgs[1]
 	}
 	c := ciel.New(MachineName, FileSystemDir)
 	c.Fs.MergeFile(path, layers[0], layers[1], excludeSelf)
+	return 0
 }
 
 // ciel clean [--factory-reset]
-func cielClean(args []string) {
+func cielClean() int {
 	c := ciel.New(MachineName, FileSystemDir)
 	c.Fs.DisableLayer("override", "cache")
 	var err error
-	if len(args) == 1 && args[0] == "--factory-reset" {
+	if len(subArgs) == 1 && subArgs[0] == "--factory-reset" {
 		err = cleanFactoryReset(c)
 	} else {
 		err = cleanNormal(c)
@@ -158,37 +156,40 @@ func cielClean(args []string) {
 	if err != nil {
 		log.Fatalln(err)
 	}
+	return 0
 }
 
 // ciel shell [<cmdline>]
-func cielShell(args []string) {
+func cielShell() int {
 	c := ciel.New(MachineName, FileSystemDir)
+	defer c.Fs.Unmount()
+	defer c.Shutdown()
 	var exitcode int
-	if len(args) == 0 {
+	if len(subArgs) == 0 {
 		exitcode = c.Shell()
-	} else if len(args) == 1 {
-		exitcode = c.Command(args[0])
+	} else if len(subArgs) == 1 {
+		exitcode = c.Command(subArgs[0])
 	} else {
-		log.Fatalln("shell: you may only input one argument")
+		log.Println("shell: you may only input one argument")
+		return 1
 	}
-	c.Shutdown()
-	c.Fs.Unmount()
-	os.Exit(exitcode)
+	return exitcode
 }
 
 // ciel rawcmd <cmd> <arg1> <arg2> ...
-func cielRawcmd(args []string) {
-	if len(args) == 0 {
-		log.Fatalln("init: you must input one argument at least")
+func cielRawcmd() int {
+	if len(subArgs) == 0 {
+		log.Println("init: you must input one argument at least")
+		return 1
 	}
 	c := ciel.New(MachineName, FileSystemDir)
-	exitcode := c.CommandRaw(args[0], os.Stdin, os.Stdout, os.Stderr, args[1:]...)
-	c.Shutdown()
-	c.Fs.Unmount()
-	os.Exit(exitcode)
+	defer c.Fs.Unmount()
+	defer c.Shutdown()
+	exitcode := c.CommandRaw(subArgs[0], os.Stdin, os.Stdout, os.Stderr, subArgs[1:]...)
+	return exitcode
 }
 
-func cielHelp(args []string) {
+func cielHelp() int {
 	fmt.Println("Usage: " + os.Args[0] + " [command [...]]")
 	fmt.Println(`Default command is "shell".`)
 	fmt.Println("")
@@ -205,11 +206,12 @@ func cielHelp(args []string) {
 	fmt.Println("")
 	fmt.Println("\tshell  <cmdline>")
 	fmt.Println("\trawcmd <cmd> <arg1> <arg2> ...")
+	return 0
 }
 
-func cielPlugin(command string, args []string) {
-	proc := LibExecDir + "/ciel-plugin/ciel-" + command
-	cmd := exec.Command(proc, args...)
+func cielPlugin() int {
+	proc := LibExecDir + "/ciel-plugin/ciel-" + subCommand
+	cmd := exec.Command(proc, subArgs...)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
@@ -217,9 +219,10 @@ func cielPlugin(command string, args []string) {
 	if err != nil {
 		if exitError, ok := err.(*exec.ExitError); ok {
 			exitStatus := exitError.Sys().(syscall.WaitStatus)
-			os.Exit(exitStatus.ExitStatus())
-		} else {
-			log.Fatalf("plugin %s not found\n", proc)
+			return exitStatus.ExitStatus()
 		}
+		log.Printf("failed to run plugin %s: %v\n", subCommand, err)
+		return 1
 	}
+	return 0
 }
