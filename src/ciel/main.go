@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+	"syscall"
 	"time"
 )
 
@@ -64,14 +65,19 @@ func router(command string, args []string) {
 		cielHelp()
 
 	default:
-		cmd := exec.Command(LibExecDir+"/ciel-plugin/ciel-"+command, args...)
+		proc := LibExecDir + "/ciel-plugin/ciel-" + command
+		cmd := exec.Command(proc, args...)
 		cmd.Stdin = os.Stdin
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
 		err := cmd.Run()
-		// FIXME: exit code
 		if err != nil {
-			os.Exit(1)
+			if exitError, ok := err.(*exec.ExitError); ok {
+				exitStatus := exitError.Sys().(syscall.WaitStatus)
+				os.Exit(exitStatus.ExitStatus())
+			} else {
+				log.Fatalf("plugin %s not found\n", proc)
+			}
 		}
 	}
 }
