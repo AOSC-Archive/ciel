@@ -1,12 +1,24 @@
 #!/bin/bash
+MOUNT_POINT=$(ciel mount)
+
+# Strict mode, assuming Autobuild3 and ACBS catches errors properly.
 set -e
 ciel shell "acbs-build $*"
+# And turn it off.
 set +e
-MOUNT_POINT=$(ciel mount)
+
 # assert "$MOUNT_POINT" != ""
-cp -rp "$MOUNT_POINT"/os-amd64 ./
-cp -p "$MOUNT_POINT"/var/log/apt/history.log ./
-umount "$MOUNT_POINT"
-rmdir "$MOUNT_POINT"
+if [[ ! -z "$MOUNT_POINT" ]]; then
+	if [[ -e "$MOUNT_POINT"/os-amd64 ]]; then
+		cp -rpv "$MOUNT_POINT"/os-amd64 ./
+	fi
+	if [[ -e "$MOUNT_POINT"/var/log/apt/history.log ]]; then
+		cp -pv "$MOUNT_POINT"/var/log/apt/history.log ./
+	fi
+	umount "$MOUNT_POINT"
+	rm -rfv "$MOUNT_POINT"
+fi
+
+# Merge cache, namely APT packages and catalogues.
 ciel merge-cache
 ciel clean
