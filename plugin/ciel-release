@@ -5,7 +5,7 @@
 MOUNT_POINT=$(ciel mount dist stub 2>/dev/null) || return 1
 WORKDIR="$PWD"
 XZ_PARAM="-T 0 -9 -e --lzma2=preset=9e,nice=273"
-DATE="$(date +'%Y%m%d')"
+DATE="$(TZ=UTC date +'%Y%m%d')"
 ARCH="$(dpkg-architecture -qDEB_BUILD_ARCH)"
 
 cd "$MOUNT_POINT"
