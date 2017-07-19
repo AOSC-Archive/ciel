@@ -14,11 +14,11 @@ cd "$MOUNT_POINT"
 if [[ "${1}" = "buildkit" ]]; then
 	tar cvf - *  | xz $XZ_PARAM > "$WORKDIR"/aosc-os-buildkit_"${DATE}"_"${ARCH}".tar.xz
 	# Generate SHA256 checksum.
-	sha256sum aosc-os-buildkit_"${DATE}"_"${ARCH}".tar.xz{,.sha256sum}
+	sha256sum "$WORKDIR"/aosc-os-buildkit_"${DATE}"_"${ARCH}".tar.xz{,.sha256sum}
 else
 	tar cvf - *  | xz $XZ_PARAM > "$WORKDIR"/aosc-os_${1}_"${DATE}"_"${ARCH}".tar.xz
 	# Generate SHA256 checksum.
-	sha256sum aosc-os_${1}_"${DATE}"_"${ARCH}".tar.xz{,.sha256sum}
+	sha256sum "$WORKDIR"/aosc-os_${1}_"${DATE}"_"${ARCH}".tar.xz{,.sha256sum}
 fi
 
 cd "$WORKDIR"
