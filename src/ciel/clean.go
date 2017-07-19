@@ -3,6 +3,7 @@ package main
 import (
 	"ciel-driver"
 	"errors"
+	"log"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -25,7 +26,7 @@ func cleanNormal(c *ciel.Container) error {
 		`$^`, // => Nothing
 	}, func(path string, info os.FileInfo, err error) error {
 		if err := os.RemoveAll(path); err != nil {
-			println(path, err.Error())
+			log.Println(path, err.Error())
 		}
 		return nil
 	})
@@ -50,7 +51,7 @@ func cleanFactoryReset(c *ciel.Container) error {
 		`^/var/lib/dpkg/[^/]*-old`,
 	}, func(path string, info os.FileInfo, err error) error {
 		if err := os.RemoveAll(path); err != nil {
-			println(path, err.Error())
+			log.Println(path, err.Error())
 		}
 		return nil
 	})
@@ -86,8 +87,6 @@ func clean(c *ciel.Container, re []string, reN []string, fn filepath.WalkFunc) e
 		}
 		if !(regex.MatchString(path) && !regexN.MatchString(path)) {
 			return fn(filepath.Join(target, path), info, err)
-		} else {
-			//println(path)
 		}
 		return nil
 	}))
