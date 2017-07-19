@@ -46,6 +46,7 @@ recipes['xfce']="${XFCE_RECIPE}"
 # Common functions.
 _recipe_post() {
 	# Clean up.
+	ciel merge-cache
 	ciel clean --factory-reset
 	ciel merge dist /
 }
@@ -195,8 +196,6 @@ _recipe_xfce_config() {
 set -e
 ciel ~update
 _recipe_install
-_recipe_post
 _recipe_${1}_config
-ciel clean --factory-reset
-ciel merge dist /
+_recipe_post
 set +e
