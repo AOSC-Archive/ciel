@@ -13,7 +13,11 @@ Or Wiki:
 - https://github.com/AOSC-Dev/ciel/wiki/The-Ciel-User-Manual-zh_CN
 
 ## installation
+
+
 ```
+git clone https://github.com/AOSC-Dev/ciel
+cd ciel
 make
 sudo make install
 ```
