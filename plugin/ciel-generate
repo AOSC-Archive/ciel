@@ -56,7 +56,7 @@ _recipe_base_config() {
 		NetworkManager-wait-online.service NetworkManager.service acpid.service acpid.socket \
 		apt-update.timer autovt@.service bluetooth.service ctrl-alt-del.target \
 		fc-cache.service fcron.service fstrim.timer getty@.service \
-		gpm.service lvm2-lvmetad.service lvm2-monitor.service machines.target nm-fakemac-quirk.service \
+		gpm.service lvm2-lvmetad.service lvm2-monitor.service machines.target \
 		reboot.target remote-fs.target smartd.service sshd.service systemd-networkd-wait-online.service \
 		systemd-networkd.service systemd-networkd.socket systemd-resolved.service systemd-timesyncd.service \
 		tlp-sleep.service tlp.service"
@@ -72,7 +72,7 @@ _recipe_budgie_config() {
 		acpid.socket apt-update.timer autovt@.service bluetooth.service ctrl-alt-del.target \
 		fc-cache.service fcron.service fstrim.timer \
 		getty@.service gpm.service lightdm.service lircd.service lvm2-lvmetad.service lvm2-monitor.service \
-		machines.target nm-fakemac-quirk.service org.cups.cupsd.path org.cups.cupsd.service org.cups.cupsd.socket \
+		machines.target org.cups.cupsd.path org.cups.cupsd.service org.cups.cupsd.socket \
 		reboot.target remote-fs.target smartd.service smbd.service sshd.service systemd-networkd-wait-online.service \
 		systemd-networkd.service systemd-networkd.socket systemd-resolved.service systemd-timesyncd.service \
 		tlp-sleep.service tlp.service udisks2.service upower.service"
@@ -100,7 +100,7 @@ _recipe_gnome_config() {
 		acpid.socket apt-update.timer autovt@.service bluetooth.service ctrl-alt-del.target \
 		fc-cache.service fcron.service fstrim.timer \
 		gdm.service getty@.service gpm.service httpd.service lircd.service lvm2-lvmetad.service lvm2-monitor.service \
-		machines.target nm-fakemac-quirk.service org.cups.cupsd.path org.cups.cupsd.service org.cups.cupsd.socket \
+		machines.target org.cups.cupsd.path org.cups.cupsd.service org.cups.cupsd.socket \
 		reboot.target remote-fs.target smartd.service smbd.service sshd.service systemd-networkd-wait-online.service \
 		systemd-networkd.service systemd-networkd.socket systemd-resolved.service systemd-timesyncd.service \
 		tlp-sleep.service tlp.service udisks2.service upower.service"
