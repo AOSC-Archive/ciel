@@ -1,11 +1,202 @@
 #!/bin/bash
+# Usage: ciel-gen <recipe>, one recipe at a time.
+
+# Determine architecture of build host.
+BUILD_ARCH="!(dpkg-architecture -qDEB_BUILD_ARCH)"
+
+# Common denominators.
+PREREQ_RECIPE="systemd"
+BOOTABLE_RECIPE="boot-base kernel-base"
+
+# Define default browser.
+# Firefox does not work well on PPC64.
+if [[ "${BUILD_ARCH}" = "ppc64" ]]; then
+	BROWSER_RECIPE="palemoon"
+else
+	BROWSER_RECIPE="firefox"
+fi
+
+# Specific recipes of all variants.
+CONTAINER_RECIPE="admin-base core-base editor-base python-base network-base systemd-base web-base util-base"
+BASE_RECIPE="${CONTAINER_RECIPE} ${BOOTABLE_RECIPE}"
+BUILDKIT_RECIPE="${CONTAINER_RECIPE} devel-base debug-base git autobuild3 acbs"
+BUDGIE_RECIPE="${BASE_RECIPE} budgie-base ibus-base gnome-distro-base ${BROWSER_RECIPE} xdg-user-dirs* packagekit-backend-aptcc budgie-default-settings lightdm-gtk-greeter-settings"
+CINNAMON_RECIPE="${BASE_RECIPE} cinnamon-base cinnamon-distro-base ibus-base ${BROWSER_RECIPE} xdg-user-dirs* packagekit-backend-aptcc lightdm-gtk-greeter-settings gnome-packagekit gnome-software cinnamon-default-settings"
+GNOME_RECIPE="${BASE_RECIPE} gnome-base ibus-base gnome-distro-base ${BROWSER_RECIPE} xdg-user-dirs* packagekit-backend-aptcc gnome-default-settings"
+I3WM_RECIPE="${BASE_RECIPE} i3-distro-base i3-default-settings lightdm-gtk-greeter-settings ${BROWSER_RECIPE} arc-theme flat-remix-icon-theme desktop-base"
+KDE_RECIPE="${BASE_RECIPE} kde-base fcitx-base ${BROWSER_RECIPE} xdg-user-dirs* packagekit-backend-aptcc sddm mpv kdeplasma-addons"
+LXDE_RECIPE="${BASE_RECIPE} lxde-base lxde-distro-base ibus-base ${BROWSER_RECIPE} xdg-user-dirs* packagekit-backend-aptcc lightdm-gtk-greeter-settings lxde-default-settings arc-icon-theme arc-openbox network-manager-applet gnome-screenshot volumeicon"
+MATE_RECIPE="${BASE_RECIPE} mate-base mate-distro-base ibus-base ${BROWSER_RECIPE} xdg-user-dirs* packagekit-backend-aptcc lightdm-gtk-greeter-settings mpv mate-default-settings"
+XFCE_RECIPE="${BASE_RECIPE} xfce-base xfce-distro-base ibus-base ${BROWSER_RECIPE} xdg-user-dirs* packagekit-backend-aptcc lightdm-gtk-greeter-settings mpv xfce4-default-settings"
+
+# Declare an array of recipes.
+declare -A recipes
+recipes['base']="${BASE_RECIPE}"
+recipes['buildkit']="${BUILDKIT_RECIPE}"
+recipes['budgie']="${BUDGIE_RECIPE}"
+recipes['cinnamon']="${CINNAMON_RECIPE}"
+recipes['container']="${CONAINER_RECIPE}"
+recipes['gnome']="${GNOME_RECIPE}"
+recipes['i3wm']="${I3WM_RECIPE}"
+recipes['kde']="${KDE_RECIPE}"
+recipes['lxde']="${LXDE_RECIPE}"
+recipes['mate']="${MATE_RECIPE}"
+recipes['xfce']="${XFCE_RECIPE}"
+
+# Common functions.
+_recipe_post() {
+	# Clean up.
+	ciel clean --factory-reset
+	ciel merge dist /
+}
+
+# Recipe-specific functions.
+_recipe_install() {
+	ciel ~update
+	ciel shell "apt -o Dpkg::Options::=\"--force-confdef\" -o Dpkg::Options::=\"--force-confnew\" install --yes ${PREREQ_RECIPE}"
+	ciel shell "apt -o Dpkg::Options::=\"--force-confdef\" -o Dpkg::Options::=\"--force-confnew\" install --yes ${recipes[$1]}"
+	ciel shell "apt autoremove --purge --yes"
+}
+_recipe_base_config() {
+	# FIXME: preset.
+	ciel shell "systemctl enable ModemManager.service NetworkManager-dispatcher.service \
+		NetworkManager-wait-online.service NetworkManager.service acpid.service acpid.socket \
+		apt-update.timer autovt@.service bluetooth.service ctrl-alt-del.target dbus-org.bluez.service \
+		dbus-org.freedesktop.ModemManager1.service dbus-org.freedesktop.NetworkManager.service \
+		dbus-org.freedesktop.network1.service dbus-org.freedesktop.nm-dispatcher.service \
+		dbus-org.freedesktop.resolve1.service fc-cache.service fcron.service fstrim.timer getty@.service \
+		gpm.service lvm2-lvmetad.service lvm2-monitor.service machines.target nm-fakemac-quirk.service \
+		reboot.target remote-fs.target smartd.service sshd.service systemd-networkd-wait-online.service \
+		systemd-networkd.service systemd-networkd.socket systemd-resolved.service systemd-timesyncd.service \
+		tlp-sleep.service tlp.service"
+}
+_recipe_buildkit_config() {
+	# FIXME: apply this to all recipes later.
+	ciel shell "systemctl preset-all"
+}
+_recipe_budgie_config() {
+	# FIXME: preset.
+	ciel shell "systemctl enable ModemManager.service NetworkManager-dispatcher.service \
+		NetworkManager-wait-online.service NetworkManager.service accounts-daemon.service acpid.service \
+		acpid.socket apt-update.timer autovt@.service bluetooth.service ctrl-alt-del.target dbus-org.bluez.service \
+		dbus-org.freedesktop.ModemManager1.service dbus-org.freedesktop.NetworkManager.service \
+		dbus-org.freedesktop.network1.service dbus-org.freedesktop.nm-dispatcher.service \
+		dbus-org.freedesktop.resolve1.service display-manager.service fc-cache.service fcron.service fstrim.timer \
+		getty@.service gpm.service lightdm.service lircd.service lvm2-lvmetad.service lvm2-monitor.service \
+		machines.target nm-fakemac-quirk.service org.cups.cupsd.path org.cups.cupsd.service org.cups.cupsd.socket \
+		reboot.target remote-fs.target smartd.service smbd.service sshd.service systemd-networkd-wait-online.service \
+		systemd-networkd.service systemd-networkd.socket systemd-resolved.service systemd-timesyncd.service \
+		tlp-sleep.service tlp.service udisks2.service upower.service"
+}
+_recipe_container_config() {
+	# FIXME: apply this to all recipes later.
+	ciel shell "systemctl preset-all"
+}
+_recipe_cinnamon_config() {
+	# FIXME: preset.
+	ciel shell "systemctl enable ModemManager.service NetworkManager-dispatcher.service \
+		NetworkManager-wait-online.service NetworkManager.service accounts-daemon.service acpid.service \
+		acpid.socket apt-update.timer autovt@.service bluetooth.service ctrl-alt-del.target dbus-org.bluez.service \
+		dbus-org.freedesktop.ModemManager1.service dbus-org.freedesktop.NetworkManager.service \
+		dbus-org.freedesktop.network1.service dbus-org.freedesktop.nm-dispatcher.service \
+		dbus-org.freedesktop.resolve1.service display-manager.service fc-cache.service fcron.service fstrim.timer \
+		getty@.service gpm.service lightdm.service lircd.service lvm2-lvmetad.service lvm2-monitor.service \
+		machines.target org.cups.cupsd.path org.cups.cupsd.service org.cups.cupsd.socket reboot.target \
+		remote-fs.target smartd.service smbd.service sshd.service systemd-networkd-wait-online.service \
+		systemd-networkd.service systemd-networkd.socket systemd-resolved.service systemd-timesyncd.service \
+		tlp-sleep.service tlp.service udisks2.service upower.service"
+}
+_recipe_gnome_config() {
+	# FIXME: preset.
+	ciel shell "systemctl enable ModemManager.service NetworkManager-dispatcher.service \
+		NetworkManager-wait-online.service NetworkManager.service accounts-daemon.service acpid.service \
+		acpid.socket apt-update.timer autovt@.service bluetooth.service ctrl-alt-del.target \
+		dbus-org.bluez.service dbus-org.freedesktop.ModemManager1.service dbus-org.freedesktop.NetworkManager.service \
+		dbus-org.freedesktop.network1.service dbus-org.freedesktop.nm-dispatcher.service \
+		dbus-org.freedesktop.resolve1.service display-manager.service fc-cache.service fcron.service fstrim.timer \
+		gdm.service getty@.service gpm.service httpd.service lircd.service lvm2-lvmetad.service lvm2-monitor.service \
+		machines.target nm-fakemac-quirk.service org.cups.cupsd.path org.cups.cupsd.service org.cups.cupsd.socket \
+		reboot.target remote-fs.target smartd.service smbd.service sshd.service systemd-networkd-wait-online.service \
+		systemd-networkd.service systemd-networkd.socket systemd-resolved.service systemd-timesyncd.service \
+		tlp-sleep.service tlp.service udisks2.service upower.service"
+}
+_recipe_i3wm_config() {
+	# FIXME: preset.
+	ciel shell "systemctl enable ModemManager.service NetworkManager-dispatcher.service \
+		NetworkManager-wait-online.service NetworkManager.service accounts-daemon.service acpid.service \
+		acpid.socket apt-update.timer autovt@.service bluetooth.service ctrl-alt-del.target dbus-org.bluez.service \
+		dbus-org.freedesktop.ModemManager1.service dbus-org.freedesktop.NetworkManager.service \
+		dbus-org.freedesktop.network1.service dbus-org.freedesktop.nm-dispatcher.service \
+		dbus-org.freedesktop.resolve1.service display-manager.service fc-cache.service fcron.service fstrim.timer \
+		getty@.service gpm.service lightdm.service lircd.service lvm2-lvmetad.service lvm2-monitor.service \
+		machines.target org.cups.cupsd.path org.cups.cupsd.service org.cups.cupsd.socket reboot.target \
+		remote-fs.target smartd.service smbd.service sshd.service systemd-networkd-wait-online.service \
+		systemd-networkd.service systemd-networkd.socket systemd-resolved.service systemd-timesyncd.service \
+		tlp-sleep.service tlp.service udisks2.service upower.service"
+}
+_recipe_kde_config() {
+	# FIXME: preset.
+	ciel shell "systemctl enable ModemManager.service NetworkManager-dispatcher.service \
+		NetworkManager-wait-online.service NetworkManager.service accounts-daemon.service acpid.service \
+		acpid.socket apt-update.timer autovt@.service bluetooth.service ctrl-alt-del.target dbus-org.bluez.service \
+		dbus-org.freedesktop.ModemManager1.service dbus-org.freedesktop.NetworkManager.service \
+		dbus-org.freedesktop.network1.service dbus-org.freedesktop.nm-dispatcher.service \
+		dbus-org.freedesktop.resolve1.service display-manager.service fc-cache.service fcron.service fstrim.timer \
+		getty@.service gpm.service lircd.service lvm2-lvmetad.service lvm2-monitor.service \
+		machines.target org.cups.cupsd.path org.cups.cupsd.service org.cups.cupsd.socket reboot.target \
+		remote-fs.target sddm.service smartd.service smbd.service sshd.service systemd-networkd-wait-online.service \
+		systemd-networkd.service systemd-networkd.socket systemd-resolved.service systemd-timesyncd.service \
+		tlp-sleep.service tlp.service udisks2.service upower.service"
+}
+_recipe_lxde_config() {
+	# FIXME: preset.
+	ciel shell "systemctl enable ModemManager.service NetworkManager-dispatcher.service \
+		NetworkManager-wait-online.service NetworkManager.service accounts-daemon.service acpid.service \
+		acpid.socket apt-update.timer autovt@.service bluetooth.service ctrl-alt-del.target dbus-org.bluez.service \
+		dbus-org.freedesktop.ModemManager1.service dbus-org.freedesktop.NetworkManager.service \
+		dbus-org.freedesktop.network1.service dbus-org.freedesktop.nm-dispatcher.service \
+		dbus-org.freedesktop.resolve1.service display-manager.service fc-cache.service fcron.service fstrim.timer \
+		getty@.service gpm.service lightdm.service lircd.service lvm2-lvmetad.service lvm2-monitor.service \
+		machines.target org.cups.cupsd.path org.cups.cupsd.service org.cups.cupsd.socket reboot.target \
+		remote-fs.target smartd.service smbd.service sshd.service systemd-networkd-wait-online.service \
+		systemd-networkd.service systemd-networkd.socket systemd-resolved.service systemd-timesyncd.service \
+		tlp-sleep.service tlp.service udisks2.service upower.service"
+}
+_recipe_mate_config() {
+	# FIXME: preset.
+	ciel shell "systemctl enable ModemManager.service NetworkManager-dispatcher.service \
+		NetworkManager-wait-online.service NetworkManager.service accounts-daemon.service acpid.service \
+		acpid.socket apt-update.timer autovt@.service bluetooth.service ctrl-alt-del.target dbus-org.bluez.service \
+		dbus-org.freedesktop.ModemManager1.service dbus-org.freedesktop.NetworkManager.service \
+		dbus-org.freedesktop.network1.service dbus-org.freedesktop.nm-dispatcher.service \
+		dbus-org.freedesktop.resolve1.service display-manager.service fc-cache.service fcron.service fstrim.timer \
+		getty@.service gpm.service lightdm.service lircd.service lvm2-lvmetad.service lvm2-monitor.service \
+		machines.target org.cups.cupsd.path org.cups.cupsd.service org.cups.cupsd.socket reboot.target \
+		remote-fs.target smartd.service smbd.service sshd.service systemd-networkd-wait-online.service \
+		systemd-networkd.service systemd-networkd.socket systemd-resolved.service systemd-timesyncd.service \
+		tlp-sleep.service tlp.service udisks2.service upower.service"
+}
+_recipe_xfce_config() {
+	# FIXME: preset.
+	ciel shell "systemctl enable ModemManager.service NetworkManager-dispatcher.service \
+		NetworkManager-wait-online.service NetworkManager.service accounts-daemon.service acpid.service \
+		acpid.socket apt-update.timer autovt@.service bluetooth.service ctrl-alt-del.target dbus-org.bluez.service \
+		dbus-org.freedesktop.ModemManager1.service dbus-org.freedesktop.NetworkManager.service \
+		dbus-org.freedesktop.network1.service dbus-org.freedesktop.nm-dispatcher.service \
+		dbus-org.freedesktop.resolve1.service display-manager.service fc-cache.service fcron.service fstrim.timer \
+		getty@.service gpm.service lightdm.service lircd.service lvm2-lvmetad.service lvm2-monitor.service \
+		machines.target org.cups.cupsd.path org.cups.cupsd.service org.cups.cupsd.socket reboot.target \
+		remote-fs.target smartd.service smbd.service sshd.service systemd-networkd-wait-online.service \
+		systemd-networkd.service systemd-networkd.socket systemd-resolved.service systemd-timesyncd.service \
+		tlp-sleep.service tlp.service udisks2.service upower.service"
+}
+
+# Nike.
 set -e
 ciel ~update
-ciel shell "apt -o Dpkg::Options::=\"--force-confdef\" -o Dpkg::Options::=\"--force-confnew\" install --yes systemd"
-ciel shell "apt -o Dpkg::Options::=\"--force-confdef\" -o Dpkg::Options::=\"--force-confnew\" install --yes admin-base core-base editor-base python-base network-base systemd-base web-base util-base devel-base debug-base git autobuild3 acbs"
-ciel shell "systemctl preset-all"
-ciel shell "apt autoremove --purge --yes"
-ciel merge-cache
+_recipe_install
+_recipe_post
+_recipe_${1}_config
 ciel clean --factory-reset
 ciel merge dist /
 set +e
