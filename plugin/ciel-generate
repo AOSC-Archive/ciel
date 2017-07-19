@@ -4,6 +4,12 @@
 # Determine architecture of build host.
 BUILD_ARCH="!(dpkg-architecture -qDEB_BUILD_ARCH)"
 
+# Determine the recipe to build.
+VARIANT="$1"
+
+# FIXME: Handy variable.
+CALCULATED_RECIPE="${VARIANT^^}_RECIPE"
+
 # Common denominators.
 PREREQ_RECIPE="systemd"
 BOOTABLE_RECIPE="boot-base kernel-base"
@@ -29,20 +35,6 @@ LXDE_RECIPE="${BASE_RECIPE} lxde-base lxde-distro-base ibus-base ${BROWSER_RECIP
 MATE_RECIPE="${BASE_RECIPE} mate-base mate-distro-base ibus-base ${BROWSER_RECIPE} xdg-user-dirs* packagekit-backend-aptcc lightdm-gtk-greeter-settings mpv mate-default-settings"
 XFCE_RECIPE="${BASE_RECIPE} xfce-base xfce-distro-base ibus-base ${BROWSER_RECIPE} xdg-user-dirs* packagekit-backend-aptcc lightdm-gtk-greeter-settings mpv xfce4-default-settings"
 
-# Declare an array of recipes.
-declare -A recipes
-recipes['base']="${BASE_RECIPE}"
-recipes['buildkit']="${BUILDKIT_RECIPE}"
-recipes['budgie']="${BUDGIE_RECIPE}"
-recipes['cinnamon']="${CINNAMON_RECIPE}"
-recipes['container']="${CONAINER_RECIPE}"
-recipes['gnome']="${GNOME_RECIPE}"
-recipes['i3wm']="${I3WM_RECIPE}"
-recipes['kde']="${KDE_RECIPE}"
-recipes['lxde']="${LXDE_RECIPE}"
-recipes['mate']="${MATE_RECIPE}"
-recipes['xfce']="${XFCE_RECIPE}"
-
 # Common functions.
 _recipe_post() {
 	# Clean up.
@@ -55,14 +47,14 @@ _recipe_post() {
 _recipe_install() {
 	ciel ~update
 	ciel shell "apt -o Dpkg::Options::=\"--force-confdef\" -o Dpkg::Options::=\"--force-confnew\" install --yes ${PREREQ_RECIPE}"
-	ciel shell "apt -o Dpkg::Options::=\"--force-confdef\" -o Dpkg::Options::=\"--force-confnew\" install --yes ${recipes[$1]}"
+	ciel shell "apt -o Dpkg::Options::=\"--force-confdef\" -o Dpkg::Options::=\"--force-confnew\" install --yes ${!CALCULATED_RECIPE}"
 	ciel shell "apt autoremove --purge --yes"
 }
 _recipe_base_config() {
 	# FIXME: preset.
 	ciel shell "systemctl enable ModemManager.service NetworkManager-dispatcher.service \
 		NetworkManager-wait-online.service NetworkManager.service acpid.service acpid.socket \
-		apt-update.timer autovt@.service bluetooth.service ctrl-alt-del.target dbus-org.bluez.service \
+		apt-update.timer autovt@.service bluetooth.service ctrl-alt-del.target \
 		dbus-org.freedesktop.ModemManager1.service dbus-org.freedesktop.NetworkManager.service \
 		dbus-org.freedesktop.network1.service dbus-org.freedesktop.nm-dispatcher.service \
 		dbus-org.freedesktop.resolve1.service fc-cache.service fcron.service fstrim.timer getty@.service \
@@ -79,7 +71,7 @@ _recipe_budgie_config() {
 	# FIXME: preset.
 	ciel shell "systemctl enable ModemManager.service NetworkManager-dispatcher.service \
 		NetworkManager-wait-online.service NetworkManager.service accounts-daemon.service acpid.service \
-		acpid.socket apt-update.timer autovt@.service bluetooth.service ctrl-alt-del.target dbus-org.bluez.service \
+		acpid.socket apt-update.timer autovt@.service bluetooth.service ctrl-alt-del.target \
 		dbus-org.freedesktop.ModemManager1.service dbus-org.freedesktop.NetworkManager.service \
 		dbus-org.freedesktop.network1.service dbus-org.freedesktop.nm-dispatcher.service \
 		dbus-org.freedesktop.resolve1.service display-manager.service fc-cache.service fcron.service fstrim.timer \
@@ -97,7 +89,7 @@ _recipe_cinnamon_config() {
 	# FIXME: preset.
 	ciel shell "systemctl enable ModemManager.service NetworkManager-dispatcher.service \
 		NetworkManager-wait-online.service NetworkManager.service accounts-daemon.service acpid.service \
-		acpid.socket apt-update.timer autovt@.service bluetooth.service ctrl-alt-del.target dbus-org.bluez.service \
+		acpid.socket apt-update.timer autovt@.service bluetooth.service ctrl-alt-del.target \
 		dbus-org.freedesktop.ModemManager1.service dbus-org.freedesktop.NetworkManager.service \
 		dbus-org.freedesktop.network1.service dbus-org.freedesktop.nm-dispatcher.service \
 		dbus-org.freedesktop.resolve1.service display-manager.service fc-cache.service fcron.service fstrim.timer \
@@ -125,7 +117,7 @@ _recipe_i3wm_config() {
 	# FIXME: preset.
 	ciel shell "systemctl enable ModemManager.service NetworkManager-dispatcher.service \
 		NetworkManager-wait-online.service NetworkManager.service accounts-daemon.service acpid.service \
-		acpid.socket apt-update.timer autovt@.service bluetooth.service ctrl-alt-del.target dbus-org.bluez.service \
+		acpid.socket apt-update.timer autovt@.service bluetooth.service ctrl-alt-del.target \
 		dbus-org.freedesktop.ModemManager1.service dbus-org.freedesktop.NetworkManager.service \
 		dbus-org.freedesktop.network1.service dbus-org.freedesktop.nm-dispatcher.service \
 		dbus-org.freedesktop.resolve1.service display-manager.service fc-cache.service fcron.service fstrim.timer \
@@ -139,7 +131,7 @@ _recipe_kde_config() {
 	# FIXME: preset.
 	ciel shell "systemctl enable ModemManager.service NetworkManager-dispatcher.service \
 		NetworkManager-wait-online.service NetworkManager.service accounts-daemon.service acpid.service \
-		acpid.socket apt-update.timer autovt@.service bluetooth.service ctrl-alt-del.target dbus-org.bluez.service \
+		acpid.socket apt-update.timer autovt@.service bluetooth.service ctrl-alt-del.target \
 		dbus-org.freedesktop.ModemManager1.service dbus-org.freedesktop.NetworkManager.service \
 		dbus-org.freedesktop.network1.service dbus-org.freedesktop.nm-dispatcher.service \
 		dbus-org.freedesktop.resolve1.service display-manager.service fc-cache.service fcron.service fstrim.timer \
@@ -153,7 +145,7 @@ _recipe_lxde_config() {
 	# FIXME: preset.
 	ciel shell "systemctl enable ModemManager.service NetworkManager-dispatcher.service \
 		NetworkManager-wait-online.service NetworkManager.service accounts-daemon.service acpid.service \
-		acpid.socket apt-update.timer autovt@.service bluetooth.service ctrl-alt-del.target dbus-org.bluez.service \
+		acpid.socket apt-update.timer autovt@.service bluetooth.service ctrl-alt-del.target \
 		dbus-org.freedesktop.ModemManager1.service dbus-org.freedesktop.NetworkManager.service \
 		dbus-org.freedesktop.network1.service dbus-org.freedesktop.nm-dispatcher.service \
 		dbus-org.freedesktop.resolve1.service display-manager.service fc-cache.service fcron.service fstrim.timer \
@@ -167,7 +159,7 @@ _recipe_mate_config() {
 	# FIXME: preset.
 	ciel shell "systemctl enable ModemManager.service NetworkManager-dispatcher.service \
 		NetworkManager-wait-online.service NetworkManager.service accounts-daemon.service acpid.service \
-		acpid.socket apt-update.timer autovt@.service bluetooth.service ctrl-alt-del.target dbus-org.bluez.service \
+		acpid.socket apt-update.timer autovt@.service bluetooth.service ctrl-alt-del.target \
 		dbus-org.freedesktop.ModemManager1.service dbus-org.freedesktop.NetworkManager.service \
 		dbus-org.freedesktop.network1.service dbus-org.freedesktop.nm-dispatcher.service \
 		dbus-org.freedesktop.resolve1.service display-manager.service fc-cache.service fcron.service fstrim.timer \
@@ -181,7 +173,7 @@ _recipe_xfce_config() {
 	# FIXME: preset.
 	ciel shell "systemctl enable ModemManager.service NetworkManager-dispatcher.service \
 		NetworkManager-wait-online.service NetworkManager.service accounts-daemon.service acpid.service \
-		acpid.socket apt-update.timer autovt@.service bluetooth.service ctrl-alt-del.target dbus-org.bluez.service \
+		acpid.socket apt-update.timer autovt@.service bluetooth.service ctrl-alt-del.target \
 		dbus-org.freedesktop.ModemManager1.service dbus-org.freedesktop.NetworkManager.service \
 		dbus-org.freedesktop.network1.service dbus-org.freedesktop.nm-dispatcher.service \
 		dbus-org.freedesktop.resolve1.service display-manager.service fc-cache.service fcron.service fstrim.timer \
@@ -194,7 +186,6 @@ _recipe_xfce_config() {
 
 # Nike.
 set -e
-ciel ~update
 _recipe_install
 _recipe_${1}_config
 _recipe_post
