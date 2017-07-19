@@ -5,11 +5,13 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 	"syscall"
 )
 
 const (
-	PluginDir = LibExecDir + "/ciel-plugin/"
+	PluginDir    = LibExecDir + "/ciel-plugin/"
+	PluginPrefix = "ciel-"
 )
 
 // Plugin defines a ciel plugin
@@ -20,7 +22,7 @@ type Plugin struct {
 }
 
 func cielPlugin() int {
-	proc := PluginDir + "ciel-" + SubCommand
+	proc := PluginDir + PluginPrefix + SubCommand
 	cmd := exec.Command(proc, SubArgs...)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
@@ -47,8 +49,8 @@ func getPlugins() []Plugin {
 			return nil
 		}
 		fname := f.Name()
-		if len(fname) > 5 && fname[:5] == `ciel-` {
-			Plugins = append(Plugins, Plugin{Name: fname[5:]})
+		if len(fname) > len(PluginPrefix) && strings.HasPrefix(fname, PluginPrefix) {
+			Plugins = append(Plugins, Plugin{Name: fname[len(PluginPrefix):]})
 		}
 		return nil
 	})
