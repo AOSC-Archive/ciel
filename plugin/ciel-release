@@ -7,19 +7,19 @@ WORKDIR="$PWD"
 XZ_PARAM="-T 0 -9 -e --lzma2=preset=9e,nice=273"
 DATE="$(TZ=UTC date +'%Y%m%d')"
 ARCH="$(dpkg-architecture -qDEB_BUILD_ARCH)"
+VARIANT="$1"
 
-cd "$MOUNT_POINT"
-# Make a tarball
-# FIXME: BuildKit has a special naming scheme.
-if [[ "${1}" = "buildkit" ]]; then
-	tar cvf - *  | xz $XZ_PARAM > "$WORKDIR"/aosc-os-buildkit_"${DATE}"_"${ARCH}".tar.xz
+cd "$MOUNT_POINT" || return 1
+
+_ciel_tarball() {
+	# Make a tarball
+	tar cvf - *  | xz $XZ_PARAM > "$WORKDIR"/aosc-os_${VARIANT}_"${DATE}"_"${ARCH}".tar.xz || return 1
 	# Generate SHA256 checksum.
-	sha256sum "$WORKDIR"/aosc-os-buildkit_"${DATE}"_"${ARCH}".tar.xz{,.sha256sum}
-else
-	tar cvf - *  | xz $XZ_PARAM > "$WORKDIR"/aosc-os_${1}_"${DATE}"_"${ARCH}".tar.xz
-	# Generate SHA256 checksum.
-	sha256sum "$WORKDIR"/aosc-os_${1}_"${DATE}"_"${ARCH}".tar.xz{,.sha256sum}
-fi
+	cd "$WORKDIR"
+	sha256sum aosc-os_${VARIANT}_"${DATE}"_"${ARCH}".tar.xz > aosc-os_${VARIANT}_"${DATE}"_"${ARCH}".tar.xz.sha256sum || return 1
+}
+
+_ciel_tarball
 
 cd "$WORKDIR"
 umount "$MOUNT_POINT"
