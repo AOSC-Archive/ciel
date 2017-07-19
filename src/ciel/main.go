@@ -13,8 +13,6 @@ import (
 	"time"
 )
 
-const Version = "0.3.2"
-
 const (
 	MachineName   = "ciel"
 	FileSystemDir = "./cielfs"
