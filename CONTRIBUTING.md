@@ -8,7 +8,7 @@ git clone https://github.com/AOSC-Dev/ciel
 git submodule update --init
 ```
 
-If you want to change anything in `/src/ciel-driver`, it is at repository https://github.com/AOSC-Dev/ciel-driver.
+If you want to make changes to anything in `/src/ciel-driver`, it is at repository https://github.com/AOSC-Dev/ciel-driver.
 
 ## Files & Directories
 
@@ -18,7 +18,7 @@ You MUST keep the plugin executable, `chmod a+x ciel-myplugin`.
 
 A plugin could be a shell script, a python script, a binary...
 
-Use `./format.sh` to format your code BEFORE committing, I'll suggest you to make a symbol link at `/.git/hook/pre_commit` to `format.sh`.
+Use `./format.sh` to format your code BEFORE committing, I would suggest you to make a symbol link at `/.git/hook/pre_commit` to `format.sh`.
 
 
 ## Coding Style
