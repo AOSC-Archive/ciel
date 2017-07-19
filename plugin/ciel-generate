@@ -55,9 +55,7 @@ _recipe_base_config() {
 	ciel shell "systemctl enable ModemManager.service NetworkManager-dispatcher.service \
 		NetworkManager-wait-online.service NetworkManager.service acpid.service acpid.socket \
 		apt-update.timer autovt@.service bluetooth.service ctrl-alt-del.target \
-		dbus-org.freedesktop.ModemManager1.service dbus-org.freedesktop.NetworkManager.service \
-		dbus-org.freedesktop.network1.service dbus-org.freedesktop.nm-dispatcher.service \
-		dbus-org.freedesktop.resolve1.service fc-cache.service fcron.service fstrim.timer getty@.service \
+		fc-cache.service fcron.service fstrim.timer getty@.service \
 		gpm.service lvm2-lvmetad.service lvm2-monitor.service machines.target nm-fakemac-quirk.service \
 		reboot.target remote-fs.target smartd.service sshd.service systemd-networkd-wait-online.service \
 		systemd-networkd.service systemd-networkd.socket systemd-resolved.service systemd-timesyncd.service \
@@ -72,9 +70,7 @@ _recipe_budgie_config() {
 	ciel shell "systemctl enable ModemManager.service NetworkManager-dispatcher.service \
 		NetworkManager-wait-online.service NetworkManager.service accounts-daemon.service acpid.service \
 		acpid.socket apt-update.timer autovt@.service bluetooth.service ctrl-alt-del.target \
-		dbus-org.freedesktop.ModemManager1.service dbus-org.freedesktop.NetworkManager.service \
-		dbus-org.freedesktop.network1.service dbus-org.freedesktop.nm-dispatcher.service \
-		dbus-org.freedesktop.resolve1.service display-manager.service fc-cache.service fcron.service fstrim.timer \
+		fc-cache.service fcron.service fstrim.timer \
 		getty@.service gpm.service lightdm.service lircd.service lvm2-lvmetad.service lvm2-monitor.service \
 		machines.target nm-fakemac-quirk.service org.cups.cupsd.path org.cups.cupsd.service org.cups.cupsd.socket \
 		reboot.target remote-fs.target smartd.service smbd.service sshd.service systemd-networkd-wait-online.service \
@@ -90,9 +86,7 @@ _recipe_cinnamon_config() {
 	ciel shell "systemctl enable ModemManager.service NetworkManager-dispatcher.service \
 		NetworkManager-wait-online.service NetworkManager.service accounts-daemon.service acpid.service \
 		acpid.socket apt-update.timer autovt@.service bluetooth.service ctrl-alt-del.target \
-		dbus-org.freedesktop.ModemManager1.service dbus-org.freedesktop.NetworkManager.service \
-		dbus-org.freedesktop.network1.service dbus-org.freedesktop.nm-dispatcher.service \
-		dbus-org.freedesktop.resolve1.service display-manager.service fc-cache.service fcron.service fstrim.timer \
+		fc-cache.service fcron.service fstrim.timer \
 		getty@.service gpm.service lightdm.service lircd.service lvm2-lvmetad.service lvm2-monitor.service \
 		machines.target org.cups.cupsd.path org.cups.cupsd.service org.cups.cupsd.socket reboot.target \
 		remote-fs.target smartd.service smbd.service sshd.service systemd-networkd-wait-online.service \
@@ -104,9 +98,7 @@ _recipe_gnome_config() {
 	ciel shell "systemctl enable ModemManager.service NetworkManager-dispatcher.service \
 		NetworkManager-wait-online.service NetworkManager.service accounts-daemon.service acpid.service \
 		acpid.socket apt-update.timer autovt@.service bluetooth.service ctrl-alt-del.target \
-		dbus-org.bluez.service dbus-org.freedesktop.ModemManager1.service dbus-org.freedesktop.NetworkManager.service \
-		dbus-org.freedesktop.network1.service dbus-org.freedesktop.nm-dispatcher.service \
-		dbus-org.freedesktop.resolve1.service display-manager.service fc-cache.service fcron.service fstrim.timer \
+		fc-cache.service fcron.service fstrim.timer \
 		gdm.service getty@.service gpm.service httpd.service lircd.service lvm2-lvmetad.service lvm2-monitor.service \
 		machines.target nm-fakemac-quirk.service org.cups.cupsd.path org.cups.cupsd.service org.cups.cupsd.socket \
 		reboot.target remote-fs.target smartd.service smbd.service sshd.service systemd-networkd-wait-online.service \
@@ -118,9 +110,7 @@ _recipe_i3wm_config() {
 	ciel shell "systemctl enable ModemManager.service NetworkManager-dispatcher.service \
 		NetworkManager-wait-online.service NetworkManager.service accounts-daemon.service acpid.service \
 		acpid.socket apt-update.timer autovt@.service bluetooth.service ctrl-alt-del.target \
-		dbus-org.freedesktop.ModemManager1.service dbus-org.freedesktop.NetworkManager.service \
-		dbus-org.freedesktop.network1.service dbus-org.freedesktop.nm-dispatcher.service \
-		dbus-org.freedesktop.resolve1.service display-manager.service fc-cache.service fcron.service fstrim.timer \
+		fc-cache.service fcron.service fstrim.timer \
 		getty@.service gpm.service lightdm.service lircd.service lvm2-lvmetad.service lvm2-monitor.service \
 		machines.target org.cups.cupsd.path org.cups.cupsd.service org.cups.cupsd.socket reboot.target \
 		remote-fs.target smartd.service smbd.service sshd.service systemd-networkd-wait-online.service \
@@ -132,9 +122,7 @@ _recipe_kde_config() {
 	ciel shell "systemctl enable ModemManager.service NetworkManager-dispatcher.service \
 		NetworkManager-wait-online.service NetworkManager.service accounts-daemon.service acpid.service \
 		acpid.socket apt-update.timer autovt@.service bluetooth.service ctrl-alt-del.target \
-		dbus-org.freedesktop.ModemManager1.service dbus-org.freedesktop.NetworkManager.service \
-		dbus-org.freedesktop.network1.service dbus-org.freedesktop.nm-dispatcher.service \
-		dbus-org.freedesktop.resolve1.service display-manager.service fc-cache.service fcron.service fstrim.timer \
+		fc-cache.service fcron.service fstrim.timer \
 		getty@.service gpm.service lircd.service lvm2-lvmetad.service lvm2-monitor.service \
 		machines.target org.cups.cupsd.path org.cups.cupsd.service org.cups.cupsd.socket reboot.target \
 		remote-fs.target sddm.service smartd.service smbd.service sshd.service systemd-networkd-wait-online.service \
@@ -146,9 +134,7 @@ _recipe_lxde_config() {
 	ciel shell "systemctl enable ModemManager.service NetworkManager-dispatcher.service \
 		NetworkManager-wait-online.service NetworkManager.service accounts-daemon.service acpid.service \
 		acpid.socket apt-update.timer autovt@.service bluetooth.service ctrl-alt-del.target \
-		dbus-org.freedesktop.ModemManager1.service dbus-org.freedesktop.NetworkManager.service \
-		dbus-org.freedesktop.network1.service dbus-org.freedesktop.nm-dispatcher.service \
-		dbus-org.freedesktop.resolve1.service display-manager.service fc-cache.service fcron.service fstrim.timer \
+		fc-cache.service fcron.service fstrim.timer \
 		getty@.service gpm.service lightdm.service lircd.service lvm2-lvmetad.service lvm2-monitor.service \
 		machines.target org.cups.cupsd.path org.cups.cupsd.service org.cups.cupsd.socket reboot.target \
 		remote-fs.target smartd.service smbd.service sshd.service systemd-networkd-wait-online.service \
@@ -160,9 +146,7 @@ _recipe_mate_config() {
 	ciel shell "systemctl enable ModemManager.service NetworkManager-dispatcher.service \
 		NetworkManager-wait-online.service NetworkManager.service accounts-daemon.service acpid.service \
 		acpid.socket apt-update.timer autovt@.service bluetooth.service ctrl-alt-del.target \
-		dbus-org.freedesktop.ModemManager1.service dbus-org.freedesktop.NetworkManager.service \
-		dbus-org.freedesktop.network1.service dbus-org.freedesktop.nm-dispatcher.service \
-		dbus-org.freedesktop.resolve1.service display-manager.service fc-cache.service fcron.service fstrim.timer \
+		fc-cache.service fcron.service fstrim.timer \
 		getty@.service gpm.service lightdm.service lircd.service lvm2-lvmetad.service lvm2-monitor.service \
 		machines.target org.cups.cupsd.path org.cups.cupsd.service org.cups.cupsd.socket reboot.target \
 		remote-fs.target smartd.service smbd.service sshd.service systemd-networkd-wait-online.service \
@@ -174,9 +158,7 @@ _recipe_xfce_config() {
 	ciel shell "systemctl enable ModemManager.service NetworkManager-dispatcher.service \
 		NetworkManager-wait-online.service NetworkManager.service accounts-daemon.service acpid.service \
 		acpid.socket apt-update.timer autovt@.service bluetooth.service ctrl-alt-del.target \
-		dbus-org.freedesktop.ModemManager1.service dbus-org.freedesktop.NetworkManager.service \
-		dbus-org.freedesktop.network1.service dbus-org.freedesktop.nm-dispatcher.service \
-		dbus-org.freedesktop.resolve1.service display-manager.service fc-cache.service fcron.service fstrim.timer \
+		fc-cache.service fcron.service fstrim.timer \
 		getty@.service gpm.service lightdm.service lircd.service lvm2-lvmetad.service lvm2-monitor.service \
 		machines.target org.cups.cupsd.path org.cups.cupsd.service org.cups.cupsd.socket reboot.target \
 		remote-fs.target smartd.service smbd.service sshd.service systemd-networkd-wait-online.service \
