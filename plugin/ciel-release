@@ -1,16 +1,28 @@
 #!/bin/bash
-MOUNT_POINT="$(ciel mount $*)"
+# Usage: ciel-release <variant>, where <variant> is the name of the variant.
+#        This command will also invoke ciel-generate, so <variant> should be one of
+#        which defined in ciel-generate.
+MOUNT_POINT="$(ciel mount dist)"
 WORKDIR="$PWD"
 XZ_PARAM="-T 0 -9 -e --lzma2=preset=9e,nice=273"
 DATE="$(date +'%Y%m%d')"
 ARCH="$(dpkg-architecture -qDEB_BUILD_ARCH)"
 
+# Generate the release.
+ciel generate ${1}
+
 cd "$MOUNT_POINT"
-# Compress BuildKit.
-# FIXME: make this script universal for all flavours?
-tar cvf - *  | xz "$XZ_PARAM" > "$WORKDIR"/aosc-os-buildkit_"${DATE}"_"${ARCH}".tar.xz
-# Generate SHA256 checksum.
-sha256sum aosc-os-buildkit_"${DATE}"_"${ARCH}".tar.xz{,.sha256sum}
+# Make a tarball
+# FIXME: BuildKit has a special naming scheme.
+if [[ "${i}" = "buildkit" ]]; then
+	tar cvf - *  | xz "$XZ_PARAM" > "$WORKDIR"/aosc-os-buildkit_"${DATE}"_"${ARCH}".tar.xz
+	# Generate SHA256 checksum.
+	sha256sum aosc-os-buildkit_"${DATE}"_"${ARCH}".tar.xz{,.sha256sum}
+else
+	tar cvf - *  | xz "$XZ_PARAM" > "$WORKDIR"/aosc-os_${1}_"${DATE}"_"${ARCH}".tar.xz
+	# Generate SHA256 checksum.
+	sha256sum aosc-os_${1}_"${DATE}"_"${ARCH}".tar.xz{,.sha256sum}
+fi
 
 cd "$WORKDIR"
 umount "$MOUNT_POINT"
