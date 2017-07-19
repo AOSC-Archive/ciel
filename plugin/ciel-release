@@ -8,9 +8,6 @@ XZ_PARAM="-T 0 -9 -e --lzma2=preset=9e,nice=273"
 DATE="$(date +'%Y%m%d')"
 ARCH="$(dpkg-architecture -qDEB_BUILD_ARCH)"
 
-# Generate the release.
-ciel generate ${1}
-
 cd "$MOUNT_POINT"
 # Make a tarball
 # FIXME: BuildKit has a special naming scheme.
