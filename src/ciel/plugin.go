@@ -1,10 +1,10 @@
 package main
 
 import (
+	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
-	"path/filepath"
 	"strings"
 	"syscall"
 )
@@ -41,21 +41,19 @@ func cielPlugin() int {
 
 func getPlugins() []Plugin {
 	var Plugins []Plugin
-	err := filepath.Walk(PluginDir, func(path string, f os.FileInfo, err error) error {
-		if f == nil {
-			return err
-		}
-		if f.IsDir() {
-			return nil
-		}
-		fname := f.Name()
-		if len(fname) > len(PluginPrefix) && strings.HasPrefix(fname, PluginPrefix) {
-			Plugins = append(Plugins, Plugin{Name: fname[len(PluginPrefix):]})
-		}
-		return nil
-	})
+	files, err := ioutil.ReadDir(PluginDir)
 	if err != nil {
-		log.Fatalf("failed to walk in directory: %v\n", err)
+		log.Fatalf("failed to get files under plugin directory: %v\n", err)
+	}
+	for _, f := range files {
+		if f.IsDir() {
+			continue
+		} else {
+			fname := f.Name()
+			if len(fname) > len(PluginPrefix) && strings.HasPrefix(fname, PluginPrefix) {
+				Plugins = append(Plugins, Plugin{Name: fname[len(PluginPrefix):]})
+			}
+		}
 	}
 	return Plugins
 }
