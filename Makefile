@@ -6,7 +6,11 @@ ARCHS:=amd64 386 arm64 arm mips64le mipsle ppc64 # no powerpc 32 yet
 all: ciel
 
 src/ciel/version.go:
-	sed -e "s|@VERSION@|r`git rev-list --count HEAD`.`git rev-parse --short HEAD`|g" src/ciel/version.go.in > src/ciel/version.go
+	echo "package main" > src/ciel/version.go
+	echo >> src/ciel/version.go
+	echo -n "const Version = \"" >> src/ciel/version.go
+	echo -n $$(git describe --abbrev=0 --tags)-$$(( $$(git rev-list --count HEAD) - $$(git rev-list --count $$(git describe --abbrev=0 --tags)) ))+$$(git rev-parse --short HEAD) >> src/ciel/version.go
+	echo -n "\"" >> src/ciel/version.go
 
 ciel: src/ciel/version.go
 	GOPATH="$$PWD" go build ciel
@@ -28,7 +32,7 @@ install: ciel
 	install -Dm755 ./plugin/* $(PLGDIR)
 
 clean:
-	rm ciel
-	rm src/ciel/version.go
+	rm -f ciel
+	rm -f src/ciel/version.go
 
 .PHONY: all test-cross test install clean
