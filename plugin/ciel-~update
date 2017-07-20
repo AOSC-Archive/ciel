@@ -3,7 +3,7 @@ set -e
 ciel drop upperdir
 ciel drop dist
 ciel shell "apt update --yes"
-ciel shell "apt -o Dpkg::Options::=\"--force-confdef\" -o Dpkg::Options::=\"--force-confnew\" full-upgrade --yes"
+ciel shell "apt -o Dpkg::Options::=\"--force-confnew\" full-upgrade --yes"
 ciel shell "apt autoremove --purge --yes"
 ciel merge-cache
 ciel clean --factory-reset
