@@ -2,7 +2,6 @@ package main
 
 import (
 	"errors"
-	"log"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -27,7 +26,7 @@ func cleanNormal(c *ciel.Container) error {
 		`$^`, // => Nothing
 	}, func(path string, info os.FileInfo, err error) error {
 		if err := os.RemoveAll(path); err != nil {
-			log.Println(path, err.Error())
+			errlog.Println("clean:", path, err.Error())
 		}
 		return nil
 	})
@@ -52,7 +51,7 @@ func cleanFactoryReset(c *ciel.Container) error {
 		`^/var/lib/dpkg/[^/]*-old`,
 	}, func(path string, info os.FileInfo, err error) error {
 		if err := os.RemoveAll(path); err != nil {
-			log.Println(path, err.Error())
+			errlog.Println("clean:", err.Error())
 		}
 		return nil
 	})

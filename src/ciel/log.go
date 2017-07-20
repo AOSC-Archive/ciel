@@ -16,17 +16,24 @@ var (
 )
 
 func SetLogLevel(logLevel int) {
+	if logLevel < -2 {
+		logLevel = -2
+	} else if 2 <= logLevel {
+		logLevel = 2
+	}
 	switch logLevel {
-	case -1:
+	case -2:
 		errlog.SetOutput(ioutil.Discard)
 		fallthrough
-	case 0:
+	case -1:
 		warnlog.SetOutput(ioutil.Discard)
 		fallthrough
-	case 1:
+	case 0:
 		infolog.SetOutput(ioutil.Discard)
 		fallthrough
-	case 2:
+	case 1:
 		dbglog.SetOutput(ioutil.Discard)
+		fallthrough
+	case 2:
 	}
 }

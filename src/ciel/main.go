@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"math/rand"
 	"os"
 	"path/filepath"
@@ -70,7 +69,7 @@ func main() {
 
 func requireEUID0() {
 	if os.Geteuid() != 0 {
-		log.Fatalf("%s: you must be root to run this command\n", SubCommand)
+		errlog.Fatalf("%s: you must be root to run this command\n", SubCommand)
 	}
 }
 func requireFS() {
@@ -79,11 +78,11 @@ func requireFS() {
 		path = FileSystemDir
 	}
 	if fi, err := os.Stat(path); os.IsNotExist(err) {
-		log.Fatalf("%s: ciel file system %s not found\n", SubCommand, path)
+		errlog.Fatalf("%s: ciel file system %s not found\n", SubCommand, path)
 	} else if err != nil {
-		log.Fatalf("%s: cannot access ciel file system %s: %v\n", SubCommand, path, err)
+		errlog.Fatalf("%s: cannot access ciel file system %s: %v\n", SubCommand, path, err)
 	} else if !fi.IsDir() {
-		log.Fatalf("%s: ciel file system %s must be a directory\n", SubCommand, path)
+		errlog.Fatalf("%s: ciel file system %s must be a directory\n", SubCommand, path)
 	}
 }
 
@@ -91,12 +90,13 @@ func requireFS() {
 func cielInit() int {
 	requireEUID0()
 	if len(SubArgs) != 1 {
-		log.Println("init: you may only input one argument")
+		errlog.Println("init: you may only input one argument")
 		return 1
 	}
 	err := genesis(SubArgs[0], FileSystemDir)
 	if err != nil {
-		log.Fatalln(err)
+		errlog.Println(err)
+		return 1
 	}
 	return 0
 }
@@ -109,15 +109,14 @@ func cielDrop() int {
 	if len(SubArgs) == 0 {
 		SubArgs = []string{"upperdir"}
 	}
+	var err error
 	for _, layer := range SubArgs {
-		path := c.Fs.Layer(layer)
-		if path == "" {
-			log.Printf("drop: layer %s not exist\n", layer)
-			continue
+		if err = os.RemoveAll(c.Fs.Layer(layer)); err != nil {
+			warnlog.Println(err)
 		}
-		if err := os.RemoveAll(c.Fs.Layer(layer)); err != nil {
-			log.Println(err)
-		}
+	}
+	if err != nil {
+		return 1
 	}
 	return 0
 }
@@ -143,7 +142,8 @@ func cielMount() int {
 		err = c.Fs.MountReadOnly()
 	}
 	if err != nil {
-		log.Fatalln(err)
+		errlog.Println(err)
+		return 1
 	}
 	fmt.Println(c.Fs.TargetDir())
 	return 0
@@ -188,7 +188,8 @@ func cielClean() int {
 	c.Shutdown()
 	c.Fs.Unmount()
 	if err != nil {
-		log.Fatalln(err)
+		errlog.Println(err)
+		return 1
 	}
 	return 0
 }
@@ -206,7 +207,7 @@ func cielShell() int {
 	} else if len(SubArgs) == 1 {
 		exitStatus = c.Command(SubArgs[0])
 	} else {
-		log.Println("shell: you may only input one argument")
+		errlog.Println("shell: you may only input one argument")
 		return 1
 	}
 	return exitStatus
@@ -217,7 +218,7 @@ func cielRawcmd() int {
 	requireEUID0()
 	requireFS()
 	if len(SubArgs) == 0 {
-		log.Println("init: you must input one argument at least")
+		errlog.Println("rawcmd: you must input one argument at least")
 		return 1
 	}
 	c := ciel.New(MachineName, FileSystemDir)

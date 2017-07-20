@@ -2,7 +2,6 @@ package main
 
 import (
 	"io/ioutil"
-	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -34,7 +33,7 @@ func cielPlugin() int {
 			exitStatus := exitError.Sys().(syscall.WaitStatus)
 			return exitStatus.ExitStatus()
 		}
-		log.Printf("failed to run plugin %s: %v\n", SubCommand, err)
+		errlog.Printf("failed to run plugin %s: %v\n", SubCommand, err)
 		return 1
 	}
 	return 0
@@ -44,7 +43,7 @@ func getPlugins() []Plugin {
 	var Plugins []Plugin
 	files, err := ioutil.ReadDir(PluginDir)
 	if err != nil {
-		log.Fatalf("failed to get files under plugin directory: %v\n", err)
+		errlog.Fatalf("failed to get files under plugin directory: %v\n", err)
 	}
 	for _, f := range files {
 		if f.IsDir() {
