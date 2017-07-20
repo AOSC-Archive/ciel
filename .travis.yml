@@ -6,14 +6,14 @@ go:
   - tip
 os:
   - linux
-  - osx
 matrix:
   allow_failures:
     - go: tip
   fast_finish: true
-install:
-  - make install
 script:
   - make
   - make cross-all
   - make check
+  - make install
+  - ciel version
+  - ciel help
