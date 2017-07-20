@@ -18,6 +18,7 @@ Or Wiki:
 ```
 git clone https://github.com/AOSC-Dev/ciel
 cd ciel
+git submodule update --init --recursive
 make
 sudo make install
 ```
