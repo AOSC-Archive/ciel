@@ -1,0 +1,27 @@
+#!/bin/bash
+# Launch editor, edit files in "dist" or "stub", and save them to "override"
+
+# if ./cielfs/10-dist/$1 exists,
+#     path = ./cielfs/10-dist/$1
+
+TARGET_PATH=./cielfs/50-override/"$1"
+
+if [[ ! -e "$TARGET_PATH" ]]; then
+	if [[ -e ./cielfs/10-dist/"$1" ]]; then
+		echo Copying from dist...
+		cp -rp ./cielfs/10-dist/"$1" "$TARGET_PATH" || exit $?
+	elif [[ -e ./cielfs/00-stub/"$1" ]]; then
+		echo Copying from stub...
+		cp -rp ./cielfs/00-stub/"$1" "$TARGET_PATH" || exit $?
+	else
+		exit 127
+	fi
+fi
+
+sleep 0.2s
+
+if [[ ! -z "$EDITOR" ]]; then
+	"$EDITOR" "$TARGET_PATH"
+else
+	/bin/editor "$TARGET_PATH"
+fi
