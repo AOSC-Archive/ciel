@@ -1,10 +1,11 @@
 package main
 
 import (
-	"ciel-driver"
 	"errors"
 	"os"
 	"os/exec"
+
+	"ciel-driver"
 )
 
 func genesis(tar, fsroot string) error {

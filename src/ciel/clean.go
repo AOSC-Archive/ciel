@@ -1,13 +1,14 @@
 package main
 
 import (
-	"ciel-driver"
 	"errors"
 	"log"
 	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
+
+	"ciel-driver"
 )
 
 func cleanNormal(c *ciel.Container) error {

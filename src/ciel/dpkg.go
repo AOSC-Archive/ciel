@@ -2,8 +2,9 @@ package main
 
 import (
 	"bytes"
-	"ciel-driver"
 	"strings"
+
+	"ciel-driver"
 )
 
 func dpkgPackageFiles(c *ciel.Container) map[string]bool {
