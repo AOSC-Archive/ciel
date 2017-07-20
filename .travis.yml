@@ -11,9 +11,10 @@ matrix:
     - go: tip
   fast_finish: true
 script:
+  - git submodule update --init --recursive
   - make
-  - make cross-all
-  - make check
+  - make test-cross
+  - make test
   - sudo make install
   - ciel version
   - ciel help
