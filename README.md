@@ -1,4 +1,4 @@
-# ciel
+# ciel [![Build Status](https://api.travis-ci.org/AOSC-Dev/ciel.svg)](https://travis-ci.org/AOSC-Dev/ciel)
 A tool for controlling multi-layer file systems and containers
 
 ## manual
