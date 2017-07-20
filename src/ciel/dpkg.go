@@ -8,9 +8,9 @@ import (
 
 func dpkgPackageFiles(c *ciel.Container) map[string]bool {
 	stdout := new(bytes.Buffer)
-	if exitCode := c.CommandRaw(ciel.ShellPath, nil, stdout, nil, "-l", "-c",
+	if exitStatus := c.CommandRaw(ciel.ShellPath, nil, stdout, nil, "-l", "-c",
 		`dpkg-query --listfiles $(dpkg-query --show --showformat=\$"{Package}\n")`,
-	); exitCode != 0 {
+	); exitStatus != 0 {
 		return nil
 	}
 	hashmap := make(map[string]bool, 100000)

@@ -195,16 +195,16 @@ func cielShell() int {
 	c := ciel.New(MachineName, FileSystemDir)
 	defer c.Fs.Unmount()
 	defer c.Shutdown()
-	var exitcode int
+	var exitStatus int
 	if len(SubArgs) == 0 {
-		exitcode = c.Shell()
+		exitStatus = c.Shell()
 	} else if len(SubArgs) == 1 {
-		exitcode = c.Command(SubArgs[0])
+		exitStatus = c.Command(SubArgs[0])
 	} else {
 		log.Println("shell: you may only input one argument")
 		return 1
 	}
-	return exitcode
+	return exitStatus
 }
 
 // ciel rawcmd <cmd> <arg1> <arg2> ...
@@ -218,8 +218,8 @@ func cielRawcmd() int {
 	c := ciel.New(MachineName, FileSystemDir)
 	defer c.Fs.Unmount()
 	defer c.Shutdown()
-	exitcode := c.CommandRaw(SubArgs[0], os.Stdin, os.Stdout, os.Stderr, SubArgs[1:]...)
-	return exitcode
+	exitStatus := c.CommandRaw(SubArgs[0], os.Stdin, os.Stdout, os.Stderr, SubArgs[1:]...)
+	return exitStatus
 }
 
 func cielHelp() int {
