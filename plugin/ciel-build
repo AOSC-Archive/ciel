@@ -7,17 +7,14 @@ ciel shell "acbs-build $*"
 # And turn it off.
 set +e
 
-# assert "$MOUNT_POINT" != ""
-if [[ ! -z "$MOUNT_POINT" ]]; then
-	if [[ -e "$MOUNT_POINT"/os-amd64 ]]; then
-		cp -rpv "$MOUNT_POINT"/os-amd64 ./
-	fi
-	if [[ -e "$MOUNT_POINT"/var/log/apt/history.log ]]; then
-		cp -pv "$MOUNT_POINT"/var/log/apt/history.log ./
-	fi
-	umount "$MOUNT_POINT"
-	rm -rfv "$MOUNT_POINT"
+if [[ -e "$MOUNT_POINT"/os-amd64 ]]; then
+	cp -rpv "$MOUNT_POINT"/os-amd64 ./
 fi
+if [[ -e "$MOUNT_POINT"/var/log/apt/history.log ]]; then
+	cp -pv "$MOUNT_POINT"/var/log/apt/history.log ./
+fi
+umount "$MOUNT_POINT"
+rm -rfv "$MOUNT_POINT"
 
 # Merge cache, namely APT packages and catalogues.
 ciel merge-cache
