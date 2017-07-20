@@ -1,16 +1,15 @@
 package main
 
 import (
-	"ciel-driver"
 	"fmt"
 	"log"
 	"math/rand"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strings"
-	"syscall"
 	"time"
+
+	"ciel-driver"
 )
 
 const (
@@ -241,28 +240,17 @@ func cielHelp() int {
 	fmt.Println("")
 	fmt.Println("\tshell  [<cmdline>]")
 	fmt.Println("\trawcmd <cmd> <arg1> <arg2> ...")
+	fmt.Println("")
+
+	fmt.Println("Plugins:")
+	Plugins := getPlugins()
+	for _, Plugin := range Plugins {
+		fmt.Printf("\t%s\n", Plugin.Name)
+	}
 	return 0
 }
 
 func cielVersion() int {
 	fmt.Println(Version)
-	return 0
-}
-
-func cielPlugin() int {
-	proc := LibExecDir + "/ciel-plugin/ciel-" + SubCommand
-	cmd := exec.Command(proc, SubArgs...)
-	cmd.Stdin = os.Stdin
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	err := cmd.Run()
-	if err != nil {
-		if exitError, ok := err.(*exec.ExitError); ok {
-			exitStatus := exitError.Sys().(syscall.WaitStatus)
-			return exitStatus.ExitStatus()
-		}
-		log.Printf("failed to run plugin %s: %v\n", SubCommand, err)
-		return 1
-	}
 	return 0
 }
