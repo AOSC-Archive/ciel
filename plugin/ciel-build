@@ -1,5 +1,5 @@
 #!/bin/bash
-MOUNT_POINT=$(ciel mount)
+MOUNT_POINT=$(ciel mount) || exit $?
 
 # Strict mode, assuming Autobuild3 and ACBS catches errors properly.
 set -e
