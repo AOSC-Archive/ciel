@@ -69,7 +69,7 @@ func main() {
 
 func requireEUID0() {
 	if os.Geteuid() != 0 {
-		errlog.Fatalf("%s: you must be root to run this command\n", SubCommand)
+		errlog.Fatalf("%s: need to be root\n", SubCommand)
 	}
 }
 func requireFS() {
