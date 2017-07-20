@@ -5,12 +5,13 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 	"syscall"
 )
 
 const (
-	PluginDir    = LibExecDir + "/ciel-plugin/"
+	PluginDir    = LibExecDir + "/ciel-plugin"
 	PluginPrefix = "ciel-"
 )
 
@@ -22,7 +23,7 @@ type Plugin struct {
 }
 
 func cielPlugin() int {
-	proc := PluginDir + PluginPrefix + SubCommand
+	proc := filepath.Join(PluginDir, PluginPrefix+SubCommand)
 	cmd := exec.Command(proc, SubArgs...)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
