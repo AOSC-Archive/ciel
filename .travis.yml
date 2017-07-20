@@ -14,6 +14,6 @@ script:
   - make
   - make cross-all
   - make check
-  - make install
+  - sudo make install
   - ciel version
   - ciel help
