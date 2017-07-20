@@ -2,21 +2,21 @@
 # Usage: ciel-release <variant>, where <variant> is the name of the variant.
 #        This command will also invoke ciel-generate, so <variant> should be one of
 #        which defined in ciel-generate.
-MOUNT_POINT=$(ciel mount dist stub 2>/dev/null) || return 1
+MOUNT_POINT=$(ciel mount dist stub) || exit $?
 WORKDIR="$PWD"
 XZ_PARAM="-T 0 -9 -e --lzma2=preset=9e,nice=273"
 DATE="$(TZ=UTC date +'%Y%m%d')"
 ARCH="$(dpkg-architecture -qDEB_BUILD_ARCH)"
 VARIANT="$1"
 
-cd "$MOUNT_POINT" || return 1
+cd "$MOUNT_POINT" || exit $?
 
 _ciel_tarball() {
 	# Make a tarball
-	tar cvf - *  | xz $XZ_PARAM > "$WORKDIR"/aosc-os_${VARIANT}_"${DATE}"_"${ARCH}".tar.xz || return 1
+	tar cvf - *  | xz $XZ_PARAM > "$WORKDIR"/aosc-os_${VARIANT}_"${DATE}"_"${ARCH}".tar.xz || exit $?
 	# Generate SHA256 checksum.
 	cd "$WORKDIR"
-	sha256sum aosc-os_${VARIANT}_"${DATE}"_"${ARCH}".tar.xz > aosc-os_${VARIANT}_"${DATE}"_"${ARCH}".tar.xz.sha256sum || return 1
+	sha256sum aosc-os_${VARIANT}_"${DATE}"_"${ARCH}".tar.xz > aosc-os_${VARIANT}_"${DATE}"_"${ARCH}".tar.xz.sha256sum || exit $?
 }
 
 _ciel_tarball
