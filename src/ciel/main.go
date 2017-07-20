@@ -6,6 +6,7 @@ import (
 	"math/rand"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 
@@ -16,6 +17,7 @@ const (
 	MachineName   = "ciel"
 	FileSystemDir = "./cielfs"
 	LibExecDir    = "/usr/libexec"
+	EnvLogLevel   = "CIEL_LOGLEVEL"
 )
 
 var (
@@ -47,6 +49,9 @@ func init() {
 		"10-dist",
 		"00-stub",
 	}
+	logLevel, _ := strconv.Atoi(os.Getenv(EnvLogLevel))
+	SetLogLevel(logLevel)
+	ciel.SetLogLevel(logLevel)
 }
 func main() {
 	args := os.Args
