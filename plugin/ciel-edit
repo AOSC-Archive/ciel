@@ -9,13 +9,15 @@ TARGET_PATH=./cielfs/50-override/"$1"
 if [[ ! -e "$TARGET_PATH" ]]; then
 	if [[ -e ./cielfs/10-dist/"$1" ]]; then
 		echo Copying from dist...
-		cp -rp ./cielfs/10-dist/"$1" "$TARGET_PATH" || exit $?
+		SOURCE_PATH=./cielfs/10-dist/"$1"
 	elif [[ -e ./cielfs/00-stub/"$1" ]]; then
 		echo Copying from stub...
-		cp -rp ./cielfs/00-stub/"$1" "$TARGET_PATH" || exit $?
+		SOURCE_PATH=./cielfs/00-stub/"$1"
 	else
 		exit 127
 	fi
+	install -D "$SOURCE_PATH" "$TARGET_PATH" || exit $?
+	cp --attributes-only --preserve=all "$SOURCE_PATH" "$TARGET_PATH" || exit $?
 fi
 
 sleep 0.2s
