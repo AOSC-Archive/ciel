@@ -1,11 +1,12 @@
 #!/bin/bash
-MOUNT_POINT=$(ciel mount) || exit $?
 
 # Strict mode, assuming Autobuild3 and ACBS catches errors properly.
 set -e
 ciel shell "acbs-build $*"
 # And turn it off.
 set +e
+
+MOUNT_POINT=$(ciel mount) || exit $?
 
 if [[ -e "$MOUNT_POINT"/os-amd64 ]]; then
 	cp -rpv "$MOUNT_POINT"/os-amd64 ./
