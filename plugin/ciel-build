@@ -8,8 +8,8 @@ set +e
 
 MOUNT_POINT=$(ciel mount) || exit $?
 
-if [[ -e "$MOUNT_POINT"/os-amd64 ]]; then
-	cp -rpv "$MOUNT_POINT"/os-amd64 ./
+if ls /os-* 1> /dev/null 2>&1; then
+	cp -rpv "$MOUNT_POINT"/os-* ./
 fi
 if [[ -e "$MOUNT_POINT"/var/log/apt/history.log ]]; then
 	cp -pv "$MOUNT_POINT"/var/log/apt/history.log ./
