@@ -27,6 +27,7 @@ test: ciel
 	GOPATH="$$PWD" go test ciel-driver
 
 install: ciel
+	mkdir -pm755 $(BINDIR)
 	install -Dm755 ciel $(BINDIR)
 	mkdir -pm755 $(PLGDIR)
 	install -Dm755 ./plugin/* $(PLGDIR)
