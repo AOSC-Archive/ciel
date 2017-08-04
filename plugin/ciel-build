@@ -8,7 +8,7 @@ set +e
 
 MOUNT_POINT=$(ciel mount) || exit $?
 
-if ls /os-* 1> /dev/null 2>&1; then
+if ls "$MOUNT_POINT"/os-* 1> /dev/null 2>&1; then
 	cp -rpv "$MOUNT_POINT"/os-* ./
 fi
 if [[ -e "$MOUNT_POINT"/var/log/apt/history.log ]]; then
