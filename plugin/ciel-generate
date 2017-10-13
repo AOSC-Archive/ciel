@@ -22,6 +22,25 @@ else
 	BROWSER_RECIPE="firefox"
 fi
 
+# Special case for sunxi-base
+if [[ "$VARIANT" = "sunxi-base" ]]; then
+	if [[ ! "$DEVICE_NAME" ]]; then
+		echo "DEVICE_NAME environment variable not set!" >&2
+		exit 1
+	fi
+	case $DEVICE_NAME in
+	sun[45]i*)
+		BOOTABLE_RECIPE="linux+kernel+sunxi+nokvm" ;;
+	sun[6789]i*)
+		BOOTABLE_RECIPE="linux+kernel+sunxi+kvm" ;;
+	*)
+		echo "Not recognized DEVICE_NAME!" >&2
+		exit 1 ;;
+	esac
+	BOOTABLE_RECIPE+=" u-boot-aosc-utils u-boot-$DEVICE_NAME"
+	CALCULATED_RECIPE="BASE_RECIPE"
+fi
+
 # Specific recipes of all variants.
 CONTAINER_RECIPE="admin-base core-base editor-base python-base network-base systemd-base web-base util-base"
 BASE_RECIPE="${CONTAINER_RECIPE} ${BOOTABLE_RECIPE}"
