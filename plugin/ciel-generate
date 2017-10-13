@@ -93,7 +93,14 @@ _recipe_sunxi-base_pre_install() {
 	ciel merge dist /
 }
 _recipe_sunxi-base_config(){
-	_recipe_base_config
+	# FIXME: preset.
+	ciel shell "systemctl enable ModemManager.service NetworkManager-dispatcher.service \
+		NetworkManager-wait-online.service NetworkManager.service \
+		apt-update.timer autovt@.service bluetooth.service ctrl-alt-del.target \
+		fc-cache.service fcron.service fstrim.timer getty@.service \
+		gpm.service lvm2-lvmetad.service lvm2-monitor.service machines.target \
+		reboot.target remote-fs.target smartd.service sshd.service systemd-networkd-wait-online.service \
+		systemd-networkd.service systemd-networkd.socket systemd-resolved.service systemd-timesyncd.service"
 }
 _recipe_buildkit_config() {
 	# FIXME: apply this to all recipes later.
