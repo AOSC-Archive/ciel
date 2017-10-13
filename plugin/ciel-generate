@@ -87,6 +87,10 @@ _recipe_base_config() {
 		systemd-networkd.service systemd-networkd.socket systemd-resolved.service systemd-timesyncd.service \
 		tlp-sleep.service tlp.service"
 }
+_recipe_sunxi-base_pre_install() {
+	ciel shell "echo deb https://repo.aosc.io/os-armel/sunxi/os3-dpkg / > /etc/apt/sources.list.d/sunxi.list"
+	ciel merge dist /
+}
 _recipe_buildkit_config() {
 	# FIXME: apply this to all recipes later.
 	ciel shell "systemctl preset-all"
