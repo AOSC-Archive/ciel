@@ -9,28 +9,35 @@ DATE="$(TZ=UTC date +'%Y%m%d')"
 ARCH="$(dpkg-architecture -qDEB_BUILD_ARCH)"
 VARIANT="$1"
 
+if [[ ! "$TARBALL" ]]; then
+	TARBALL=aosc-os_${VARIANT}_"${DATE}"_"${ARCH}".tar.xz
+fi
+
 cd "$MOUNT_POINT" || exit $?
 
 _ciel_tarball() {
 	# Make a tarball
-	tar cvf - * | xz $XZ_PARAM -T $XZ_THREADS > "$WORKDIR"/aosc-os_${VARIANT}_"${DATE}"_"${ARCH}".tar.xz || exit $?
+	tar cvf - * | $COMPRESSOR > "$WORKDIR"/"$TARBALL" || exit $?
 	# Generate SHA256 checksum.
 	cd "$WORKDIR"
-	sha256sum aosc-os_${VARIANT}_"${DATE}"_"${ARCH}".tar.xz > aosc-os_${VARIANT}_"${DATE}"_"${ARCH}".tar.xz.sha256sum || exit $?
+	sha256sum "$TARBALL" > "$TARBALL".sha256sum || exit $?
 }
 
-if [ -z "$2" ]; then
-	echo "Usage: ciel-release <variant> <threads>"
-	echo ""
-	echo "<threads> not defined or not a natural integer!"
-	echo "Defaulting to 0, using as many threads as possible!"
-	echo "This could result in out-of-memory conditions"
-	echo ""
-	echo "Please declare a natural integer for XZ thread count."
-	echo "The higher the thread count, the higher the memory requirement."
-	export XZ_THREADS=0
-else
-	export XZ_THREADS=$2
+if [[ ! "$COMPRESSOR" ]]; then
+	if [ -z "$2" ]; then
+		echo "Usage: ciel-release <variant> <threads>"
+		echo ""
+		echo "<threads> not defined or not a natural integer!"
+		echo "Defaulting to 0, using as many threads as possible!"
+		echo "This could result in out-of-memory conditions"
+		echo ""
+		echo "Please declare a natural integer for XZ thread count."
+		echo "The higher the thread count, the higher the memory requirement."
+		export XZ_THREADS=0
+	else
+		export XZ_THREADS=$2
+	fi
+	COMPRESSOR="xz $XZ_PARAM -T $XZ_THREADS"
 fi
 
 _ciel_tarball
