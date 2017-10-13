@@ -96,7 +96,7 @@ _recipe_sunxi-base_config(){
 	# FIXME: preset.
 	ciel shell "systemctl enable ModemManager.service NetworkManager-dispatcher.service \
 		NetworkManager-wait-online.service NetworkManager.service \
-		apt-update.timer autovt@.service bluetooth.service ctrl-alt-del.target \
+		apt-update.timer autovt@.service bluetooth.service \
 		fc-cache.service fcron.service fstrim.timer getty@.service \
 		gpm.service lvm2-lvmetad.service lvm2-monitor.service machines.target \
 		reboot.target remote-fs.target smartd.service sshd.service systemd-networkd-wait-online.service \
