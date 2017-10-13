@@ -195,6 +195,9 @@ _recipe_xfce_config() {
 # Nike.
 set -e
 _recipe_pre_install
+if type _recipe_${1}_pre_install >/dev/null 2>&1; then
+	_recipe_${1}_pre_install
+fi
 _recipe_install
 _recipe_${1}_config
 _recipe_post
