@@ -38,6 +38,12 @@ if [[ "$VARIANT" = "sunxi-base" ]]; then
 		exit 1 ;;
 	esac
 	BOOTABLE_RECIPE+=" u-boot-aosc-utils u-boot-$DEVICE_NAME"
+	case $DEVICE_NAME in
+	sun7i-a20-cubietruck|sun7i-a20-bananapi-m1-plus)
+		BOOTABLE_RECIPE+=" firmware-wifi-ap6210" ;;
+	sun8i-h3-bananapi-m2-plus|sun8i-r40-bananapi-m2-ultra)
+		BOOTABLE_RECIPE+=" firmware-wifi-ap6212" ;;
+	esac
 	CALCULATED_RECIPE="BASE_RECIPE"
 fi
 
