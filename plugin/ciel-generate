@@ -44,6 +44,7 @@ if [[ "$VARIANT" = "sunxi-base" ]]; then
 	sun8i-h3-bananapi-m2-plus|sun8i-r40-bananapi-m2-ultra)
 		BOOTABLE_RECIPE+=" firmware-wifi-ap6212" ;;
 	esac
+	BOOTABLE_RECIPE+=" firmware-free firmware-nonfree"
 	CALCULATED_RECIPE="BASE_RECIPE"
 fi
 
