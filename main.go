@@ -5,7 +5,7 @@ import (
 	"log"
 	"fmt"
 
-	"ciel/src/ciel/internal/cieldir.1"
+	"ciel/internal/cieldir.1"
 )
 
 var args []string
@@ -42,11 +42,11 @@ func parser() {
 		}
 		i.UnmountInst(instName)
 		i.DeleteInst(instName)
-	case "", "start":
+	case "start":
 		i.MountAll()
 	case "stop":
 		i.UnmountAll()
-	case "list":
+	case "", "list":
 		for _, inst := range i.AllInst() {
 			fmt.Println(inst + "\t" + i.InstStat(inst))
 		}

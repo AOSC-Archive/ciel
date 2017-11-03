@@ -4,6 +4,7 @@ import (
 	"log"
 	"os/exec"
 
+	"ciel/internal/cieldir.1"
 )
 
 func Untar(i *cieldir.CielDir, tar string) {

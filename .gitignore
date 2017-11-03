@@ -1,9 +1,5 @@
 # Binaries for programs and plugins
-*.exe
-*.dll
-*.so
-*.dylib
-/ciel*
+/bin
 
 # Test binary, build with `go test -c`
 *.test
@@ -15,4 +11,6 @@
 .glide/
 
 # Post-sed constants
-src/ciel/version.go
+version.go
+
+.idea
