@@ -21,6 +21,7 @@ func run() {
 	i := &cieldir.CielDir{BasePath: *basePath}
 	i.Check()
 	i.CheckInst(*instName)
+	// FIXME: check EUID==0
 
 	bootConf := strings.Split(strings.TrimSpace(bootConfString), "\n")
 	exitStatus, err := i.InstRun(context.TODO(), *instName, !noBootFlag, bootConf, flag.Args()...)
