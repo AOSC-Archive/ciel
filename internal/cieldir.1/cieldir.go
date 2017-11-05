@@ -26,7 +26,7 @@ func (i *CielDir) Check() {
 		return
 	}
 	if string(ver) != Version {
-		log.Panicln("your cieldir is an incompatible newer version")
+		log.Fatalln("your cieldir is an incompatible newer version")
 	}
 }
 func (i *CielDir) CielDir() string {

@@ -29,6 +29,12 @@ var (
 	ErrLock = errors.New("failed to require the lock")
 )
 
+func (i *CielDir) CheckInst(name string) {
+	if !i.InstExists(name) {
+		log.Fatalln("instance '" + name + "' does not exist")
+	}
+}
+
 func (i *CielDir) InstAdd(name string) {
 	utils.Mkdir(i.InstSubDir(name))
 	layersDir := path.Join(i.InstSubDir(name), LayerDirName)
@@ -43,6 +49,9 @@ func (i *CielDir) InstDel(name string) {
 }
 
 func (i *CielDir) InstExists(name string) bool {
+	if path.Clean(i.InstSubDir(name)) == path.Clean(i.InstDir()) {
+		return false
+	}
 	if stat, err := os.Stat(i.InstSubDir(name)); err != nil || !stat.IsDir() {
 		return false
 	}
@@ -84,7 +93,7 @@ func (i *CielDir) InstUnmount(name string) error {
 	return nil
 }
 
-func (i *CielDir) InstRun(ctx context.Context, name string, boot bool, containerArgs []string, proc string, args ...string) (int, error) {
+func (i *CielDir) InstRun(ctx context.Context, name string, boot bool, containerArgs []string, args ...string) (int, error) {
 	defer RecoverTerminalAttr()
 	machineId := name + "_" + utils.RandomString(5)
 
@@ -117,7 +126,7 @@ func (i *CielDir) InstRun(ctx context.Context, name string, boot bool, container
 				return -1, err
 			}
 		}
-		return nspawn.SystemdRun(ctx, machineId, append([]string{proc}, args...)...)
+		return nspawn.SystemdRun(ctx, machineId, args...)
 	}
 
 	i.InstSetMachineId(name, machineId)
@@ -125,7 +134,7 @@ func (i *CielDir) InstRun(ctx context.Context, name string, boot bool, container
 	defer i.InstUnsetMachineId(name)
 	defer i.InstRefractoryPeriodLeave(name)
 
-	return nspawn.SystemdNspawn(ctx, i.InstMountPoint(name), false, machineId, append([]string{proc}, args...)...)
+	return nspawn.SystemdNspawn(ctx, i.InstMountPoint(name), false, machineId, args...)
 }
 
 func (i *CielDir) InstStop(ctx context.Context, name string) error {
@@ -149,11 +158,38 @@ func (i *CielDir) InstStop(ctx context.Context, name string) error {
 	return err
 }
 
-func (i *CielDir) InstLockStat(name string) string {
+const cRST = "\x1b[0m"
+const cGRE = "\x1b[92m"
+const cGRY = "\x1b[37m"
+const cRED = "\x1b[91m"
+const cCYA = "\x1b[96m"
+
+func (i *CielDir) InstFileSystemStat(name string) string {
 	if utils.Locked(i.InstLockFile(name)) {
-		return "locked"
+		return cGRE + "mounted" + cRST
 	}
-	return "free"
+	return cRST + "free" + cRST
+}
+
+func (i *CielDir) InstContainerRunningStat(name string) string {
+
+	if utils.Locked(i.InstRefractoryFile(name)) {
+		return cRED + "locked" + cRST
+	}
+	if i.InstMachineId(name) != "" {
+		return cCYA + "running" + cRST
+	}
+	return cGRY + "offline" + cRST
+}
+
+func (i *CielDir) InstContainerBootStat(name string) string {
+	if i.InstBooted(name) {
+		return cCYA + "booted" + cRST
+	}
+	if i.InstMachineId(name) != "" {
+		return cRED + "oneshot" + cRST
+	}
+	return cGRY + "unknown" + cRST
 }
 
 func (i *CielDir) InstLockFile(name string) string {

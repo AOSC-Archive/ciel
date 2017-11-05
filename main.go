@@ -1,113 +1,71 @@
+// +build: linux
 package main
 
 import (
-	"context"
 	"flag"
-	"fmt"
 	"log"
 	"os"
+	"strings"
 
 	"ciel/internal/cieldir.1"
 )
 
-var args []string
+var rawArgs []string
 
 func main() {
-	flag.Parse()
-	args = flag.Args()
-	parser()
+	var subCmd string
+	if len(os.Args) >= 2 {
+		if strings.HasPrefix(os.Args[1], "-") {
+			rawArgs = os.Args[1:]
+		} else {
+			subCmd = os.Args[1]
+			rawArgs = os.Args[2:]
+		}
+	} else {
+		rawArgs = nil
+	}
+	flag.CommandLine = flag.NewFlagSet(os.Args[0]+" "+subCmd, flag.ExitOnError)
+	router(subCmd)
 }
 
-func parser() {
-	cmd := ""
-	if len(args) > 0 {
-		cmd = args[0]
-	}
+func parse() {
+	flag.CommandLine.Parse(rawArgs)
+}
+
+func router(subCmd string) {
 	i := &cieldir.CielDir{}
 	i.Check()
-	switch cmd {
-	case "init":
-		i.Init()
-	case "load":
-		Untar(i, requireArg(1))
-	case "add":
-		instName := requireEnv("CIEL_INST")
-		if i.InstExists(instName) {
-			log.Fatalln("already has " + instName)
-		}
-		i.InstAdd(instName)
-		i.InstMount(instName)
-	case "del":
-		instName := requireEnv("CIEL_INST")
-		if !i.InstExists(instName) {
-			log.Fatalln("could not find " + instName)
-		}
-		i.InstUnmount(instName)
-		i.InstDel(instName)
-	case "start":
-		i.MountAll()
-	case "stop":
-		i.UnmountAll()
-	case "unlock-filesystem":
-		instName := requireEnv("CIEL_INST")
-		fmt.Println("Warning: you should only use this when a unmounted insntance has not been unlocked")
-		fmt.Print("Continue? y/n: ")
-		var answer string
-		fmt.Scanln(&answer)
-		if answer == "y" {
-			log.Println(i.InstUnmount(instName))
-			log.Println(os.Remove(i.InstLockFile(instName)))
-			log.Println(os.Remove(i.InstMountPoint(instName)))
-		} else {
-			fmt.Println("Cancelled.")
-		}
-	case "down":
-		instName := requireEnv("CIEL_INST")
-		err := i.InstStop(context.TODO(), instName)
-		if err != nil {
-			log.Fatal(err)
-		}
-	case "unlock-container":
-		instName := requireEnv("CIEL_INST")
-		fmt.Println("Warning: you should only use this when a stopped insntance has not been unlocked")
-		fmt.Print("Continue? y/n: ")
-		var answer string
-		fmt.Scanln(&answer)
-		if answer == "y" {
-			//log.Println(i.InstPoweroff(instName))
-			log.Println(os.Remove(i.InstBootedFile(instName)))
-			log.Println(os.Remove(i.InstMachineIdFile(instName)))
-			log.Println(os.Remove(i.InstRefractoryFile(instName)))
-		} else {
-			fmt.Println("Cancelled.")
-		}
-	case "", "list":
-		for _, inst := range i.GetAll() {
-			fmt.Println(inst + "\t" + i.InstLockStat(inst))
-		}
-	case "shell":
-		instName := requireEnv("CIEL_INST")
-		exitStatus, err := i.InstRun(context.TODO(), instName, true, nil, args[1], args[2:]...)
-		if err != nil {
-			log.Println(err)
-			os.Exit(exitStatus)
-		}
-	default:
-		log.Fatalln("unknown command")
+	var routeTable = map[string]func(){
+		"init":              initCiel,
+		"mount":             mountCiel,
+		"umount":            unmountCiel,
+		"unmount":           unmountCiel,
+		"load":              unTar,
+		"add":               addInst,
+		"del":               delInst,
+		"unlock-filesystem": unlockFileSystem,
+		"unlock-container":  unlockContainer,
+		"run":               run,
+		"stop":              stop,
+		"list":              list,
+		"":                  list,
 	}
+	route, exists := routeTable[subCmd]
+	if exists {
+		route()
+		return
+	}
+	log.Fatalln("unknown command")
 }
 
-func requireArg(i int) string { // TODO: package flag
-	if i >= len(args) {
-		log.Fatalln("not enough arguments")
-	}
-	return args[i]
-}
-
-func requireEnv(env string) string {
-	v, ok := os.LookupEnv(env)
+func getEnv(key, def string) string {
+	v, ok := os.LookupEnv(key)
 	if !ok {
-		log.Fatalln("not enough arguments")
+		return def
 	}
 	return v
+}
+
+func saveEnv(key, value string) {
+	os.Setenv(key, value)
 }
