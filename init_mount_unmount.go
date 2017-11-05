@@ -7,7 +7,6 @@ func initCiel() {
 	parse()
 
 	i := &cieldir.CielDir{BasePath: *basePath}
-	i.Check()
 	i.Init()
 }
 

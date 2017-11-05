@@ -6,8 +6,6 @@ import (
 	"log"
 	"os"
 	"strings"
-
-	"ciel/internal/cieldir.1"
 )
 
 var rawArgs []string
@@ -33,8 +31,6 @@ func parse() {
 }
 
 func router(subCmd string) {
-	i := &cieldir.CielDir{}
-	i.Check()
 	var routeTable = map[string]func(){
 		"init":              initCiel,
 		"mount":             mountCiel,
