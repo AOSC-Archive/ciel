@@ -32,19 +32,19 @@ func parse() {
 
 func router(subCmd string) {
 	var routeTable = map[string]func(){
-		"init":              initCiel,
-		"mount":             mountCiel,
-		"umount":            unmountCiel,
-		"unmount":           unmountCiel,
-		"load":              unTar,
-		"add":               addInst,
-		"del":               delInst,
-		"unlock-filesystem": unlockFileSystem,
-		"unlock-container":  unlockContainer,
-		"run":               run,
-		"stop":              stop,
-		"list":              list,
-		"":                  list,
+		"init":              initCiel,         // init_mount_unmount.go
+		"mount":             mountCiel,        // init_mount_unmount.go
+		"umount":            unmountCiel,      // init_mount_unmount.go
+		"unmount":           unmountCiel,      // init_mount_unmount.go
+		"load":              unTar,            // load.go
+		"add":               addInst,          // add_del.go
+		"del":               delInst,          // add_del.go
+		"unlock-filesystem": unlockFileSystem, // unlock.go
+		"unlock-container":  unlockContainer,  // unlock.go
+		"run":               run,              // run_stop.go
+		"stop":              stop,             // run_stop.go
+		"list":              list,             // status.go
+		"":                  list,             // status.go
 	}
 	route, exists := routeTable[subCmd]
 	if exists {
