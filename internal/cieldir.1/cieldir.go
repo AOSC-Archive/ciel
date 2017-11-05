@@ -23,7 +23,7 @@ type CielDir struct {
 func (i *CielDir) Check() {
 	ver, err := ioutil.ReadFile(i.VerFile())
 	if err != nil {
-		return
+		log.Fatalln("not a ciel work directory here")
 	}
 	if string(ver) != Version {
 		log.Fatalln("your cieldir is an incompatible newer version")
