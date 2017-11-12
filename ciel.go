@@ -46,6 +46,7 @@ func router(subCmd string) {
 		"list":              list,             // status.go
 		"":                  list,             // status.go
 	}
+	requireEUID0()
 	route, exists := routeTable[subCmd]
 	if exists {
 		route()
@@ -62,6 +63,8 @@ func getEnv(key, def string) string {
 	return v
 }
 
-func saveEnv(key, value string) {
-	os.Setenv(key, value)
+func requireEUID0() {
+	if os.Geteuid() != 0 {
+		log.Fatalln("need to be root")
+	}
 }

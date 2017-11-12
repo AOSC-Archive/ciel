@@ -14,7 +14,6 @@ func unTar() {
 
 	i := &cieldir.CielDir{BasePath: *basePath}
 	i.Check()
-	// FIXME: check EUID==0
 
 	if tar := flag.Arg(0); tar != "" {
 		cmd := exec.Command("tar", "-xpf", flag.Arg(0), "-C", i.DistDir())

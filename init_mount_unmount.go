@@ -17,7 +17,6 @@ func mountCiel() {
 
 	i := &cieldir.CielDir{BasePath: *basePath}
 	i.Check()
-	// FIXME: check EUID==0
 
 	if *instName == "" {
 		i.MountAll()
@@ -34,7 +33,6 @@ func unmountCiel() {
 
 	i := &cieldir.CielDir{BasePath: *basePath}
 	i.Check()
-	// FIXME: check EUID==0
 
 	if *instName == "" {
 		i.UnmountAll()
