@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"log"
+	"strings"
 
 	"ciel/internal/cieldir.1"
 )
@@ -13,6 +14,10 @@ func addInst() {
 	parse()
 	if *instName == "" {
 		*instName = flag.Arg(0)
+	}
+
+	if strings.Contains(*instName, " ") {
+		log.Fatalln("do not contain white space")
 	}
 
 	i := &cieldir.CielDir{BasePath: *basePath}
