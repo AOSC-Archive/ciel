@@ -2,20 +2,16 @@
 
 # Strict mode, assuming Autobuild3 and ACBS catches errors properly.
 set -e
-ciel shell "acbs-build $*"
+ciel shell "acbs-build $1"
 # And turn it off.
 set +e
 
-MOUNT_POINT=$(ciel mount) || exit $?
-
-if ls "$MOUNT_POINT"/os-* 1> /dev/null 2>&1; then
-	cp -rpv "$MOUNT_POINT"/os-* ./
+if ls "$CIEL_INST"/os-* 1> /dev/null 2>&1; then
+	cp -rpv "$CIEL_INST"/os-* ./
 fi
-if [[ -e "$MOUNT_POINT"/var/log/apt/history.log ]]; then
-	cp -pv "$MOUNT_POINT"/var/log/apt/history.log ./
+if [[ -e "$CIEL_INST"/var/log/apt/history.log ]]; then
+	cp -pv "$CIEL_INST"/var/log/apt/history.log ./
 fi
-umount "$MOUNT_POINT"
-rm -rfv "$MOUNT_POINT"
 
 # Merge cache, namely APT packages and catalogues.
 ciel merge-cache
