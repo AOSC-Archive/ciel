@@ -1,6 +1,7 @@
 package nspawn
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"os"
@@ -19,9 +20,13 @@ var BootableFiles = []string{
 
 const PoweroffTimeout = 5 * time.Second
 
-var (
-	ErrCancelled = errors.New("cancelled")
-)
+type ErrCancelled struct {
+	reason string
+}
+
+func (e ErrCancelled) Error() string {
+	return "cancelled: " + e.reason
+}
 
 func IsBootable(p string) bool {
 	for _, file := range BootableFiles {
@@ -56,12 +61,16 @@ func SystemdNspawn(ctx context.Context, directory string, boot bool, machineId s
 	if boot {
 		waitCtx, cancelFunc := context.WithCancel(context.Background())
 		go func() {
+			errBuf := &bytes.Buffer{}
+			cmd.Stderr = errBuf
 			cmd.Run()
+			output := errBuf.String()
+			err = ErrCancelled{reason: string(output)}
 			cancelFunc()
 		}()
 		cancelled := waitUntilRunningOrDegraded(waitCtx, machineId)
 		if cancelled {
-			return -1, ErrCancelled
+			return -1, err
 		}
 	} else {
 		err = cmd.Run()
@@ -92,9 +101,11 @@ func SystemdRun(ctx context.Context, machineId string, args ...string) (int, err
 	err := cmd.Run()
 	if exitErr, ok := err.(*exec.ExitError); ok {
 		return exitErr.Sys().(syscall.WaitStatus).ExitStatus(), nil
-	} else {
+	}
+	if err != nil {
 		return -1, err
 	}
+	return 0, nil
 }
 
 func MachinectlTerminate(ctx context.Context, machineId string) error {
@@ -141,7 +152,7 @@ func machinectlTerminate(ctx context.Context, machineId string) error {
 func waitUntilRunningOrDegraded(ctx context.Context, machindId string) (cancelled bool) {
 	for {
 		switch {
-		case MachineRunning(ctx, machindId):
+		case MachineRunning(MachineStatus(context.TODO(), machindId)):
 			return false
 		default:
 			if ctx != nil {
@@ -159,7 +170,7 @@ func waitUntilRunningOrDegraded(ctx context.Context, machindId string) (cancelle
 func waitUntilShutdown(ctx context.Context, machindId string) (cancelled bool) {
 	for {
 		switch {
-		case MachineDead(ctx, machindId):
+		case MachineDead(MachineStatus(ctx, machindId)):
 			return false
 		default:
 			if ctx != nil {
@@ -185,8 +196,8 @@ func MachineStatus(ctx context.Context, machindId string) string {
 	return strings.TrimSpace(string(output))
 }
 
-func MachineRunning(ctx context.Context, machindId string) bool {
-	switch MachineStatus(ctx, machindId) {
+func MachineRunning(status string) bool {
+	switch status {
 	case "running":
 		return true
 	case "degraded":
@@ -196,8 +207,8 @@ func MachineRunning(ctx context.Context, machindId string) bool {
 	}
 }
 
-func MachineDead(ctx context.Context, machindId string) bool {
-	switch MachineStatus(ctx, machindId) {
+func MachineDead(status string) bool {
+	switch status {
 	case "Failed to connect to bus: Host is down":
 		return true
 	default:

@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"path"
+	"path/filepath"
 	"strings"
 
 	"ciel/internal/nspawn"
@@ -73,13 +74,36 @@ func (i *CielDir) InstFileSystem(name string) overlayfs.Instance {
 func (i *CielDir) InstMount(name string) error {
 	ofs := i.InstFileSystem(name)
 	if !utils.Lock(i.InstLockFile(name)) {
-		return ErrLock
+		if i.InstMounted(name) {
+			return ErrLock
+		}
+		utils.Unlock(i.InstLockFile(name))
 	}
 	if err := ofs.Mount(false); err != nil {
 		utils.Unlock(i.InstLockFile(name))
 		return err
 	}
 	return nil
+}
+
+func (i *CielDir) InstMounted(name string) bool {
+	a, err := ioutil.ReadFile("/proc/self/mountinfo")
+	s := string(a)
+	list := strings.Split(s, "\n")
+	match, _ := filepath.Abs(i.InstMountPoint(name))
+	for _, item := range list {
+		if item == "" {
+			continue
+		}
+		fields := strings.Split(item, " ")
+		if fields[4] == match {
+			return true
+		}
+	}
+	if err != nil {
+		log.Panicln(err)
+	}
+	return false
 }
 
 func (i *CielDir) InstUnmount(name string) error {
@@ -93,7 +117,7 @@ func (i *CielDir) InstUnmount(name string) error {
 	return nil
 }
 
-func (i *CielDir) InstRun(ctx context.Context, name string, boot bool, containerArgs []string, args ...string) (int, error) {
+func (i *CielDir) InstRun(ctx context.Context, name string, boot bool, network bool, containerArgs []string, args ...string) (int, error) {
 	defer RecoverTerminalAttr()
 	machineId := name + "_" + utils.RandomString(5)
 
@@ -107,7 +131,7 @@ func (i *CielDir) InstRun(ctx context.Context, name string, boot bool, container
 			i.InstBootedEnter(name)
 			i.InstSetMachineId(name, machineId)
 			toBoot = true
-		} else if !nspawn.MachineRunning(ctx, oldMachineId) {
+		} else if !nspawn.MachineRunning(nspawn.MachineStatus(ctx, oldMachineId)) {
 			i.InstUnlockContainer(name)
 			i.InstBootedEnter(name)
 			i.InstSetMachineId(name, machineId)
@@ -117,10 +141,13 @@ func (i *CielDir) InstRun(ctx context.Context, name string, boot bool, container
 		}
 		i.InstRefractoryPeriodLeave(name)
 		if toBoot {
+			if network {
+				containerArgs = append([]string{"--network-zone=ciel"}, containerArgs...)
+			}
 			_, err := nspawn.SystemdNspawn(ctx, i.InstMountPoint(name), true, machineId, containerArgs...)
 
 			// NOTE: This will be blocked until the container completely booted up.
-			if err == nspawn.ErrCancelled {
+			if _, ok := err.(nspawn.ErrCancelled); ok {
 				i.InstUnsetMachineId(name)
 				i.InstBootedLeave(name)
 				return -1, err
@@ -165,31 +192,32 @@ const cRED = "\x1b[91m"
 const cCYA = "\x1b[96m"
 
 func (i *CielDir) InstFileSystemStat(name string) string {
-	if utils.Locked(i.InstLockFile(name)) {
+	if i.InstMounted(name) {
 		return cGRE + "mounted" + cRST
 	}
 	return cRST + "free" + cRST
 }
 
-func (i *CielDir) InstContainerRunningStat(name string) string {
-
+func (i *CielDir) InstContainerRunningStat(name string) (status, boot string) {
 	if utils.Locked(i.InstRefractoryFile(name)) {
-		return cRED + "locked" + cRST
+		return cRED + "locked" + cRST, cGRY + "unknown" + cRST
 	}
 	if i.InstMachineId(name) != "" {
-		return cCYA + "running" + cRST
+		if i.InstBooted(name) {
+			status := nspawn.MachineStatus(context.Background(), i.InstMachineId(name))
+			if !nspawn.MachineRunning(status) {
+				if nspawn.MachineDead(status) {
+					i.InstBootedLeave(name)
+					i.InstUnsetMachineId(name)
+					return cGRY + "offline" + cRST, cGRY + "no" + cRST
+				}
+				return cGRY + "linger" + cRST, cCYA + "yes" + cRST
+			}
+			return cCYA + "running" + cRST, cCYA + "yes" + cRST
+		}
+		return cCYA + "running" + cRST, cGRY + "no" + cRST
 	}
-	return cGRY + "offline" + cRST
-}
-
-func (i *CielDir) InstContainerBootStat(name string) string {
-	if i.InstBooted(name) {
-		return cCYA + "booted" + cRST
-	}
-	if i.InstMachineId(name) != "" {
-		return cRED + "oneshot" + cRST
-	}
-	return cGRY + "unknown" + cRST
+	return cGRY + "offline" + cRST, cGRY + "no" + cRST
 }
 
 func (i *CielDir) InstLockFile(name string) string {

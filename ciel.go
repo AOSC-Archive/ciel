@@ -32,19 +32,19 @@ func parse() {
 
 func router(subCmd string) {
 	var routeTable = map[string]func(){
-		"init":              initCiel,         // init_mount_unmount.go
-		"mount":             mountCiel,        // init_mount_unmount.go
-		"umount":            unmountCiel,      // init_mount_unmount.go
-		"unmount":           unmountCiel,      // init_mount_unmount.go
-		"load":              unTar,            // load.go
-		"add":               addInst,          // add_del.go
-		"del":               delInst,          // add_del.go
-		"unlock-filesystem": unlockFileSystem, // unlock.go
-		"unlock-container":  unlockContainer,  // unlock.go
-		"run":               run,              // run_stop.go
-		"stop":              stop,             // run_stop.go
-		"list":              list,             // status.go
-		"":                  list,             // status.go
+		"init":    initCiel,    // init_mount_unmount.go
+		"mount":   mountCiel,   // init_mount_unmount.go
+		"umount":  unmountCiel, // init_mount_unmount.go
+		"unmount": unmountCiel, // init_mount_unmount.go
+		"load":    unTar,       // load.go
+		"add":     addInst,     // add_del.go
+		"del":     delInst,     // add_del.go
+		"unlock":  unlockInst,  // unlock.go
+		"shell":   shell,       // run_stop.go
+		"run":     run,         // run_stop.go
+		"stop":    stop,        // run_stop.go
+		"list":    list,        // status.go
+		"":        list,        // status.go
 	}
 	requireEUID0()
 	route, exists := routeTable[subCmd]
@@ -52,15 +52,14 @@ func router(subCmd string) {
 		route()
 		return
 	}
-	log.Fatalln("unknown command")
-}
-
-func getEnv(key, def string) string {
-	v, ok := os.LookupEnv(key)
-	if !ok {
-		return def
+	plugins := getPlugins()
+	for _, pluginItem := range plugins {
+		if subCmd == pluginItem.Name {
+			plugin(subCmd)
+			return
+		}
 	}
-	return v
+	log.Fatalln("unknown command: " + subCmd)
 }
 
 func requireEUID0() {
