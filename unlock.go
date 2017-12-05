@@ -6,7 +6,7 @@ import (
 	"log"
 	"os"
 
-	"ciel/internal/cieldir.1"
+	"ciel/internal/container/dotciel.1"
 )
 
 func unlockInst() {
@@ -14,7 +14,7 @@ func unlockInst() {
 	instName := flagInstance()
 	parse()
 
-	i := &cieldir.CielDir{BasePath: *basePath}
+	i := &dotciel.CielDir{BasePath: *basePath}
 	i.Check()
 	i.CheckInst(*instName)
 

@@ -1,4 +1,4 @@
-package cieldir
+package dotciel
 
 import (
 	"io/ioutil"

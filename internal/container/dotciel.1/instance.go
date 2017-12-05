@@ -1,4 +1,4 @@
-package cieldir
+package dotciel
 
 import (
 	"context"
@@ -10,8 +10,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"ciel/internal/nspawn"
-	"ciel/internal/overlayfs"
+	"ciel/internal/container/nspawn"
+	"ciel/internal/container/overlayfs"
 	"ciel/internal/utils"
 )
 

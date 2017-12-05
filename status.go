@@ -3,14 +3,14 @@ package main
 import (
 	"fmt"
 
-	"ciel/internal/cieldir.1"
+	"ciel/internal/container/dotciel.1"
 )
 
 func list() {
 	basePath := flagCielDir()
 	parse()
 
-	i := &cieldir.CielDir{BasePath: *basePath}
+	i := &dotciel.CielDir{BasePath: *basePath}
 	i.Check()
 
 	fmt.Printf("%s\t%s\t%s\t%s\n", "INSTANCE", "WORKDIR", "STATUS", "BOOT")

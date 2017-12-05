@@ -9,7 +9,7 @@ import (
 	"path"
 	"strings"
 
-	"ciel/internal/cieldir.1"
+	"ciel/internal/container/dotciel.1"
 )
 
 func shell() {
@@ -28,7 +28,7 @@ func rawRun(shell bool) {
 	bootConfig := flagBootConfig()
 	parse()
 
-	i := &cieldir.CielDir{BasePath: *basePath}
+	i := &dotciel.CielDir{BasePath: *basePath}
 	i.Check()
 	i.CheckInst(*instName)
 
@@ -93,7 +93,7 @@ func stop() {
 	instName := flagInstance()
 	parse()
 
-	i := &cieldir.CielDir{BasePath: *basePath}
+	i := &dotciel.CielDir{BasePath: *basePath}
 	i.Check()
 	i.CheckInst(*instName)
 

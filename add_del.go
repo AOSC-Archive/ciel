@@ -5,7 +5,7 @@ import (
 	"log"
 	"strings"
 
-	"ciel/internal/cieldir.1"
+	"ciel/internal/container/dotciel.1"
 )
 
 func addInst() {
@@ -20,7 +20,7 @@ func addInst() {
 		log.Fatalln("do not contain white space")
 	}
 
-	i := &cieldir.CielDir{BasePath: *basePath}
+	i := &dotciel.CielDir{BasePath: *basePath}
 	i.Check()
 
 	if i.InstExists(*instName) {
@@ -38,7 +38,7 @@ func delInst() {
 		*instName = flag.Arg(0)
 	}
 
-	i := &cieldir.CielDir{BasePath: *basePath}
+	i := &dotciel.CielDir{BasePath: *basePath}
 	i.Check()
 	i.CheckInst(*instName)
 
