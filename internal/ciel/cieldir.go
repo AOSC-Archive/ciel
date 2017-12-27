@@ -4,11 +4,12 @@ import (
 	"io/ioutil"
 	"log"
 	"path"
+	"strings"
 
+	"ciel/internal/ciel/abstract"
 	"ciel/internal/ciel/container"
 	"ciel/internal/ciel/pkgtree"
 	"ciel/internal/utils"
-	"strings"
 )
 
 const (
@@ -60,5 +61,11 @@ func (i *Ciel) Container() *container.Container {
 }
 func (i *Ciel) Tree() *pkgtree.Tree {
 	return &pkgtree.Tree{Parent: i, BasePath: i.treeDir()}
+}
+func (i *Ciel) GetContainer() abstract.Container {
+	return i.Container()
+}
+func (i *Ciel) GetTree() abstract.Tree {
+	return i.Tree()
 }
 func (i *Ciel) GetBasePath() string { return i.BasePath }

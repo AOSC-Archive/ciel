@@ -63,20 +63,23 @@ func (i *Instance) Mount() error {
 		os.Remove(i.FileSystemLock())
 		return err
 	}
+	i.Parent.GetCiel().GetTree().MountHandler(i, true)
 	return nil
 }
 func (i *Instance) Unmount() error {
 	i.Stop(context.Background())
 	ofs := i.FileSystem()
 	var err error
-	d.ITEM("unmount")
 	if i.Mounted() {
+		i.Parent.GetCiel().GetTree().MountHandler(i, false)
+		d.ITEM("unmount")
 		if err := ofs.Unmount(); err != nil {
 			d.FAILED_BECAUSE(err.Error())
 			return err
 		}
 		d.OK()
 	} else {
+		d.ITEM("unmount")
 		d.SKIPPED()
 		err = os.ErrNotExist
 	}
@@ -309,3 +312,5 @@ func (i *Instance) Shell(user string) (string, error) {
 	}
 	return shell, nil
 }
+
+func (i *Instance) GetContainer() abstract.Container { return i.Parent }
