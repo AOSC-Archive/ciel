@@ -116,7 +116,7 @@ func update() {
 	for _, inst := range c.GetAll() {
 		if inst.Running() || inst.Mounted() {
 			ready = false
-			d.Print(d.C(d.RED, inst.Name) + " ")
+			d.Print(d.C(d.YELLOW, inst.Name) + " ")
 		}
 	}
 	if ready {
