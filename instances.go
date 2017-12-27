@@ -149,3 +149,25 @@ func rollback() {
 	}
 	inst.FileSystem().Rollback()
 }
+
+func commit() {
+	basePath := flagCielDir()
+	instName := flagInstance()
+	parse()
+
+	i := &ciel.Ciel{BasePath: *basePath}
+	i.Check()
+	c := i.Container()
+	c.CheckInst(*instName)
+
+	inst := c.Instance(*instName)
+
+	d.SECTION("Commit Changes")
+	d.ITEM("is running?")
+	if inst.Running() {
+		d.Println(d.C(d.YELLOW, "ONLINE"))
+	} else {
+		d.Println(d.C(d.CYAN, "OFFLINE"))
+	}
+	inst.FileSystem().Merge()
+}

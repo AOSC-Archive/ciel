@@ -42,6 +42,7 @@ func router(subCmd string) {
 		"load-os":   untarGuestOS, // guest_os.go
 		"update-os": update,       // guest_os.go
 		"rollback":  rollback,     // guest_os.go
+		"commit":    commit,       // guest_os.go
 		"del":       del,          // instances.go
 
 		// Maintaining Instance Status
