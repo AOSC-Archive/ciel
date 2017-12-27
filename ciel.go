@@ -7,7 +7,7 @@ import (
 	"os"
 	"strings"
 
-	"ciel/internal/dotciel"
+	"ciel/internal/ciel"
 )
 
 var rawArgs []string
@@ -93,6 +93,6 @@ func initCiel() {
 	basePath := flagCielDir()
 	parse()
 
-	i := &dotciel.Ciel{BasePath: *basePath}
+	i := &ciel.Ciel{BasePath: *basePath}
 	i.Init()
 }

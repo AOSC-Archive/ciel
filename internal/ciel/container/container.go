@@ -3,8 +3,8 @@ package container
 import (
 	"path"
 
-	"ciel/internal/abstract"
-	"ciel/internal/dotciel/container/instance"
+	"ciel/internal/ciel/abstract"
+	"ciel/internal/ciel/container/instance"
 	"ciel/internal/utils"
 	"log"
 	"os"

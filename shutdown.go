@@ -4,9 +4,9 @@ import (
 	"context"
 	"os"
 
+	"ciel/internal/ciel"
+	"ciel/internal/ciel/container/instance"
 	"ciel/internal/display"
-	"ciel/internal/dotciel"
-	"ciel/internal/dotciel/container/instance"
 )
 
 func unlockInst() {
@@ -14,7 +14,7 @@ func unlockInst() {
 	instName := flagInstance()
 	parse()
 
-	i := &dotciel.Ciel{BasePath: *basePath}
+	i := &ciel.Ciel{BasePath: *basePath}
 	i.Check()
 	c := i.Container()
 
@@ -34,7 +34,7 @@ func shutdownCiel() {
 	basePath := flagCielDir()
 	parse()
 
-	i := &dotciel.Ciel{BasePath: *basePath}
+	i := &ciel.Ciel{BasePath: *basePath}
 	i.Check()
 	c := i.Container()
 

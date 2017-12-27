@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	"ciel/internal/dotciel"
+	"ciel/internal/ciel"
 )
 
 func mountCiel() {
@@ -11,7 +11,7 @@ func mountCiel() {
 	instName := flagInstance()
 	parse()
 
-	i := &dotciel.Ciel{BasePath: *basePath}
+	i := &ciel.Ciel{BasePath: *basePath}
 	i.Check()
 	c := i.Container()
 
@@ -34,7 +34,7 @@ func unmountCiel() {
 	instName := flagInstance()
 	parse()
 
-	i := &dotciel.Ciel{BasePath: *basePath}
+	i := &ciel.Ciel{BasePath: *basePath}
 	i.Check()
 	c := i.Container()
 

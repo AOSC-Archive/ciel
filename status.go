@@ -3,14 +3,14 @@ package main
 import (
 	"fmt"
 
-	"ciel/internal/dotciel"
+	"ciel/internal/ciel"
 )
 
 func list() {
 	basePath := flagCielDir()
 	parse()
 
-	i := &dotciel.Ciel{BasePath: *basePath}
+	i := &ciel.Ciel{BasePath: *basePath}
 	i.Check()
 	c := i.Container()
 

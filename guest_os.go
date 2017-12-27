@@ -9,8 +9,8 @@ import (
 	"strconv"
 	"strings"
 
+	"ciel/internal/ciel"
 	"ciel/internal/display"
-	"ciel/internal/dotciel"
 	"io/ioutil"
 )
 
@@ -18,7 +18,7 @@ func untarGuestOS() {
 	basePath := flagCielDir()
 	parse()
 
-	i := &dotciel.Ciel{BasePath: *basePath}
+	i := &ciel.Ciel{BasePath: *basePath}
 	i.Check()
 	c := i.Container()
 
@@ -106,7 +106,7 @@ func update() {
 	bootConfig := flagBootConfig()
 	parse()
 
-	i := &dotciel.Ciel{BasePath: *basePath}
+	i := &ciel.Ciel{BasePath: *basePath}
 	i.Check()
 	c := i.Container()
 

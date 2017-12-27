@@ -1,11 +1,11 @@
-package dotciel
+package ciel
 
 import (
 	"io/ioutil"
 	"log"
 	"path"
 
-	"ciel/internal/dotciel/container"
+	"ciel/internal/ciel/container"
 	"ciel/internal/utils"
 	"strings"
 )

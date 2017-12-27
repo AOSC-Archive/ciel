@@ -10,9 +10,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	"ciel/internal/abstract"
-	"ciel/internal/dotciel/container/filesystem"
-	"ciel/internal/dotciel/container/nspawn"
+	"ciel/internal/ciel/abstract"
+	"ciel/internal/ciel/container/filesystem"
+	"ciel/internal/ciel/container/nspawn"
 	"ciel/internal/overlayfs"
 	"ciel/internal/utils"
 )

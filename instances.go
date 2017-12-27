@@ -7,8 +7,8 @@ import (
 	"os"
 	"strings"
 
+	"ciel/internal/ciel"
 	"ciel/internal/display"
-	"ciel/internal/dotciel"
 )
 
 func add() {
@@ -20,7 +20,7 @@ func add() {
 		log.Fatalln("do not contain white space")
 	}
 
-	i := &dotciel.Ciel{BasePath: *basePath}
+	i := &ciel.Ciel{BasePath: *basePath}
 	i.Check()
 	c := i.Container()
 
@@ -36,7 +36,7 @@ func del() {
 	parse()
 	instName := flag.Arg(0)
 
-	i := &dotciel.Ciel{BasePath: *basePath}
+	i := &ciel.Ciel{BasePath: *basePath}
 	i.Check()
 	c := i.Container()
 	c.CheckInst(instName)
@@ -61,7 +61,7 @@ func rawRun(shell bool) {
 	bootConfig := flagBootConfig()
 	parse()
 
-	i := &dotciel.Ciel{BasePath: *basePath}
+	i := &ciel.Ciel{BasePath: *basePath}
 	i.Check()
 	c := i.Container()
 	c.CheckInst(*instName)
@@ -115,7 +115,7 @@ func stop() {
 	instName := flagInstance()
 	parse()
 
-	i := &dotciel.Ciel{BasePath: *basePath}
+	i := &ciel.Ciel{BasePath: *basePath}
 	i.Check()
 	c := i.Container()
 	c.CheckInst(*instName)
@@ -133,7 +133,7 @@ func rollback() {
 	instName := flagInstance()
 	parse()
 
-	i := &dotciel.Ciel{BasePath: *basePath}
+	i := &ciel.Ciel{BasePath: *basePath}
 	i.Check()
 	c := i.Container()
 	c.CheckInst(*instName)
