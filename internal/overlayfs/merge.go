@@ -87,6 +87,7 @@ func (i *Instance) merge(path string, src, dst int) error {
 	walkBase := filepath.Join(uroot, path)
 	os.MkdirAll(filepath.Dir(filepath.Join(lroot, path)), 755)
 	err := filepath.Walk(walkBase, func(upath string, info os.FileInfo, err error) error {
+		log.Println(upath)
 		rel, _ := filepath.Rel(uroot, upath)
 		lpath := filepath.Join(lroot, rel)
 
@@ -124,9 +125,6 @@ func (i *Instance) merge(path string, src, dst int) error {
 		return errors.New("unexpected type")
 		// end of walk-function
 	})
-	if err == nil {
-		os.RemoveAll(walkBase)
-	}
 	return err
 }
 

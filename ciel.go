@@ -13,6 +13,7 @@ import (
 var rawArgs []string
 
 func main() {
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	var subCmd string
 	if len(os.Args) >= 2 {
 		if strings.HasPrefix(os.Args[1], "-") {
