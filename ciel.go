@@ -37,31 +37,27 @@ func router(subCmd string) {
 		// Create Directory Structures
 		"init": initCiel, // here
 
-		// Cleaning Up Before Shutting Down Computer
-		"shutdown": shutdownCiel, // shutdown.go
-
 		// Preparing and Removing Instance
-		"add":      add,          // instances.go
-		"load-os":  untarGuestOS, // guest_os.go
-		"update":   update,       // guest_os.go
-		"rollback": rollback,     // guest_os.go
-		"del":      del,          // instances.go
+		"add":       add,          // instances.go
+		"load-os":   untarGuestOS, // guest_os.go
+		"update-os": update,       // guest_os.go
+		"rollback":  rollback,     // guest_os.go
+		"del":       del,          // instances.go
 
 		// Maintaining Instance Status
-		"unlock":  unlockInst,  // shutdown.go
-		"stop":    stop,        // instances.go
-		"list":    list,        // status.go
-		"mount":   mountCiel,   // mount_points.go
-		"unmount": unmountCiel, // mount_points.go
-		"":        list,        // status.go
+		"mount": mountCiel, // mount_points.go
+		"stop":  stop,      // instances.go
+		"down":  shutdown,  // mount_points.go
+		"list":  list,      // status.go
+		"":      list,      // status.go
 
 		// Executing Commands
 		"shell": shell, // instances.go
 		"run":   run,   // instances.go
 
 		//// Preparing Build
-		//"clone":  clone,       // tree.go
-		//"tree":   tree,        // tree.go
+		"load-tree":   clone, // tree.go
+		"update-tree": pull,  // tree.go
 		//"config": buildConfig, // build.go
 		//
 		//// Building

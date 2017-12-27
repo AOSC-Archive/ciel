@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"ciel/internal/ciel"
+	"ciel/internal/display"
 )
 
 func mountCiel() {
@@ -29,7 +30,7 @@ func mountCiel() {
 	c.Instance(*instName).Mount()
 }
 
-func unmountCiel() {
+func shutdown() {
 	basePath := flagCielDir()
 	instName := flagInstance()
 	parse()
@@ -41,13 +42,12 @@ func unmountCiel() {
 	if *instName == "" {
 		instList := c.GetAll()
 		for _, inst := range instList {
-			err := inst.Unmount()
-			if err != nil {
-				log.Println(inst.Name+":", err)
-			}
+			d.SECTION("Shutdown Instance " + inst.Name)
+			inst.Unmount()
 		}
 		return
 	}
 	c.CheckInst(*instName)
+	d.SECTION("Shutdown Instance " + *instName)
 	c.Instance(*instName).Unmount()
 }

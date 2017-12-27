@@ -20,10 +20,6 @@ func Lock(path string) bool {
 	return true
 }
 
-func Unlock(path string) bool {
-	return os.Remove(path) == nil
-}
-
 func Locked(path string) bool {
 	_, err := os.Stat(path)
 	return err == nil

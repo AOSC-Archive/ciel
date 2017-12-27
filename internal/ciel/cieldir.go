@@ -6,15 +6,19 @@ import (
 	"path"
 
 	"ciel/internal/ciel/container"
+	"ciel/internal/ciel/pkgtree"
 	"ciel/internal/utils"
 	"strings"
 )
 
 const (
-	DotCielDirName   = ".ciel"
-	ContainerDirName = "container"
-	VersionFile      = "version"
-	Version          = "2"
+	DotCielDirName = ".ciel"
+
+	ContainerDirName = DotCielDirName + "/container"
+	TreeDirName      = "TREE"
+
+	VersionFile = DotCielDirName + "/version"
+	Version     = "2"
 )
 
 type Ciel struct {
@@ -34,11 +38,13 @@ func (i *Ciel) CielDir() string {
 	return path.Join(i.BasePath, DotCielDirName)
 }
 func (i *Ciel) VerFile() string {
-	return path.Join(i.CielDir(), VersionFile)
+	return path.Join(i.BasePath, VersionFile)
 }
-
 func (i *Ciel) containerDir() string {
-	return path.Join(i.CielDir(), ContainerDirName)
+	return path.Join(i.BasePath, ContainerDirName)
+}
+func (i *Ciel) treeDir() string {
+	return path.Join(i.BasePath, TreeDirName)
 }
 
 func (i *Ciel) Init() {
@@ -51,5 +57,8 @@ func (i *Ciel) Init() {
 
 func (i *Ciel) Container() *container.Container {
 	return &container.Container{Parent: i, BasePath: i.containerDir()}
+}
+func (i *Ciel) Tree() *pkgtree.Tree {
+	return &pkgtree.Tree{Parent: i, BasePath: i.treeDir()}
 }
 func (i *Ciel) GetBasePath() string { return i.BasePath }

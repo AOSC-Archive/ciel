@@ -13,15 +13,18 @@ import (
 	"ciel/internal/ciel/abstract"
 	"ciel/internal/ciel/container/filesystem"
 	"ciel/internal/ciel/container/nspawn"
+	"ciel/internal/display"
 	"ciel/internal/overlayfs"
 	"ciel/internal/utils"
 )
 
-const LayerDirName = "layers"
-const LockFileName = "lock"
-const RefractoryFileName = "refractory"
-const BootedFileName = "booted"
-const MachineIdFileName = "machineid"
+const (
+	LayerDirName       = "layers"
+	LockFileName       = "lock"
+	RefractoryFileName = "refractory"
+	BootedFileName     = "booted"
+	MachineIdFileName  = "machineid"
+)
 
 var (
 	ErrLock        = errors.New("failed to require the lock")
@@ -54,28 +57,47 @@ func (i *Instance) Mount() error {
 		if i.Mounted() {
 			return ErrLock
 		}
-		utils.Unlock(i.FileSystemLock())
+		os.Remove(i.FileSystemLock())
 	}
 	if err := ofs.Mount(false); err != nil {
-		utils.Unlock(i.FileSystemLock())
+		os.Remove(i.FileSystemLock())
 		return err
 	}
 	return nil
 }
 func (i *Instance) Unmount() error {
-	i.UnlockContainer()
+	i.Stop(context.Background())
 	ofs := i.FileSystem()
 	var err error
+	d.ITEM("unmount")
 	if i.Mounted() {
 		if err := ofs.Unmount(); err != nil {
+			d.FAILED_BECAUSE(err.Error())
 			return err
 		}
+		d.OK()
 	} else {
+		d.SKIPPED()
 		err = os.ErrNotExist
 	}
-	os.Remove(i.MountPoint())
-	utils.Unlock(i.FileSystemLock())
+	d.ITEM("remove mount point")
+	tryRemove(i.MountPoint())
+	d.ITEM("remove lock")
+	tryRemove(i.FileSystemLock())
 	return err
+}
+
+func tryRemove(path string) {
+	err := os.Remove(path)
+	if err == nil {
+		d.OK()
+		return
+	}
+	if os.IsNotExist(err) {
+		d.SKIPPED()
+		return
+	}
+	d.FAILED_BECAUSE(err.Error())
 }
 func (i *Instance) Mounted() bool {
 	a, err := ioutil.ReadFile("/proc/self/mountinfo")
@@ -105,8 +127,6 @@ func (i *Instance) Run(ctx context.Context, boot bool, network bool, containerAr
 		return -1, ErrRefractory
 	}
 
-	println(i.Dir())
-
 	if boot && nspawn.IsBootable(i.MountPoint()) {
 		toBoot := false
 		if oldMachineId := i.MachineId(); oldMachineId == "" {
@@ -114,7 +134,7 @@ func (i *Instance) Run(ctx context.Context, boot bool, network bool, containerAr
 			i.SetMachineId(machineId)
 			toBoot = true
 		} else if !nspawn.MachineRunning(nspawn.MachineStatus(ctx, oldMachineId)) {
-			i.UnlockContainer()
+			i.Stop(context.Background())
 			i.EnterBoot()
 			i.SetMachineId(machineId)
 			toBoot = true
@@ -153,22 +173,25 @@ func (i *Instance) Run(ctx context.Context, boot bool, network bool, containerAr
 }
 
 func (i *Instance) Stop(ctx context.Context) error {
+	d.ITEM("stop")
 	if i.MachineId() == "" {
+		d.SKIPPED()
 		return ErrNoMachineId
 	}
 	var err error
 	if i.Booted() {
 		err = nspawn.MachinectlPoweroff(ctx, i.MachineId())
-		if err == nil {
-			i.LeaveBoot()
-			i.UnsetMachineId()
-		}
 	} else {
 		err = nspawn.MachinectlTerminate(ctx, i.MachineId())
-		if err == nil {
-			i.UnsetMachineId()
-			i.LeaveRefractory()
-		}
+	}
+	d.ERR(err)
+	if err == nil {
+		d.ITEM("remove boot flag")
+		tryRemove(i.BootLock())
+		d.ITEM("remove machine id")
+		tryRemove(i.MachineIdFile())
+		d.ITEM("remove boot lock")
+		tryRemove(i.RefractoryLock())
 	}
 	return err
 }
@@ -229,7 +252,7 @@ func (i *Instance) EnterBoot() bool {
 	return utils.Lock(i.BootLock())
 }
 func (i *Instance) LeaveBoot() {
-	utils.Unlock(i.BootLock())
+	os.Remove(i.BootLock())
 }
 func (i *Instance) Booted() bool {
 	return utils.Locked(i.BootLock())
@@ -242,7 +265,7 @@ func (i *Instance) EnterRefractory() bool {
 	return utils.Lock(i.RefractoryLock())
 }
 func (i *Instance) LeaveRefractory() {
-	utils.Unlock(i.RefractoryLock())
+	os.Remove(i.RefractoryLock())
 }
 
 func (i *Instance) Dir() string {
@@ -265,19 +288,6 @@ func (i *Instance) UnsetMachineId() error {
 
 func (i *Instance) FileSystemLock() string {
 	return path.Join(i.Dir(), LockFileName)
-}
-func (i *Instance) UnlockFileSystem() {
-	i.Unmount()
-	os.Remove(i.FileSystemLock())
-	os.Remove(i.MountPoint())
-}
-
-func (i *Instance) UnlockContainer() {
-	i.Stop(context.Background())
-	os.Remove(i.BootLock())
-	os.Remove(i.MachineIdFile())
-	os.Remove(i.RefractoryLock())
-
 }
 
 func (i *Instance) Shell(user string) (string, error) {
