@@ -27,7 +27,6 @@ const (
 )
 
 var (
-	ErrLock        = errors.New("failed to require the lock")
 	ErrNoMachineId = errors.New("no machineId")
 	ErrRefractory  = errors.New("another instance is running")
 )
@@ -55,7 +54,7 @@ func (i *Instance) Mount() error {
 	ofs := i.FileSystem()
 	if !utils.Lock(i.FileSystemLock()) {
 		if i.Mounted() {
-			return ErrLock
+			return nil
 		}
 		os.Remove(i.FileSystemLock())
 	}
@@ -72,20 +71,20 @@ func (i *Instance) Unmount() error {
 	var err error
 	if i.Mounted() {
 		i.Parent.GetCiel().GetTree().MountHandler(i, false)
-		d.ITEM("unmount")
+		d.ITEM("unmount " + i.Name)
 		if err := ofs.Unmount(); err != nil {
 			d.FAILED_BECAUSE(err.Error())
 			return err
 		}
 		d.OK()
 	} else {
-		d.ITEM("unmount")
+		d.ITEM("unmount " + i.Name)
 		d.SKIPPED()
 		err = os.ErrNotExist
 	}
 	d.ITEM("remove mount point")
 	tryRemove(i.MountPoint())
-	d.ITEM("remove lock")
+	d.ITEM("remove file system lock")
 	tryRemove(i.FileSystemLock())
 	return err
 }
@@ -176,7 +175,7 @@ func (i *Instance) Run(ctx context.Context, boot bool, network bool, containerAr
 }
 
 func (i *Instance) Stop(ctx context.Context) error {
-	d.ITEM("stop")
+	d.ITEM("stop " + i.Name)
 	if i.MachineId() == "" {
 		d.SKIPPED()
 		return ErrNoMachineId

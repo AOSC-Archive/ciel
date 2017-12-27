@@ -36,14 +36,10 @@ func untarGuestOS() {
 		}
 		for _, inst := range c.GetAll() {
 			if inst.Running() {
-				d.ITEM("shutdown " + inst.Name)
-				err := inst.Stop(context.TODO())
-				d.ERR(err)
+				inst.Stop(context.TODO())
 			}
 			if inst.Mounted() {
-				d.ITEM("unmount " + inst.Name)
-				err := inst.Unmount()
-				d.ERR(err)
+				inst.Unmount()
 			}
 			d.ITEM("delete " + inst.Name)
 			err := c.DelInst(inst.Name)
@@ -130,14 +126,10 @@ func update() {
 		}
 		for _, inst := range c.GetAll() {
 			if inst.Running() {
-				d.ITEM("shutdown " + inst.Name)
-				err := inst.Stop(context.TODO())
-				d.ERR(err)
+				inst.Stop(context.TODO())
 			}
 			if inst.Mounted() {
-				d.ITEM("unmount " + inst.Name)
-				err := inst.Unmount()
-				d.ERR(err)
+				inst.Unmount()
 			}
 		}
 	}
@@ -156,14 +148,10 @@ func update() {
 	inst.Mount()
 	d.OK()
 	defer func() {
-		d.ITEM("unmount temporary instance")
 		inst.Unmount()
-		d.OK()
 	}()
 	defer func() {
-		d.ITEM("stop temporary instance")
 		inst.Stop(context.TODO())
-		d.OK()
 	}()
 
 	bootConf := strings.Split(strings.TrimSpace(*bootConfig), "\n")
