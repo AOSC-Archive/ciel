@@ -55,13 +55,13 @@ func router(subCmd string) {
 		"shell": shell, // instances.go
 		"run":   run,   // instances.go
 
-		//// Preparing Build
-		"load-tree":   clone, // tree.go
-		"update-tree": pull,  // tree.go
-		//"config": buildConfig, // build.go
-		//
-		//// Building
-		//"build": build, // build.go
+		// Preparing Build
+		"load-tree":   clone,       // tree.go
+		"update-tree": pull,        // tree.go
+		"config":      buildConfig, // build.go
+
+		// Building
+		// TODO: "build": build, // build.go
 	}
 	requireEUID0()
 	route, exists := routeTable[subCmd]
