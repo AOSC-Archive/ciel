@@ -47,7 +47,7 @@ func (i *Container) InstDel(name string) error {
 
 func (i *Container) InstExists(name string) bool {
 	instDir := path.Join(i.InstDir(), name)
-	if instDir == path.Clean(i.BasePath) {
+	if instDir == path.Clean(i.InstDir()) {
 		return false
 	}
 	if stat, err := os.Stat(instDir); err != nil || !stat.IsDir() {
