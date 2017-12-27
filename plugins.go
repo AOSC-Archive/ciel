@@ -11,9 +11,6 @@ import (
 	"syscall"
 )
 
-//...
-// TODO: plugin system
-
 const (
 	LibExecDir   = "/usr/libexec"
 	PluginDir    = LibExecDir + "/ciel-plugin"

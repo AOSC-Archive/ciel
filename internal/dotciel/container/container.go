@@ -39,7 +39,7 @@ func (i *Container) Instance(name string) *instance.Instance {
 
 func (i *Container) InstAdd(name string) error {
 	utils.Mkdir(path.Join(i.InstDir(), name))
-	return i.Instance(name).InstCreateFileSystem()
+	return i.Instance(name).Init()
 }
 func (i *Container) InstDel(name string) error {
 	return os.RemoveAll(path.Join(i.InstDir(), name))

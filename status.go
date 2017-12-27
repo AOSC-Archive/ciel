@@ -24,8 +24,8 @@ func list() {
 		if len(showInst) > 14 {
 			showInst = showInst[:12] + ".."
 		}
-		status, boot := inst.InstContainerRunningStat()
-		fmt.Printf("\t%s%s%s\t%s\t%s\n", showInst, tabs, inst.InstFileSystemStat(), status, boot)
+		status, boot := inst.ContainerStat()
+		fmt.Printf("\t%s%s%s\t%s\t%s\n", showInst, tabs, inst.FileSystemStat(), status, boot)
 	}
 	fmt.Println()
 	count := len(c.GetAllNames())

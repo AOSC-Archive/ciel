@@ -18,7 +18,7 @@ func mountCiel() {
 	if *instName == "" {
 		instList := c.GetAll()
 		for _, inst := range instList {
-			err := inst.InstMount()
+			err := inst.Mount()
 			if err != nil {
 				log.Println(inst.Name+":", err)
 			}
@@ -26,7 +26,7 @@ func mountCiel() {
 		return
 	}
 	c.CheckInst(*instName)
-	c.Instance(*instName).InstMount()
+	c.Instance(*instName).Mount()
 }
 
 func unmountCiel() {
@@ -41,7 +41,7 @@ func unmountCiel() {
 	if *instName == "" {
 		instList := c.GetAll()
 		for _, inst := range instList {
-			err := inst.InstUnmount()
+			err := inst.Unmount()
 			if err != nil {
 				log.Println(inst.Name+":", err)
 			}
@@ -49,5 +49,5 @@ func unmountCiel() {
 		return
 	}
 	c.CheckInst(*instName)
-	c.Instance(*instName).InstUnmount()
+	c.Instance(*instName).Unmount()
 }

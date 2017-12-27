@@ -35,14 +35,14 @@ func untarGuestOS() {
 			os.Exit(1)
 		}
 		for _, inst := range c.GetAll() {
-			if inst.InstRunning() {
+			if inst.Running() {
 				d.ITEM("shutdown " + inst.Name)
-				err := inst.InstStop(context.TODO())
+				err := inst.Stop(context.TODO())
 				d.ERR(err)
 			}
-			if inst.InstMounted() {
+			if inst.Mounted() {
 				d.ITEM("unmount " + inst.Name)
-				err := inst.InstUnmount()
+				err := inst.Unmount()
 				d.ERR(err)
 			}
 			d.ITEM("delete " + inst.Name)
@@ -114,7 +114,7 @@ func update() {
 	d.ITEM("are there online instances?")
 	ready := true
 	for _, inst := range c.GetAll() {
-		if inst.InstRunning() || inst.InstMounted() {
+		if inst.Running() || inst.Mounted() {
 			ready = false
 			d.Print(d.C(d.RED, inst.Name) + " ")
 		}
@@ -129,14 +129,14 @@ func update() {
 			os.Exit(1)
 		}
 		for _, inst := range c.GetAll() {
-			if inst.InstRunning() {
+			if inst.Running() {
 				d.ITEM("shutdown " + inst.Name)
-				err := inst.InstStop(context.TODO())
+				err := inst.Stop(context.TODO())
 				d.ERR(err)
 			}
-			if inst.InstMounted() {
+			if inst.Mounted() {
 				d.ITEM("unmount " + inst.Name)
-				err := inst.InstUnmount()
+				err := inst.Unmount()
 				d.ERR(err)
 			}
 		}
@@ -153,21 +153,21 @@ func update() {
 	}()
 	inst := c.Instance(instName)
 	d.ITEM("mount temporary instance")
-	inst.InstMount()
+	inst.Mount()
 	d.OK()
 	defer func() {
 		d.ITEM("unmount temporary instance")
-		inst.InstUnmount()
+		inst.Unmount()
 		d.OK()
 	}()
 	defer func() {
 		d.ITEM("stop temporary instance")
-		inst.InstStop(context.TODO())
+		inst.Stop(context.TODO())
 		d.OK()
 	}()
 
 	bootConf := strings.Split(strings.TrimSpace(*bootConfig), "\n")
-	shell, err := inst.InstShellPath("root")
+	shell, err := inst.Shell("root")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -180,7 +180,7 @@ func update() {
 
 	type ExitError struct{}
 	var run = func(cmd string) (int, error) {
-		return inst.InstRun(ctx, true, *networkFlag, bootConf, append(args, cmd)...)
+		return inst.Run(ctx, true, *networkFlag, bootConf, append(args, cmd)...)
 	}
 	defer func() {
 		p := recover()
@@ -219,7 +219,7 @@ func update() {
 	d.OK()
 
 	d.ITEM("merge changes")
-	err = inst.InstFileSystem().Merge()
+	err = inst.FileSystem().Merge()
 	d.ERR(err)
 
 	// TODO: clean

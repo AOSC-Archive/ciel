@@ -28,7 +28,7 @@ func add() {
 		log.Fatalln("already has " + instName)
 	}
 	c.InstAdd(instName)
-	c.Instance(instName).InstMount()
+	c.Instance(instName).Mount()
 }
 
 func del() {
@@ -41,7 +41,7 @@ func del() {
 	c := i.Container()
 	c.CheckInst(instName)
 
-	c.Instance(instName).InstUnmount()
+	c.Instance(instName).Unmount()
 	c.InstDel(instName)
 }
 
@@ -67,14 +67,14 @@ func rawRun(shell bool) {
 	c.CheckInst(*instName)
 
 	inst := c.Instance(*instName)
-	inst.InstMount()
+	inst.Mount()
 
 	var args []string
 
 	bootConf := strings.Split(strings.TrimSpace(*bootConfig), "\n")
 
 	if shell {
-		rootShell, err := inst.InstShellPath("root")
+		rootShell, err := inst.Shell("root")
 		if err != nil {
 			log.Fatalln(err)
 		}
@@ -96,7 +96,7 @@ func rawRun(shell bool) {
 		args = flag.Args()
 	}
 
-	exitStatus, err := inst.InstRun(
+	exitStatus, err := inst.Run(
 		context.TODO(),
 		!*noBooting,
 		*networkFlag,
@@ -122,7 +122,7 @@ func stop() {
 
 	inst := c.Instance(*instName)
 
-	err := inst.InstStop(context.TODO())
+	err := inst.Stop(context.TODO())
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -142,10 +142,10 @@ func rollback() {
 
 	d.SECTION("Rollback Changes")
 	d.ITEM("is running?")
-	if inst.InstRunning() {
+	if inst.Running() {
 		d.Println(d.C(d.YELLOW, "ONLINE"))
 	} else {
 		d.Println(d.C(d.CYAN, "OFFLINE"))
 	}
-	inst.InstFileSystem().Rollback()
+	inst.FileSystem().Rollback()
 }

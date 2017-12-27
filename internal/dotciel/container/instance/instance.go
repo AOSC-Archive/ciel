@@ -35,51 +35,53 @@ type Instance struct {
 	Name     string
 }
 
-func (i *Instance) InstCreateFileSystem() error {
-	layersDir := path.Join(i.InstSubDir(), LayerDirName)
+func (i *Instance) Init() error {
+	layersDir := path.Join(i.Dir(), LayerDirName)
 	return overlayfs.Create(layersDir)
 }
-func (i *Instance) InstFileSystem() filesystem.FileSystem {
-	inst := overlayfs.FromPath(i.Parent.DistDir(), path.Join(i.InstSubDir(), LayerDirName))
+func (i *Instance) FileSystem() filesystem.FileSystem {
+	inst := overlayfs.FromPath(i.Parent.DistDir(), path.Join(i.Dir(), LayerDirName))
 	inst.MountPoint = "./" + i.Name
 	return inst
 }
 
-func (i *Instance) InstMount() error {
-	ofs := i.InstFileSystem()
-	if !utils.Lock(i.InstLockFile()) {
-		if i.InstMounted() {
+func (i *Instance) MountPoint() string {
+	return path.Join(i.Parent.GetCiel().GetBasePath(), i.Name)
+}
+func (i *Instance) Mount() error {
+	ofs := i.FileSystem()
+	if !utils.Lock(i.FileSystemLock()) {
+		if i.Mounted() {
 			return ErrLock
 		}
-		utils.Unlock(i.InstLockFile())
+		utils.Unlock(i.FileSystemLock())
 	}
 	if err := ofs.Mount(false); err != nil {
-		utils.Unlock(i.InstLockFile())
+		utils.Unlock(i.FileSystemLock())
 		return err
 	}
 	return nil
 }
-func (i *Instance) InstUnmount() error {
-	i.InstUnlockContainer()
-	ofs := i.InstFileSystem()
+func (i *Instance) Unmount() error {
+	i.UnlockContainer()
+	ofs := i.FileSystem()
 	var err error
-	if i.InstMounted() {
+	if i.Mounted() {
 		if err := ofs.Unmount(); err != nil {
 			return err
 		}
 	} else {
 		err = os.ErrNotExist
 	}
-	os.Remove(i.InstMountPoint())
-	utils.Unlock(i.InstLockFile())
+	os.Remove(i.MountPoint())
+	utils.Unlock(i.FileSystemLock())
 	return err
 }
-
-func (i *Instance) InstMounted() bool {
+func (i *Instance) Mounted() bool {
 	a, err := ioutil.ReadFile("/proc/self/mountinfo")
 	s := string(a)
 	list := strings.Split(s, "\n")
-	match, _ := filepath.Abs(i.InstMountPoint())
+	match, _ := filepath.Abs(i.MountPoint())
 	for _, item := range list {
 		if item == "" {
 			continue
@@ -95,77 +97,77 @@ func (i *Instance) InstMounted() bool {
 	return false
 }
 
-func (i *Instance) InstRun(ctx context.Context, boot bool, network bool, containerArgs []string, args ...string) (int, error) {
+func (i *Instance) Run(ctx context.Context, boot bool, network bool, containerArgs []string, args ...string) (int, error) {
 	defer RecoverTerminalAttr()
 	machineId := i.Name + "_" + utils.RandomString(5)
 
-	if !i.InstRefractoryPeriodEnter() {
+	if !i.EnterRefractory() {
 		return -1, ErrRefractory
 	}
 
-	println(i.InstSubDir())
+	println(i.Dir())
 
-	if boot && nspawn.IsBootable(i.InstMountPoint()) {
+	if boot && nspawn.IsBootable(i.MountPoint()) {
 		toBoot := false
-		if oldMachineId := i.InstMachineId(); oldMachineId == "" {
-			i.InstBootedEnter()
-			i.InstSetMachineId(machineId)
+		if oldMachineId := i.MachineId(); oldMachineId == "" {
+			i.EnterBoot()
+			i.SetMachineId(machineId)
 			toBoot = true
 		} else if !nspawn.MachineRunning(nspawn.MachineStatus(ctx, oldMachineId)) {
-			i.InstUnlockContainer()
-			i.InstBootedEnter()
-			i.InstSetMachineId(machineId)
+			i.UnlockContainer()
+			i.EnterBoot()
+			i.SetMachineId(machineId)
 			toBoot = true
 		} else {
 			machineId = oldMachineId
 		}
-		i.InstRefractoryPeriodLeave()
+		i.LeaveRefractory()
 		if toBoot {
 			if network {
 				containerArgs = append([]string{"--network-zone=ciel"}, containerArgs...)
 			}
-			_, err := nspawn.SystemdNspawn(ctx, i.InstMountPoint(), true, machineId, containerArgs...)
+			_, err := nspawn.SystemdNspawn(ctx, i.MountPoint(), true, machineId, containerArgs...)
 
 			// NOTE: This will be blocked until the container completely booted up.
 			if _, ok := err.(nspawn.ErrCancelled); ok {
-				i.InstUnsetMachineId()
-				i.InstBootedLeave()
+				i.UnsetMachineId()
+				i.LeaveBoot()
 				return -1, err
 			}
 		}
 		defer func() {
-			if !i.InstRunning() {
-				i.InstUnsetMachineId()
-				i.InstBootedLeave()
+			if !i.Running() {
+				i.UnsetMachineId()
+				i.LeaveBoot()
 			}
 		}()
 		return nspawn.SystemdRun(ctx, machineId, args...)
 	}
 
-	i.InstSetMachineId(machineId)
+	i.SetMachineId(machineId)
 
-	defer i.InstUnsetMachineId()
-	defer i.InstRefractoryPeriodLeave()
+	defer i.UnsetMachineId()
+	defer i.LeaveRefractory()
 
-	return nspawn.SystemdNspawn(ctx, i.InstMountPoint(), false, machineId, args...)
+	return nspawn.SystemdNspawn(ctx, i.MountPoint(), false, machineId, args...)
 }
 
-func (i *Instance) InstStop(ctx context.Context) error {
-	if i.InstMachineId() == "" {
+func (i *Instance) Stop(ctx context.Context) error {
+	if i.MachineId() == "" {
 		return ErrNoMachineId
 	}
 	var err error
-	if i.InstBooted() {
-		err = nspawn.MachinectlPoweroff(ctx, i.InstMachineId())
+	if i.Booted() {
+		err = nspawn.MachinectlPoweroff(ctx, i.MachineId())
 		if err == nil {
-			i.InstBootedLeave()
-			i.InstUnsetMachineId()
+			i.LeaveBoot()
+			i.UnsetMachineId()
 		}
 	} else {
-		err = nspawn.MachinectlTerminate(ctx, i.InstMachineId())
+		err = nspawn.MachinectlTerminate(ctx, i.MachineId())
 		if err == nil {
-			i.InstUnsetMachineId()
-			i.InstRefractoryPeriodLeave()
+			i.UnsetMachineId()
+			i.LeaveRefractory()
 		}
 	}
 	return err
@@ -177,24 +179,24 @@ const cGRY = "\x1b[37m"
 const cRED = "\x1b[91m"
 const cCYA = "\x1b[96m"
 
-func (i *Instance) InstFileSystemStat() string {
-	if i.InstMounted() {
+func (i *Instance) FileSystemStat() string {
+	if i.Mounted() {
 		return cGRE + "mounted" + cRST
 	}
 	return cRST + "free" + cRST
 }
 
-func (i *Instance) InstContainerRunningStat() (status, boot string) {
-	if utils.Locked(i.InstRefractoryFile()) {
+func (i *Instance) ContainerStat() (status, boot string) {
+	if utils.Locked(i.RefractoryLock()) {
 		return cRED + "locked" + cRST, cGRY + "unknown" + cRST
 	}
-	if i.InstMachineId() != "" {
-		if i.InstBooted() {
-			status := nspawn.MachineStatus(context.Background(), i.InstMachineId())
+	if i.MachineId() != "" {
+		if i.Booted() {
+			status := nspawn.MachineStatus(context.Background(), i.MachineId())
 			if !nspawn.MachineRunning(status) {
 				if nspawn.MachineDead(status) {
-					i.InstBootedLeave()
-					i.InstUnsetMachineId()
+					i.LeaveBoot()
+					i.UnsetMachineId()
 					return cGRY + "offline" + cRST, cGRY + "no" + cRST
 				}
 				return cGRY + "linger" + cRST, cCYA + "yes" + cRST
@@ -206,13 +208,13 @@ func (i *Instance) InstContainerRunningStat() (status, boot string) {
 	return cGRY + "offline" + cRST, cGRY + "no" + cRST
 }
 
-func (i *Instance) InstRunning() bool {
-	if utils.Locked(i.InstRefractoryFile()) {
+func (i *Instance) Running() bool {
+	if utils.Locked(i.RefractoryLock()) {
 		return true
 	}
-	if i.InstMachineId() != "" {
-		if i.InstBooted() {
-			status := nspawn.MachineStatus(context.Background(), i.InstMachineId())
+	if i.MachineId() != "" {
+		if i.Booted() {
+			status := nspawn.MachineStatus(context.Background(), i.MachineId())
 			return nspawn.MachineRunning(status) || !nspawn.MachineDead(status)
 		}
 		return true
@@ -220,80 +222,67 @@ func (i *Instance) InstRunning() bool {
 	return false
 }
 
-func (i *Instance) InstLockFile() string {
-	return path.Join(i.InstSubDir(), LockFileName)
+func (i *Instance) BootLock() string {
+	return path.Join(i.Dir(), BootedFileName)
+}
+func (i *Instance) EnterBoot() bool {
+	return utils.Lock(i.BootLock())
+}
+func (i *Instance) LeaveBoot() {
+	utils.Unlock(i.BootLock())
+}
+func (i *Instance) Booted() bool {
+	return utils.Locked(i.BootLock())
 }
 
-func (i *Instance) InstBootedFile() string {
-	return path.Join(i.InstSubDir(), BootedFileName)
+func (i *Instance) RefractoryLock() string {
+	return path.Join(i.Dir(), RefractoryFileName)
+}
+func (i *Instance) EnterRefractory() bool {
+	return utils.Lock(i.RefractoryLock())
+}
+func (i *Instance) LeaveRefractory() {
+	utils.Unlock(i.RefractoryLock())
 }
 
-func (i *Instance) InstBootedEnter() bool {
-	return utils.Lock(i.InstBootedFile())
-}
-
-func (i *Instance) InstBooted() bool {
-	return utils.Locked(i.InstBootedFile())
-}
-
-func (i *Instance) InstBootedLeave() {
-	utils.Unlock(i.InstBootedFile())
-}
-
-func (i *Instance) InstRefractoryFile() string {
-	return path.Join(i.InstSubDir(), RefractoryFileName)
-}
-
-func (i *Instance) InstRefractoryPeriodEnter() bool {
-	return utils.Lock(i.InstRefractoryFile())
-}
-
-func (i *Instance) InstRefractoryPeriodLeave() {
-	utils.Unlock(i.InstRefractoryFile())
-}
-
-func (i *Instance) InstMachineIdFile() string {
-	return path.Join(i.InstSubDir(), MachineIdFileName)
-}
-
-func (i *Instance) InstSubDir() string {
+func (i *Instance) Dir() string {
 	return path.Join(i.BasePath, i.Name)
 }
 
-func (i *Instance) InstMachineId() string {
-	b, _ := ioutil.ReadFile(i.InstMachineIdFile())
+func (i *Instance) MachineIdFile() string {
+	return path.Join(i.Dir(), MachineIdFileName)
+}
+func (i *Instance) MachineId() string {
+	b, _ := ioutil.ReadFile(i.MachineIdFile())
 	return strings.TrimSpace(string(b))
 }
-
-func (i *Instance) InstSetMachineId(machineId string) error {
-	return ioutil.WriteFile(i.InstMachineIdFile(), []byte(machineId), 0644)
+func (i *Instance) SetMachineId(machineId string) error {
+	return ioutil.WriteFile(i.MachineIdFile(), []byte(machineId), 0644)
+}
+func (i *Instance) UnsetMachineId() error {
+	return os.Remove(i.MachineIdFile())
 }
 
-func (i *Instance) InstUnsetMachineId() error {
-	return os.Remove(i.InstMachineIdFile())
+func (i *Instance) FileSystemLock() string {
+	return path.Join(i.Dir(), LockFileName)
+}
+func (i *Instance) UnlockFileSystem() {
+	i.Unmount()
+	os.Remove(i.FileSystemLock())
+	os.Remove(i.MountPoint())
 }
 
-func (i *Instance) InstMountPoint() string {
-	return path.Join(i.Parent.GetCiel().GetBasePath(), i.Name)
-}
-
-func (i *Instance) InstUnlockFileSystem() {
-	i.InstUnmount()
-	os.Remove(i.InstLockFile())
-	os.Remove(i.InstMountPoint())
-}
-
-func (i *Instance) InstUnlockContainer() {
-	i.InstStop(context.Background())
-	os.Remove(i.InstBootedFile())
-	os.Remove(i.InstMachineIdFile())
-	os.Remove(i.InstRefractoryFile())
+func (i *Instance) UnlockContainer() {
+	i.Stop(context.Background())
+	os.Remove(i.BootLock())
+	os.Remove(i.MachineIdFile())
+	os.Remove(i.RefractoryLock())
 
 }
 
-func (i *Instance) InstShellPath(user string) (string, error) {
+func (i *Instance) Shell(user string) (string, error) {
 	shell := "/bin/sh"
-	passwdFileName := path.Join(i.InstMountPoint(), "/etc/passwd")
+	passwdFileName := path.Join(i.MountPoint(), "/etc/passwd")
 	a, err := ioutil.ReadFile(passwdFileName)
 	if err != nil {
 		return "", err

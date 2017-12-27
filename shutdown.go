@@ -56,21 +56,21 @@ func _unlockInstEx(i *instance.Instance) {
 	d.ITEM("stop")
 	tryStop(i)
 	d.ITEM("remove boot flag")
-	tryRemove(i.InstBootedFile())
+	tryRemove(i.BootLock())
 	d.ITEM("remove machine id")
-	tryRemove(i.InstMachineIdFile())
+	tryRemove(i.MachineIdFile())
 	d.ITEM("remove boot lock")
-	tryRemove(i.InstRefractoryFile())
+	tryRemove(i.RefractoryLock())
 	d.ITEM("unmount")
 	tryUnmount(i)
 	d.ITEM("remove lock")
-	tryRemove(i.InstLockFile())
+	tryRemove(i.FileSystemLock())
 	d.ITEM("remove mount point")
-	tryRemove(i.InstMountPoint())
+	tryRemove(i.MountPoint())
 }
 
 func tryStop(i *instance.Instance) {
-	err := i.InstStop(context.TODO())
+	err := i.Stop(context.TODO())
 	if err == nil {
 		d.OK()
 		return
@@ -96,7 +96,7 @@ func tryRemove(path string) {
 }
 
 func tryUnmount(i *instance.Instance) {
-	err := i.InstUnmount()
+	err := i.Unmount()
 	if err == nil {
 		d.OK()
 		return
