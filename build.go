@@ -20,5 +20,18 @@ func buildConfig() {
 
 	packaging.DetectToolChain(inst)
 
+	// >> /etc/acbs/forest.conf
+	// [default]
+	// location = /var/lib/acbs/repo
+
+	// >> /usr/lib/autobuild3/etc/autobuild/ab3cfg.sh
+	// #!/bin/bash
+	// ##Autobuild user config override
+	// # See a list of options in ab3_defcfg.sh.
+	// ABMPM=dpkg  # Your main PM
+	// ABAPMS=  # Other PMs
+	// MTER="Null Packager <null@aosc.xyz>"
+	// ABINSTALL=
+
 	// TODO: interactive configuring
 }
