@@ -45,7 +45,12 @@ func plugin(subCmd string) int {
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
-	err := cmd.Run()
+	// err := cmd.Run()
+
+	println("script:", proc, strings.Join(flag.Args(), " "))
+	println("not implemented")
+	var err error
+
 	if err != nil {
 		if exitError, ok := err.(*exec.ExitError); ok {
 			exitStatus := exitError.Sys().(syscall.WaitStatus)

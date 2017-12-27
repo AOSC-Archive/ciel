@@ -1,6 +1,7 @@
 package overlayfs
 
 import (
+	"ciel/internal/display"
 	"os"
 	"path/filepath"
 	"strings"
@@ -34,9 +35,8 @@ const TmpDirSuffix = ".tmp"
 func (i *Instance) Mount(readOnly bool) error {
 	var option string
 	var layers = make([]string, len(i.Layers))
-	var layerCount = len(layers)
-	for index := 0; index < layerCount; index++ {
-		layers[index] = filepath.Clean(i.Layers[layerCount-1-index]) // reverse i.Layers and assign it to layers
+	for index := range layers {
+		layers[index] = filepath.Clean(i.Layers[len(layers)-1-index]) // reverse i.Layers and assign it to layers
 	}
 	if readOnly {
 		option = "lowerdir=" + strings.Join(layers, ":")
@@ -63,4 +63,30 @@ func (i *Instance) Unmount() error {
 		}
 	}
 	return err
+}
+
+func (i *Instance) Rollback() error {
+	d.ITEM("get diff dir")
+	layers := i.Layers
+	dir := layers[len(layers)-1]
+	d.Println(d.C(d.WHITE, dir))
+
+	d.ITEM("remove diff dir")
+	err := os.RemoveAll(dir)
+	if err == nil {
+		d.OK()
+	} else if os.IsNotExist(err) {
+		d.SKIPPED()
+	} else {
+		d.FAILED_BECAUSE(err.Error())
+		return err
+	}
+
+	d.ITEM("re-create diff dir")
+	if err := os.Mkdir(dir, 0755); err != nil {
+		d.FAILED_BECAUSE(err.Error())
+		return err
+	}
+	d.OK()
+	return nil
 }

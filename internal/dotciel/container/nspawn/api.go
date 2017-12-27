@@ -6,7 +6,6 @@ import (
 	"errors"
 	"os"
 	"os/exec"
-	"path"
 	"strings"
 	"syscall"
 	"time"
@@ -26,16 +25,6 @@ type ErrCancelled struct {
 
 func (e ErrCancelled) Error() string {
 	return "cancelled: " + e.reason
-}
-
-func IsBootable(p string) bool {
-	for _, file := range BootableFiles {
-		_, err := os.Stat(path.Join(p, file))
-		if err == nil {
-			return true
-		}
-	}
-	return false
 }
 
 func SystemdNspawn(ctx context.Context, directory string, boot bool, machineId string, args ...string) (int, error) {
@@ -99,6 +88,14 @@ func SystemdRun(ctx context.Context, machineId string, args ...string) (int, err
 	cmd.Stdin = os.Stdin
 
 	err := cmd.Run()
+
+	defer func() {
+		// shutting down...
+		if !MachineRunning(MachineStatus(ctx, machineId)) {
+			waitUntilShutdown(ctx, machineId)
+		}
+	}()
+
 	if exitErr, ok := err.(*exec.ExitError); ok {
 		return exitErr.Sys().(syscall.WaitStatus).ExitStatus(), nil
 	}
@@ -146,72 +143,5 @@ func machinectlTerminate(ctx context.Context, machineId string) error {
 		return errors.New(strings.TrimSpace(string(output)))
 	} else {
 		return err
-	}
-}
-
-func waitUntilRunningOrDegraded(ctx context.Context, machindId string) (cancelled bool) {
-	for {
-		switch {
-		case MachineRunning(MachineStatus(context.TODO(), machindId)):
-			return false
-		default:
-			if ctx != nil {
-				select {
-				case <-ctx.Done():
-					return true
-				default:
-				}
-			}
-		}
-		time.Sleep(50 * time.Millisecond)
-	}
-}
-
-func waitUntilShutdown(ctx context.Context, machindId string) (cancelled bool) {
-	for {
-		switch {
-		case MachineDead(MachineStatus(ctx, machindId)):
-			return false
-		default:
-			if ctx != nil {
-				select {
-				case <-ctx.Done():
-					return true
-				default:
-				}
-			}
-		}
-		time.Sleep(50 * time.Millisecond)
-	}
-}
-
-func MachineStatus(ctx context.Context, machindId string) string {
-	a := []string{
-		"is-system-running",
-		"-M", machindId,
-	}
-	cmd := exec.CommandContext(ctx, "systemctl", a...)
-	cmd.Env = append(os.Environ(), "LANG=C")
-	output, _ := cmd.CombinedOutput()
-	return strings.TrimSpace(string(output))
-}
-
-func MachineRunning(status string) bool {
-	switch status {
-	case "running":
-		return true
-	case "degraded":
-		return true
-	default:
-		return false
-	}
-}
-
-func MachineDead(status string) bool {
-	switch status {
-	case "Failed to connect to bus: Host is down":
-		return true
-	default:
-		return false
 	}
 }

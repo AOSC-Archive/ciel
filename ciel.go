@@ -6,6 +6,8 @@ import (
 	"log"
 	"os"
 	"strings"
+
+	"ciel/internal/dotciel"
 )
 
 var rawArgs []string
@@ -32,19 +34,38 @@ func parse() {
 
 func router(subCmd string) {
 	var routeTable = map[string]func(){
-		"init":    initCiel,    // init_mount_unmount.go
-		"mount":   mountCiel,   // init_mount_unmount.go
-		"umount":  unmountCiel, // init_mount_unmount.go
-		"unmount": unmountCiel, // init_mount_unmount.go
-		"load":    unTar,       // load.go
-		"add":     addInst,     // add_del.go
-		"del":     delInst,     // add_del.go
-		"unlock":  unlockInst,  // unlock.go
-		"shell":   shell,       // run_stop.go
-		"run":     run,         // run_stop.go
-		"stop":    stop,        // run_stop.go
+		// Create Directory Structures
+		"init": initCiel, // here
+
+		// Cleaning Up Before Shutting Down Computer
+		"shutdown": shutdownCiel, // shutdown.go
+
+		// Preparing and Removing Instance
+		"add":      add,          // instances.go
+		"load-os":  untarGuestOS, // guest_os.go
+		"update":   update,       // guest_os.go
+		"rollback": rollback,     // guest_os.go
+		"del":      del,          // instances.go
+
+		// Maintaining Instance Status
+		"unlock":  unlockInst,  // shutdown.go
+		"stop":    stop,        // instances.go
 		"list":    list,        // status.go
+		"mount":   mountCiel,   // mount_points.go
+		"unmount": unmountCiel, // mount_points.go
 		"":        list,        // status.go
+
+		// Executing Commands
+		"shell": shell, // instances.go
+		"run":   run,   // instances.go
+
+		//// Preparing Build
+		//"clone":  clone,       // tree.go
+		//"tree":   tree,        // tree.go
+		//"config": buildConfig, // build.go
+		//
+		//// Building
+		//"build": build, // build.go
 	}
 	requireEUID0()
 	route, exists := routeTable[subCmd]
@@ -66,4 +87,12 @@ func requireEUID0() {
 	if os.Geteuid() != 0 {
 		log.Fatalln("need to be root")
 	}
+}
+
+func initCiel() {
+	basePath := flagCielDir()
+	parse()
+
+	i := &dotciel.Ciel{BasePath: *basePath}
+	i.Init()
 }

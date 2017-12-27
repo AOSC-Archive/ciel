@@ -3,34 +3,35 @@ package main
 import (
 	"fmt"
 
-	"ciel/internal/container/dotciel.1"
+	"ciel/internal/dotciel"
 )
 
 func list() {
 	basePath := flagCielDir()
 	parse()
 
-	i := &dotciel.CielDir{BasePath: *basePath}
+	i := &dotciel.Ciel{BasePath: *basePath}
 	i.Check()
+	c := i.Container()
 
-	fmt.Printf("%s\t%s\t%s\t%s\n", "INSTANCE", "WORKDIR", "STATUS", "BOOT")
-	for _, inst := range i.GetAll() {
-		showInst := inst
+	fmt.Printf("\t%s\t%s\t%s\t%s\n", "INSTANCE", "WORKDIR", "STATUS", "BOOT")
+	for _, inst := range c.GetAll() {
+		showInst := inst.Name
 		tabs := "\t\t"
-		if len(inst) > 7 {
+		if len(showInst) > 7 {
 			tabs = "\t"
 		}
-		if len(inst) > 14 {
-			showInst = inst[:12] + ".."
+		if len(showInst) > 14 {
+			showInst = showInst[:12] + ".."
 		}
-		status, boot := i.InstContainerRunningStat(inst)
-		fmt.Printf("%s%s%s\t%s\t%s\n", showInst, tabs, i.InstFileSystemStat(inst), status, boot)
+		status, boot := inst.InstContainerRunningStat()
+		fmt.Printf("\t%s%s%s\t%s\t%s\n", showInst, tabs, inst.InstFileSystemStat(), status, boot)
 	}
 	fmt.Println()
-	count := len(i.GetAll())
+	count := len(c.GetAllNames())
 	if count <= 1 {
-		fmt.Printf("%d instance listed.\n", len(i.GetAll()))
+		fmt.Printf("\t%d instance listed.\n", count)
 	} else {
-		fmt.Printf("%d instances listed.\n", len(i.GetAll()))
+		fmt.Printf("\t%d instances listed.\n", count)
 	}
 }

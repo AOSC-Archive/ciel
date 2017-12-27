@@ -1,4 +1,4 @@
-package dotciel
+package instance
 
 /*
 #include <termios.h>
