@@ -27,7 +27,7 @@ func add() {
 	if c.InstExists(instName) {
 		log.Fatalln("already has " + instName)
 	}
-	c.InstAdd(instName)
+	c.AddInst(instName)
 	c.Instance(instName).Mount()
 }
 
@@ -42,7 +42,7 @@ func del() {
 	c.CheckInst(instName)
 
 	c.Instance(instName).Unmount()
-	c.InstDel(instName)
+	c.DelInst(instName)
 }
 
 func shell() {

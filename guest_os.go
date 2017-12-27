@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"flag"
+	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
@@ -11,7 +12,6 @@ import (
 
 	"ciel/internal/ciel"
 	"ciel/internal/display"
-	"io/ioutil"
 )
 
 func untarGuestOS() {
@@ -46,7 +46,7 @@ func untarGuestOS() {
 				d.ERR(err)
 			}
 			d.ITEM("delete " + inst.Name)
-			err := c.InstDel(inst.Name)
+			err := c.DelInst(inst.Name)
 			d.ERR(err)
 		}
 	} else {
@@ -144,11 +144,11 @@ func update() {
 
 	const instName = "__update__"
 	d.ITEM("create temporary instance")
-	c.InstAdd(instName)
+	c.AddInst(instName)
 	d.OK()
 	defer func() {
 		d.ITEM("delete temporary instance")
-		c.InstDel(instName)
+		c.DelInst(instName)
 		d.OK()
 	}()
 	inst := c.Instance(instName)

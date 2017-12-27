@@ -1,9 +1,10 @@
 package main
 
 import (
-	"ciel/internal/ciel"
 	"flag"
 	"os"
+
+	"ciel/internal/ciel"
 )
 
 func clone() {
