@@ -50,15 +50,29 @@ func (i *Instance) FileSystem() filesystem.FileSystem {
 func (i *Instance) MountPoint() string {
 	return path.Join(i.Parent.GetCiel().GetBasePath(), i.Name)
 }
-func (i *Instance) Mount() error {
-	ofs := i.FileSystem()
+func (i *Instance) MountLocal() error {
+	fs := i.FileSystem()
 	if !utils.Lock(i.FileSystemLock()) {
 		if i.Mounted() {
 			return nil
 		}
 		os.Remove(i.FileSystemLock())
 	}
-	if err := ofs.Mount(false); err != nil {
+	if err := fs.MountLocal(); err != nil {
+		os.Remove(i.FileSystemLock())
+		return err
+	}
+	return nil
+}
+func (i *Instance) Mount() error {
+	fs := i.FileSystem()
+	if !utils.Lock(i.FileSystemLock()) {
+		if i.Mounted() {
+			return nil
+		}
+		os.Remove(i.FileSystemLock())
+	}
+	if err := fs.Mount(false); err != nil {
 		os.Remove(i.FileSystemLock())
 		return err
 	}
@@ -67,12 +81,12 @@ func (i *Instance) Mount() error {
 }
 func (i *Instance) Unmount() error {
 	i.Stop(context.Background())
-	ofs := i.FileSystem()
+	fs := i.FileSystem()
 	var err error
 	if i.Mounted() {
 		i.Parent.GetCiel().GetTree().MountHandler(i, false)
 		d.ITEM("unmount " + i.Name)
-		if err := ofs.Unmount(); err != nil {
+		if err := fs.Unmount(); err != nil {
 			d.FAILED_BECAUSE(err.Error())
 			return err
 		}
