@@ -1,11 +1,12 @@
 package overlayfs
 
 import (
-	"ciel/internal/display"
 	"os"
 	"path/filepath"
 	"strings"
 	"syscall"
+
+	"ciel/internal/display"
 )
 
 type Instance struct {
@@ -31,6 +32,13 @@ const TmpDirSuffix = ".tmp"
 // The specified lower directories will be stacked beginning from the
 // rightmost one and going left.  In the above example lower1 will be the
 // top, lower2 the middle and lower3 the bottom layer.
+
+func (i *Instance) MountLocal() error {
+	var localInst Instance
+	localInst = *i
+	localInst.Layers = localInst.Layers[:len(localInst.Layers)-1]
+	return localInst.Mount(false)
+}
 
 func (i *Instance) Mount(readOnly bool) error {
 	var option string
@@ -59,6 +67,7 @@ func (i *Instance) Unmount() error {
 	err := syscall.Unmount(i.MountPoint, 0)
 	if err == nil {
 		if len(i.Layers) > 0 {
+			os.RemoveAll(filepath.Clean(i.Layers[len(i.Layers)-2]) + TmpDirSuffix)
 			os.RemoveAll(filepath.Clean(i.Layers[len(i.Layers)-1]) + TmpDirSuffix)
 		}
 	}
