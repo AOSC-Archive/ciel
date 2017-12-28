@@ -7,6 +7,10 @@ import (
 	"time"
 )
 
+const (
+	DefaultEditor = "/usr/bin/editor"
+)
+
 func init() {
 	rand.Seed(time.Now().UnixNano())
 }
@@ -36,4 +40,14 @@ func RandomString(length int) (result string) {
 		result += string('a' + byte(rand.Intn(26)))
 	}
 	return
+}
+
+func Editor() string {
+	if s := os.Getenv("VISUAL"); s != "" {
+		return s
+	}
+	if s := os.Getenv("EDITOR"); s != "" {
+		return s
+	}
+	return DefaultEditor
 }
