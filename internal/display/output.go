@@ -129,13 +129,3 @@ func ERR(err error) {
 		FAILED_BECAUSE(err.Error())
 	}
 }
-
-func ASK(msg string, options string) string {
-	Println()
-	Println(strings.Repeat(" ", MaxLength-3) + C(WHITE, "=== "+msg+" ==="))
-	Print(strings.Repeat(" ", MaxLength-3) + ">>> (" + options + "): " + Clr(YELLOW))
-	var answer string
-	fmt.Scanln(&answer)
-	Println(ClrRst())
-	return strings.ToLower(strings.TrimSpace(answer))
-}
