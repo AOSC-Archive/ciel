@@ -1,10 +1,11 @@
 package packaging
 
 import (
-	"ciel/internal/ciel/abstract"
-	"ciel/internal/display"
 	"os"
 	"path"
+
+	"ciel/internal/ciel/abstract"
+	"ciel/internal/display"
 )
 
 const (

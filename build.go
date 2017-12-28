@@ -1,8 +1,16 @@
 package main
 
 import (
+	"context"
+	"flag"
+	"log"
+	"os"
+	"strings"
+
 	"ciel/internal/ciel"
 	"ciel/internal/ciel/packaging"
+	"ciel/internal/ciel/pkgtree"
+	"ciel/internal/display"
 )
 
 func buildConfig() {
@@ -16,22 +24,59 @@ func buildConfig() {
 	c.CheckInst(*instName)
 
 	inst := c.Instance(*instName)
-	inst.Mount()
+	inst.Unmount()
+	inst.MountLocal()
+	defer func() {
+		inst.Unmount()
+	}()
 
 	packaging.DetectToolChain(inst)
+	packaging.SetTreePath(inst, pkgtree.TreePath)
+	var person string
+	for person == "" {
+		person = d.ASK("Maintainer Info", "Foo Bar <myname@example.com>")
+	}
+	packaging.SetMaintainer(inst, person)
+	if d.ASK("Would you like to edit source list?", "yes/no") == "yes" {
+		packaging.EditSourceList(inst)
+	}
+}
 
-	// >> /etc/acbs/forest.conf
-	// [default]
-	// location = /var/lib/acbs/repo
+func build() {
+	basePath := flagCielDir()
+	instName := flagInstance()
+	networkFlag := flagNetwork()
+	noBooting := flagNoBooting()
+	bootConfig := flagBootConfig()
+	parse()
 
-	// >> /usr/lib/autobuild3/etc/autobuild/ab3cfg.sh
-	// #!/bin/bash
-	// ##Autobuild user config override
-	// # See a list of options in ab3_defcfg.sh.
-	// ABMPM=dpkg  # Your main PM
-	// ABAPMS=  # Other PMs
-	// MTER="Null Packager <null@aosc.xyz>"
-	// ABINSTALL=
+	i := &ciel.Ciel{BasePath: *basePath}
+	i.Check()
+	c := i.Container()
+	c.CheckInst(*instName)
+	inst := c.Instance(*instName)
+	inst.Mount()
 
-	// TODO: interactive configuring
+	bootConf := strings.Split(strings.TrimSpace(*bootConfig), "\n")
+
+	shell, err := inst.Shell("root")
+	if err != nil {
+		log.Fatal(err)
+	}
+	args := []string{
+		shell,
+		"--login",
+		"-c", `acbs-build "` + flag.Arg(0) + `"`,
+	}
+
+	exitStatus, err := inst.Run(context.Background(),
+		!*noBooting,
+		*networkFlag,
+		bootConf,
+		args...,
+	)
+	if err != nil {
+		log.Println(err)
+	}
+	os.Exit(exitStatus)
 }
