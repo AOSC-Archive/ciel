@@ -144,6 +144,7 @@ func rollback() {
 	d.ITEM("is running?")
 	if inst.Running() {
 		d.Println(d.C(d.YELLOW, "ONLINE"))
+		inst.Unmount()
 	} else {
 		d.Println(d.C(d.CYAN, "OFFLINE"))
 	}
@@ -166,6 +167,7 @@ func commit() {
 	d.ITEM("is running?")
 	if inst.Running() {
 		d.Println(d.C(d.YELLOW, "ONLINE"))
+		inst.Unmount()
 	} else {
 		d.Println(d.C(d.CYAN, "OFFLINE"))
 	}
