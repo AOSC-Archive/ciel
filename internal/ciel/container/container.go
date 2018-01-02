@@ -1,6 +1,7 @@
 package container
 
 import (
+	"io/ioutil"
 	"log"
 	"os"
 	"path"
@@ -70,11 +71,7 @@ func (i *Container) GetAll() []*instance.Instance {
 	return instList
 }
 func (i *Container) GetAllNames() []string {
-	dir, err := os.Open(i.InstDir())
-	if err != nil {
-		log.Panic(err)
-	}
-	subDirs, err := dir.Readdir(0)
+	subDirs, err := ioutil.ReadDir(i.InstDir())
 	if err != nil {
 		log.Panic(err)
 	}
