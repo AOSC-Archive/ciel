@@ -38,14 +38,14 @@ func buildConfig() {
 	packaging.SetTreePath(inst, pkgtree.TreePath)
 	var person string
 	if !*ci {
-		person = "Bot <discussions@lists.aosc.io>"
-	} else {
 		for person == "" {
 			person = d.ASK("Maintainer Info", "Foo Bar <myname@example.com>")
 		}
+	} else {
+		person = "Bot <discussions@lists.aosc.io>"
 	}
 	packaging.SetMaintainer(inst, person)
-	if *ci && d.ASK("Would you like to edit source list?", "yes/no") == "yes" {
+	if !*ci && d.ASK("Would you like to edit source list?", "yes/no") == "yes" {
 		packaging.EditSourceList(inst)
 	}
 }
