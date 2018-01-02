@@ -45,7 +45,7 @@ func buildConfig() {
 		}
 	}
 	packaging.SetMaintainer(inst, person)
-	if !*ci && d.ASK("Would you like to edit source list?", "yes/no") == "yes" {
+	if *ci && d.ASK("Would you like to edit source list?", "yes/no") == "yes" {
 		packaging.EditSourceList(inst)
 	}
 }
