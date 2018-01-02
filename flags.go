@@ -5,14 +5,6 @@ import (
 	"os"
 )
 
-var envKeys = []string{
-	"CIEL_DIR",
-	"CIEL_INST",
-	"CIEL_NET",
-	"CIEL_BOOT",
-	"CIEL_BOOTCFG",
-}
-
 func flagCielDir() *string {
 	basePath := getEnv("CIEL_DIR", ".")
 	flag.StringVar(&basePath, "d", basePath, "ciel work `directory`; CIEL_DIR")
@@ -55,6 +47,15 @@ func flagBootConfig() *string {
 }
 func saveBootConfig(bootConfig string) {
 	saveEnv("CIEL_BOOTCFG", bootConfig)
+}
+
+func flagCI() *bool {
+	ci := getEnv("CIEL_CI_MODE", "false") == "true"
+	flag.BoolVar(&ci, "ci", ci, "do not ask; CIEL_CI_MODE")
+	return &ci
+}
+func saveCI(network bool) {
+	saveEnv("CIEL_CI_MODE", network)
 }
 
 func getEnv(key, def string) string {

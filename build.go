@@ -19,6 +19,7 @@ import (
 func buildConfig() {
 	basePath := flagCielDir()
 	instName := flagInstance()
+	ci := flagCI()
 	parse()
 
 	i := &ciel.Ciel{BasePath: *basePath}
@@ -36,11 +37,15 @@ func buildConfig() {
 	packaging.DetectToolChain(inst)
 	packaging.SetTreePath(inst, pkgtree.TreePath)
 	var person string
-	for person == "" {
-		person = d.ASK("Maintainer Info", "Foo Bar <myname@example.com>")
+	if !*ci {
+		person = "Bot <discussions@lists.aosc.io>"
+	} else {
+		for person == "" {
+			person = d.ASK("Maintainer Info", "Foo Bar <myname@example.com>")
+		}
 	}
 	packaging.SetMaintainer(inst, person)
-	if d.ASK("Would you like to edit source list?", "yes/no") == "yes" {
+	if !*ci && d.ASK("Would you like to edit source list?", "yes/no") == "yes" {
 		packaging.EditSourceList(inst)
 	}
 }
