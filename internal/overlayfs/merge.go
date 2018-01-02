@@ -2,7 +2,6 @@ package overlayfs
 
 import (
 	"io/ioutil"
-	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -36,7 +35,6 @@ func removeBoth(upPath, lowPath string) error {
 func (i *Instance) Merge() error {
 	upRoot, lowRoot := i.Layers[len(i.Layers)-1], i.Layers[0]
 	err := filepath.Walk(upRoot, func(upPath string, info os.FileInfo, err error) error {
-		log.Println(upPath)
 		relPath, _ := filepath.Rel(upRoot, upPath)
 		lowPath := filepath.Join(lowRoot, relPath)
 
