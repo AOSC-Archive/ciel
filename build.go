@@ -5,7 +5,10 @@ import (
 	"flag"
 	"log"
 	"os"
+	"os/exec"
+	"path"
 	"strings"
+	"syscall"
 
 	"ciel/internal/ciel"
 	"ciel/internal/ciel/packaging"
@@ -76,10 +79,30 @@ func build() {
 		args...,
 	)
 	if err != nil {
-		log.Println(err)
+		log.Fatalln(err)
 	}
 	if exitStatus != 0 {
 		os.Exit(exitStatus)
+	}
+
+	os.Mkdir(path.Join(i.GetBasePath(), "OUTPUT"), 0755)
+	cmd := exec.Command("sh", "-c", "cp -rp "+inst.MountPoint()+"/os-* OUTPUT/")
+	cmd.Stderr = os.Stderr
+	err = cmd.Run()
+	if exitErr, ok := err.(*exec.ExitError); ok {
+		os.Exit(exitErr.Sys().(syscall.WaitStatus).ExitStatus())
+	}
+	if err != nil {
+		log.Fatalln(err)
+	}
+	cmd = exec.Command("sh", "-c", "cp -p "+inst.MountPoint()+"/var/log/apt/history.log OUTPUT/")
+	cmd.Stderr = os.Stderr
+	err = cmd.Run()
+	if exitErr, ok := err.(*exec.ExitError); ok {
+		os.Exit(exitErr.Sys().(syscall.WaitStatus).ExitStatus())
+	}
+	if err != nil {
+		log.Fatalln(err)
 	}
 
 	// TODO: collect information
