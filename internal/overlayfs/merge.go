@@ -1,165 +1,145 @@
 package overlayfs
 
 import (
-	"errors"
+	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
-	"strings"
 	"syscall"
 )
 
-func (i *Instance) file2any(rpath string, src, dst int) error {
-	// file dir
-	// | \
-	// |  \
-	// file dir
-
-	upath := filepath.Join(i.Layers[src], rpath)
-	lpath := filepath.Join(i.Layers[dst], rpath)
-	os.RemoveAll(lpath)
-	utype, _ := overlayTypeByLstat(upath)
-	if !(dst == 0 && utype == overlayTypeWhiteout) {
-		// if it is NOT to put a whiteout onto bottom
-		return os.Rename(upath, lpath)
-	}
-	return nil
-}
-
-func (i *Instance) dir2dir(rpath string, src, dst int) error {
-	// file dir
-	//       |
-	//       |
-	// file dir
-
-	// copy attributes, and continue.
-	upath := filepath.Join(i.Layers[src], rpath)
-	lpath := filepath.Join(i.Layers[dst], rpath)
-	return copyAttributes(upath, lpath)
-}
-
-func (i *Instance) dir2file(rpath string, src, dst int) error {
-	// file dir
-	//     /
-	//    /
-	// file dir
-
-	// the upper layer is a directory,
-	// the lower layer is a whiteout or a normal file, which can be a cover,
-	// that removing them may let the content in lower layers appear.
-
-	// if the lower layer is at the bottom
-	// or lower layers under the lower layer have another cover,
-	// we can merge the upper one safely.
-	upath := filepath.Join(i.Layers[src], rpath)
-	lpath := filepath.Join(i.Layers[dst], rpath)
-	nextfilelayer, havedir := i.nextLayerHasFile(rpath, dst)
-	if !havedir {
-		os.Remove(lpath)
-		if err := os.Rename(upath, lpath); err != nil {
-			return err
-		}
-		return filepath.SkipDir
-	}
-
-	// 1). "open" the directory
-	os.Mkdir(lpath, 0755)
-	if err := copyAttributes(upath, lpath); err != nil {
+func removeIfExist(path string) error {
+	err := os.RemoveAll(path)
+	if err != nil && !os.IsNotExist(err) {
 		return err
 	}
-	// 2). "cover" all sub-files in the directory
-	for filename := range i.readDirInRange(rpath, dst-1, nextfilelayer+1) {
-		createWhiteout(filepath.Join(lpath, filename))
-	}
 	return nil
 }
 
-func (i *Instance) Merge() error {
-	return i.merge("/", len(i.Layers)-1, 0)
+func override(upPath, lowPath string) error {
+	if err := removeIfExist(lowPath); err != nil {
+		return err
+	}
+	return os.Rename(upPath, lowPath)
+}
+
+func removeBoth(upPath, lowPath string) error {
+	if err := removeIfExist(lowPath); err != nil {
+		return err
+	}
+	return os.Remove(upPath)
 }
 
 // MergeFile is the method to merge a file or directory from an upper layer
 // to a lower layer.
-func (i *Instance) merge(path string, src, dst int) error {
-	path = filepath.Clean(path)
-	uroot, lroot := i.Layers[src], i.Layers[dst]
-	walkBase := filepath.Join(uroot, path)
-	os.MkdirAll(filepath.Dir(filepath.Join(lroot, path)), 755)
-	err := filepath.Walk(walkBase, func(upath string, info os.FileInfo, err error) error {
-		log.Println(upath)
-		rel, _ := filepath.Rel(uroot, upath)
-		lpath := filepath.Join(lroot, rel)
+func (i *Instance) Merge() error {
+	upRoot, lowRoot := i.Layers[len(i.Layers)-1], i.Layers[0]
+	err := filepath.Walk(upRoot, func(upPath string, info os.FileInfo, err error) error {
+		log.Println(upPath)
+		relPath, _ := filepath.Rel(upRoot, upPath)
+		lowPath := filepath.Join(lowRoot, relPath)
 
-		utp, err := overlayTypeByInfo(info, err)
+		upType, err := overlayTypeByInfo(info, err)
 		if err != nil {
 			return err
 		}
-		ltp, err := overlayTypeByLstat(lpath)
+		lowType, err := overlayTypeByLstat(lowPath)
 		if err != nil {
 			return err
 		}
 
-		switch utp {
-		case overlayTypeAir:
-			return nil
+		//    n  f  w  d
+		// n  -  o  r  r (skip sub-directories)
+		// f  -  o  r  o
+		// w  -  o  r  o
+		// d  -  o  r  c
 
-		case overlayTypeFile, overlayTypeWhiteout:
-			return i.file2any(rel, src, dst)
+		// o = override
+		// r = remove both
+		// m = move
+		// c = copy attributes
+		// s = skip sub-directories
+
+		switch upType {
+		case overlayTypeNothing:
+			panic("this case is not possible")
+
+		case overlayTypeFile:
+			return override(upPath, lowPath)
+
+		case overlayTypeWhiteout:
+			return removeBoth(upPath, lowPath)
 
 		case overlayTypeDir:
-			switch ltp {
-			case overlayTypeAir:
-				if err := os.Rename(upath, lpath); err != nil {
+			switch lowType {
+			case overlayTypeNothing:
+				if err := override(upPath, lowPath); err != nil {
+					return err
+				}
+				return filepath.SkipDir
+
+			case overlayTypeFile:
+				if err := override(upPath, lowPath); err != nil {
+					return err
+				}
+				return filepath.SkipDir
+
+			case overlayTypeWhiteout:
+				// strange case. a whiteout file in the lowest layer?
+				if err := override(upPath, lowPath); err != nil {
 					return err
 				}
 				return filepath.SkipDir
 
 			case overlayTypeDir:
-				return i.dir2dir(rel, src, dst)
-
-			case overlayTypeFile, overlayTypeWhiteout:
-				return i.dir2file(rel, src, dst)
+				err := copyAttributes(upPath, lowPath)
+				// remove empty directory
+				if err := os.Remove(upPath); err == nil {
+					return filepath.SkipDir
+				}
+				return err
 			}
 		}
-		return errors.New("unexpected type")
-		// end of walk-function
+		panic("unexpected type")
 	})
+	// end of walk-function
+	if err == nil {
+		list, err := ioutil.ReadDir(upRoot)
+		if err != nil {
+			return err
+		}
+		if len(list) != 0 {
+			for _, info := range list {
+				os.RemoveAll(info.Name())
+			}
+		}
+	}
 	return err
 }
 
-type overlayType string
+type overlayType int
 
 const (
-	overlayTypeInvalid overlayType = ""
-
-	overlayTypeAir      = "-"
-	overlayTypeWhiteout = "x"
-	overlayTypeFile     = "f"
-	overlayTypeDir      = "d"
+	overlayTypeNothing overlayType = iota
+	overlayTypeFile
+	overlayTypeWhiteout
+	overlayTypeDir
 )
 
 func copyAttributes(src, dst string) error {
+	// TODO: copying attributes, NOT recursively
 	args := []string{
 		"--preserve=all",
 		"--attributes-only",
 		"--no-target-directory",
-		"--recursive",
+		"--recursive", // BUG: cp cannot do this not recursively
 		"--no-clobber",
 		src,
 		dst,
 	}
-	cmd := exec.Command("/bin/cp", args...)
-	a, err := cmd.CombinedOutput()
-	if err != nil {
-		log.Println("copy attributes: ", strings.TrimSpace(string(a)))
-		// FIXME: failed?
-	}
+	exec.Command("/bin/cp", args...).Run()
 	return nil
-}
-
-func createWhiteout(path string) error {
-	return syscall.Mknod(path, 0000, 0x0000)
 }
 
 func overlayTypeByLstat(path string) (overlayType, error) {
@@ -168,9 +148,9 @@ func overlayTypeByLstat(path string) (overlayType, error) {
 
 func overlayTypeByInfo(info os.FileInfo, err error) (overlayType, error) {
 	if os.IsNotExist(err) {
-		return overlayTypeAir, nil
+		return overlayTypeNothing, nil
 	} else if err != nil {
-		return overlayTypeInvalid, err
+		return overlayTypeNothing, err
 	}
 	if info.IsDir() {
 		return overlayTypeDir, nil
@@ -187,54 +167,4 @@ func isWhiteout(fi os.FileInfo) bool {
 		return false
 	}
 	return fi.Sys().(*syscall.Stat_t).Rdev == 0
-}
-
-func (i *Instance) nextLayerHasFile(relpath string, cur int) (layer int, hasdir bool) {
-	layer = -1
-	hasdir = false
-	if cur != 0 {
-		for index := cur - 1; index >= 0; index-- {
-			iroot := i.Layers[index]
-			ipath := filepath.Join(iroot, relpath)
-			itp, _ := overlayTypeByLstat(ipath)
-			switch itp {
-			case overlayTypeFile, overlayTypeWhiteout:
-				layer = index
-				return
-			case overlayTypeDir:
-				hasdir = true
-			}
-		}
-	}
-	return
-}
-
-func (i *Instance) readDirInRange(relpath string, ubound, lbound int) map[string]bool {
-	filelist := make(map[string]bool)
-	for index := lbound; index <= ubound; index++ {
-		iroot := i.Layers[index]
-		ipath := filepath.Join(iroot, relpath)
-		iinfo, err := os.Lstat(ipath)
-		if os.IsNotExist(err) {
-			continue
-		}
-		idir, err := os.Open(ipath)
-		if err != nil {
-			continue
-		}
-		iinfos, err := idir.Readdir(0) // 0: check all sub-files
-		if err != nil {
-			continue
-		}
-		for _, iiinfo := range iinfos {
-			iitp, _ := overlayTypeByInfo(iiinfo, nil)
-			if iitp == overlayTypeWhiteout {
-				delete(filelist, iinfo.Name())
-			} else {
-				filelist[iinfo.Name()] = true
-			}
-		}
-		idir.Close()
-	}
-	return filelist
 }
