@@ -78,5 +78,9 @@ func build() {
 	if err != nil {
 		log.Println(err)
 	}
-	os.Exit(exitStatus)
+	if exitStatus != 0 {
+		os.Exit(exitStatus)
+	}
+
+	// TODO: collect information
 }
