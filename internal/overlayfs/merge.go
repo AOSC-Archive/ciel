@@ -61,7 +61,7 @@ func (i *Instance) Merge() error {
 
 		switch upType {
 		case overlayTypeNothing:
-			panic("this case is not possible")
+			return nil
 
 		case overlayTypeFile:
 			return override(upPath, lowPath)
