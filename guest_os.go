@@ -155,20 +155,10 @@ func update() {
 	}()
 
 	bootConf := strings.Split(strings.TrimSpace(*bootConfig), "\n")
-	shell, err := inst.Shell("root")
-	if err != nil {
-		log.Fatal(err)
-	}
-	args := []string{
-		shell,
-		"--login",
-		"-c",
-	}
-	ctx := context.TODO()
 
 	type ExitError struct{}
-	var run = func(cmd string) (int, error) {
-		return inst.Run(ctx, true, *networkFlag, bootConf, append(args, cmd)...)
+	var run = func(cmd string, poweroff bool) (int, error) {
+		return _shellRun(inst, *networkFlag, true, bootConf, poweroff, cmd)
 	}
 	defer func() {
 		p := recover()
@@ -185,21 +175,21 @@ func update() {
 		}
 	}()
 
-	exitStatus, runErr = run(`apt update --yes`)
+	exitStatus, runErr = run(`apt update --yes`, false)
 	d.ITEM("update database")
 	if runErr != nil || exitStatus != 0 {
 		panic(ExitError{})
 	}
 	d.OK()
 
-	exitStatus, runErr = run(`apt -o Dpkg::Options::="--force-confnew" full-upgrade --yes`)
+	exitStatus, runErr = run(`apt -o Dpkg::Options::="--force-confnew" full-upgrade --yes`, true)
 	d.ITEM("update packages")
 	if runErr != nil || exitStatus != 0 {
 		panic(ExitError{})
 	}
 	d.OK()
 
-	exitStatus, runErr = run(`apt autoremove --purge --yes`)
+	exitStatus, runErr = run(`apt autoremove --purge --yes`, true)
 	d.ITEM("auto-remove packages")
 	if runErr != nil || exitStatus != 0 {
 		panic(ExitError{})
@@ -207,7 +197,7 @@ func update() {
 	d.OK()
 
 	d.ITEM("merge changes")
-	err = inst.FileSystem().Merge()
+	err := inst.FileSystem().Merge()
 	d.ERR(err)
 
 	// TODO: clean

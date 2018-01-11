@@ -3,11 +3,15 @@ package main
 import (
 	"context"
 	"flag"
+	"io/ioutil"
 	"log"
 	"os"
+	"path"
+	"strconv"
 	"strings"
 
 	"ciel/internal/ciel"
+	"ciel/internal/ciel/container/instance"
 	"ciel/internal/display"
 )
 
@@ -46,14 +50,89 @@ func del() {
 }
 
 func shell() {
-	rawRun(true)
+	basePath := flagCielDir()
+	instName := flagInstance()
+	networkFlag := flagNetwork()
+	noBooting := flagNoBooting()
+	bootConfig := flagBootConfig()
+	parse()
+
+	if flag.NArg() > 1 {
+		log.Fatalln("you must pass one argument only")
+	}
+
+	i := &ciel.Ciel{BasePath: *basePath}
+	i.Check()
+	c := i.Container()
+	c.CheckInst(*instName)
+
+	inst := c.Instance(*instName)
+	inst.Mount()
+
+	bootConf := strings.Split(strings.TrimSpace(*bootConfig), "\n")
+
+	if flag.NArg() == 0 {
+		exitStatus, err := _openShell(
+			inst,
+			*networkFlag,
+			!*noBooting,
+			bootConf,
+		)
+		if err != nil {
+			log.Println(err)
+		}
+		os.Exit(exitStatus)
+	}
+	exitStatus, err := _shellRun(
+		inst,
+		*networkFlag,
+		!*noBooting,
+		bootConf,
+		false,
+		flag.Arg(0),
+	)
+	if err != nil {
+		log.Println(err)
+	}
+	os.Exit(exitStatus)
+}
+
+func shellStop() {
+	basePath := flagCielDir()
+	instName := flagInstance()
+	networkFlag := flagNetwork()
+	noBooting := flagNoBooting()
+	bootConfig := flagBootConfig()
+	parse()
+
+	if flag.NArg() != 1 {
+		log.Fatalln("you must pass one argument only")
+	}
+
+	i := &ciel.Ciel{BasePath: *basePath}
+	i.Check()
+	c := i.Container()
+	c.CheckInst(*instName)
+
+	inst := c.Instance(*instName)
+	inst.Mount()
+
+	bootConf := strings.Split(strings.TrimSpace(*bootConfig), "\n")
+	exitStatus, err := _shellRun(
+		inst,
+		*networkFlag,
+		!*noBooting,
+		bootConf,
+		true,
+		flag.Arg(0),
+	)
+	if err != nil {
+		log.Println(err)
+	}
+	os.Exit(exitStatus)
 }
 
 func run() {
-	rawRun(false)
-}
-
-func rawRun(shell bool) {
 	basePath := flagCielDir()
 	instName := flagInstance()
 	networkFlag := flagNetwork()
@@ -69,45 +148,87 @@ func rawRun(shell bool) {
 	inst := c.Instance(*instName)
 	inst.Mount()
 
-	var args []string
-
 	bootConf := strings.Split(strings.TrimSpace(*bootConfig), "\n")
-
-	if shell {
-		rootShell, err := inst.Shell("root")
-		if err != nil {
-			log.Fatalln(err)
-		}
-		if flag.NArg() > 1 {
-			log.Fatalln("you must pass one argument only")
-		}
-		if cmd := flag.Arg(0); cmd != "" {
-			args = []string{
-				rootShell,
-				"--login",
-				"-c", cmd,
-			}
-		} else {
-			args = []string{
-				rootShell,
-			}
-		}
-	} else {
-		args = flag.Args()
-	}
-
 	exitStatus, err := inst.Run(
 		context.TODO(),
 		!*noBooting,
 		*networkFlag,
 		bootConf,
-		args...,
+		flag.Args()...,
 	)
 
 	if err != nil {
 		log.Println(err)
 	}
 	os.Exit(exitStatus)
+}
+
+func _openShell(inst *instance.Instance, network bool, boot bool, bootConf []string) (int, error) {
+	inst.Mount()
+	rootShell, err := inst.Shell("root")
+	if err != nil {
+		return -1, err
+	}
+	exitStatus, err := inst.Run(
+		context.TODO(),
+		boot,
+		network,
+		bootConf,
+		rootShell,
+	)
+	if err != nil {
+		return -1, err
+	}
+	return exitStatus, nil
+}
+
+func _shellRun(inst *instance.Instance, network bool, boot bool, bootConf []string, with_poweroff bool, cmd string) (int, error) {
+	inst.Mount()
+	var args []string
+	rootShell, err := inst.Shell("root")
+	if err != nil {
+		return -1, err
+	}
+	if cmd != "" {
+		if with_poweroff {
+			cmd += "; echo $?>/.ciel-exit-status; poweroff"
+		}
+		args = []string{
+			rootShell,
+			"--login",
+			"-c", cmd,
+		}
+	} else {
+		args = []string{
+			rootShell,
+		}
+	}
+	exitStatus, err := inst.Run(
+		context.TODO(),
+		boot,
+		network,
+		bootConf,
+		args...,
+	)
+	if with_poweroff {
+		exitStatusFile := path.Join(inst.MountPoint(), ".ciel-exit-status")
+		if b, err := ioutil.ReadFile(exitStatusFile); err == nil {
+			if realExitStatus, err := strconv.Atoi(strings.TrimSpace(string(b))); err == nil {
+				os.Remove(exitStatusFile)
+				return realExitStatus, nil
+			} else {
+				log.Println(err)
+				return exitStatus, nil
+			}
+		} else {
+			log.Println(err)
+			return exitStatus, nil
+		}
+	}
+	if err != nil {
+		return -1, err
+	}
+	return exitStatus, nil
 }
 
 func stop() {

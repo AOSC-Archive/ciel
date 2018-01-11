@@ -54,8 +54,9 @@ func router(subCmd string) {
 		"":      list,      // status.go
 
 		// Executing Commands
-		"shell": shell, // instances.go
-		"run":   run,   // instances.go
+		"shell":               shell,     // instances.go
+		"shell-with-poweroff": shellStop, // instances.go
+		"run": run, // instances.go
 
 		// Preparing Build
 		"load-tree":   clone,       // tree.go
