@@ -23,7 +23,8 @@ fi
 PREREQ_RECIPE="systemd"
 BOOTABLE_RECIPE="boot-base kernel-base"
 if "$SMALL_ARCH"; then
-    FONT_RECIPE="dejavu-fonts droid-fallback-fonts freefont unifont"
+    FONT_RECIPE="dejavu-fonts droid-fallback-fonts freefont liberation-fonts \
+                 unifont"
 else
     FONT_RECIPE="noto-cjk-fonts hanazono-fonts adobe-source-code-pro \
                  adobe-source-serif-pro croscore-fonts crosextra-fonts \
