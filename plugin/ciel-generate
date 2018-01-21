@@ -103,24 +103,24 @@ CONTAINER_RECIPE="admin-base core-base editor-base python-base network-base \
                   systemd-base web-base util-base"
 BASE_RECIPE="${CONTAINER_RECIPE} ${BOOTABLE_RECIPE}"
 BUILDKIT_RECIPE="${CONTAINER_RECIPE} devel-base debug-base git autobuild3 acbs"
-BUDGIE_RECIPE="${BASE_RECIPE} budgie-base ibus-base gnome-distro-base \
+BUDGIE_RECIPE="${BASE_RECIPE} ${DESKTOP_RECIPE} budgie-base ibus-base gnome-distro-base \
                budgie-default-settings lightdm-gtk-greeter-settings"
-CINNAMON_RECIPE="${BASE_RECIPE} cinnamon-base cinnamon-distro-base ibus-base \
+CINNAMON_RECIPE="${BASE_RECIPE} ${DESKTOP_RECIPE} cinnamon-base cinnamon-distro-base ibus-base \
                  lightdm-gtk-greeter-settings gnome-packagekit gnome-software \
                  cinnamon-default-settings"
-GNOME_RECIPE="${BASE_RECIPE} gnome-base ibus-base gnome-distro-base \
+GNOME_RECIPE="${BASE_RECIPE} ${DESKTOP_RECIPE} gnome-base ibus-base gnome-distro-base \
               gnome-default-settings"
-I3WM_RECIPE="${BASE_RECIPE} i3-distro-base i3-default-settings \
+I3WM_RECIPE="${BASE_RECIPE} ${DESKTOP_RECIPE} i3-distro-base i3-default-settings \
              lightdm-gtk-greeter-settings arc-theme flat-remix-icon-theme \
              desktop-base"
-KDE_RECIPE="${BASE_RECIPE} kde-base fcitx-base sddm mpv kdeplasma-addons"
-LXDE_RECIPE="${BASE_RECIPE} lxde-base lxde-distro-base ibus-base \
+KDE_RECIPE="${BASE_RECIPE} ${DESKTOP_RECIPE} kde-base fcitx-base sddm mpv kdeplasma-addons"
+LXDE_RECIPE="${BASE_RECIPE} ${DESKTOP_RECIPE} lxde-base lxde-distro-base ibus-base \
              lightdm-gtk-greeter-settings lxde-default-settings \
              arc-icon-theme arc-openbox network-manager-applet \
              gnome-screenshot volumeicon"
-MATE_RECIPE="${BASE_RECIPE} mate-base mate-distro-base ibus-base \
+MATE_RECIPE="${BASE_RECIPE} ${DESKTOP_RECIPE} mate-base mate-distro-base ibus-base \
              lightdm-gtk-greeter-settings mpv mate-default-settings"
-XFCE_RECIPE="${BASE_RECIPE} xfce-base xfce-distro-base ibus-base \
+XFCE_RECIPE="${BASE_RECIPE} ${DESKTOP_RECIPE} xfce-base xfce-distro-base ibus-base \
              lightdm-gtk-greeter-settings mpv xfce4-default-settings"
 
 # Common functions.
