@@ -10,9 +10,26 @@ VARIANT="$1"
 # FIXME: Handy variable.
 CALCULATED_RECIPE="${VARIANT^^}_RECIPE"
 
+# Determine "small" architectures.
+if [[ "${BUILD_ARCH}" != "amd64" && "${BUILD_ARCH}" != "ppc64" && \
+      "${BUILD_ARCH}" != "powerpc" && "${BUILD_ARCH}" != "mips64el" && \
+      "${BUILD_ARCH}" != "mipsel" ]]; then
+   SMALL_ARCH=1
+else
+   SMALL_ARCH=0
+fi
+
 # Common denominators.
 PREREQ_RECIPE="systemd"
 BOOTABLE_RECIPE="boot-base kernel-base"
+if "$SMALL_ARCH"; then
+    FONT_RECIPE="dejavu-fonts droid-fallback-fonts freefont unifont"
+else
+    FONT_RECIPE="noto-cjk-fonts hanazono-fonts adobe-source-code-pro \
+                 adobe-source-serif-pro croscore-fonts crosextra-fonts \
+                 dejavu-fonts freefont liberation-fonts roboto-fonts \
+                 ttf-tibetan-machine-unicode ttf-ancient-fonts"
+fi
 
 # Define default browser.
 # Firefox does not work well on PPC64.
@@ -20,6 +37,16 @@ if [[ "${BUILD_ARCH}" = "ppc64" ]]; then
 	BROWSER_RECIPE="palemoon"
 else
 	BROWSER_RECIPE="firefox"
+fi
+
+# Available from all desktop variants.
+if "$SMALL_ARCH"; then
+    DESKTOP_RECIPE="${BROWSER_RECIPE} ${FONT_RECIPE} \
+                    codec-base xdg-user-dirs xdg-user-dirs-gtk"
+else
+    DESKTOP_RECIPE="${BROWSER_RECIPE} ${FONT_RECIPE} productivity-base \
+                    print-base codec-base proofread-base xdg-user-dirs \
+                    xdg-user-dirs-gtk"
 fi
 
 USE_DKMS=0
@@ -71,17 +98,29 @@ if (($USE_DKMS)); then
 fi
 
 # Specific recipes of all variants.
-CONTAINER_RECIPE="admin-base core-base editor-base python-base network-base systemd-base web-base util-base"
+CONTAINER_RECIPE="admin-base core-base editor-base python-base network-base \
+                  systemd-base web-base util-base"
 BASE_RECIPE="${CONTAINER_RECIPE} ${BOOTABLE_RECIPE}"
 BUILDKIT_RECIPE="${CONTAINER_RECIPE} devel-base debug-base git autobuild3 acbs"
-BUDGIE_RECIPE="${BASE_RECIPE} budgie-base ibus-base gnome-distro-base ${BROWSER_RECIPE} xdg-user-dirs* budgie-default-settings lightdm-gtk-greeter-settings"
-CINNAMON_RECIPE="${BASE_RECIPE} cinnamon-base cinnamon-distro-base ibus-base ${BROWSER_RECIPE} xdg-user-dirs* lightdm-gtk-greeter-settings gnome-packagekit gnome-software cinnamon-default-settings"
-GNOME_RECIPE="${BASE_RECIPE} gnome-base ibus-base gnome-distro-base ${BROWSER_RECIPE} xdg-user-dirs* gnome-default-settings"
-I3WM_RECIPE="${BASE_RECIPE} i3-distro-base i3-default-settings lightdm-gtk-greeter-settings ${BROWSER_RECIPE} arc-theme flat-remix-icon-theme desktop-base"
-KDE_RECIPE="${BASE_RECIPE} kde-base fcitx-base ${BROWSER_RECIPE} xdg-user-dirs* sddm mpv kdeplasma-addons"
-LXDE_RECIPE="${BASE_RECIPE} lxde-base lxde-distro-base ibus-base ${BROWSER_RECIPE} xdg-user-dirs* lightdm-gtk-greeter-settings lxde-default-settings arc-icon-theme arc-openbox network-manager-applet gnome-screenshot volumeicon"
-MATE_RECIPE="${BASE_RECIPE} mate-base mate-distro-base ibus-base ${BROWSER_RECIPE} xdg-user-dirs* lightdm-gtk-greeter-settings mpv mate-default-settings"
-XFCE_RECIPE="${BASE_RECIPE} xfce-base xfce-distro-base ibus-base ${BROWSER_RECIPE} xdg-user-dirs* lightdm-gtk-greeter-settings mpv xfce4-default-settings"
+BUDGIE_RECIPE="${BASE_RECIPE} budgie-base ibus-base gnome-distro-base \
+               budgie-default-settings lightdm-gtk-greeter-settings"
+CINNAMON_RECIPE="${BASE_RECIPE} cinnamon-base cinnamon-distro-base ibus-base \
+                 lightdm-gtk-greeter-settings gnome-packagekit gnome-software \
+                 cinnamon-default-settings"
+GNOME_RECIPE="${BASE_RECIPE} gnome-base ibus-base gnome-distro-base \
+              gnome-default-settings"
+I3WM_RECIPE="${BASE_RECIPE} i3-distro-base i3-default-settings \
+             lightdm-gtk-greeter-settings arc-theme flat-remix-icon-theme \
+             desktop-base"
+KDE_RECIPE="${BASE_RECIPE} kde-base fcitx-base sddm mpv kdeplasma-addons"
+LXDE_RECIPE="${BASE_RECIPE} lxde-base lxde-distro-base ibus-base \
+             lightdm-gtk-greeter-settings lxde-default-settings \
+             arc-icon-theme arc-openbox network-manager-applet \
+             gnome-screenshot volumeicon"
+MATE_RECIPE="${BASE_RECIPE} mate-base mate-distro-base ibus-base \
+             lightdm-gtk-greeter-settings mpv mate-default-settings"
+XFCE_RECIPE="${BASE_RECIPE} xfce-base xfce-distro-base ibus-base \
+             lightdm-gtk-greeter-settings mpv xfce4-default-settings"
 
 # Common functions.
 _recipe_post() {
