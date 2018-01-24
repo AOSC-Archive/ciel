@@ -14,9 +14,9 @@ CALCULATED_RECIPE="${VARIANT^^}_RECIPE"
 if [[ "${BUILD_ARCH}" != "amd64" && "${BUILD_ARCH}" != "ppc64" && \
       "${BUILD_ARCH}" != "powerpc" && "${BUILD_ARCH}" != "mips64el" && \
       "${BUILD_ARCH}" != "mipsel" ]]; then
-   SMALL_ARCH=1
+   SMALL_ARCH=true
 else
-   SMALL_ARCH=0
+   SMALL_ARCH=false
 fi
 
 # Common denominators.
