@@ -2,7 +2,7 @@
 # Usage: ciel-gen <recipe>, one recipe at a time.
 
 # Determine architecture of build host.
-BUILD_ARCH="!(dpkg-architecture -qDEB_BUILD_ARCH)"
+BUILD_ARCH="$(dpkg-architecture -qDEB_BUILD_ARCH)"
 
 # Determine the recipe to build.
 VARIANT="$1"
