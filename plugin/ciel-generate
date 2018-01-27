@@ -150,7 +150,7 @@ _recipe_base_config() {
 	# FIXME: preset.
 	ciel shell "systemctl enable ModemManager.service NetworkManager-dispatcher.service \
 		NetworkManager-wait-online.service NetworkManager.service acpid.service acpid.socket \
-		apt-update.timer autovt@.service bluetooth.service ctrl-alt-del.target \
+		apt-update.timer autovt@.service bluetooth.service  \
 		fc-cache.service fcron.service fstrim.timer getty@.service \
 		gpm.service lvm2-lvmetad.service lvm2-monitor.service machines.target \
 		reboot.target remote-fs.target smartd.service sshd.service systemd-networkd-wait-online.service \
@@ -196,7 +196,7 @@ _recipe_budgie_config() {
 	# FIXME: preset.
 	ciel shell "systemctl enable ModemManager.service NetworkManager-dispatcher.service \
 		NetworkManager-wait-online.service NetworkManager.service accounts-daemon.service acpid.service \
-		acpid.socket apt-update.timer autovt@.service bluetooth.service ctrl-alt-del.target \
+		acpid.socket apt-update.timer autovt@.service bluetooth.service \
 		fc-cache.service fcron.service fstrim.timer \
 		getty@.service gpm.service lightdm.service lircd.service lvm2-lvmetad.service lvm2-monitor.service \
 		machines.target org.cups.cupsd.path org.cups.cupsd.service org.cups.cupsd.socket \
@@ -212,7 +212,7 @@ _recipe_cinnamon_config() {
 	# FIXME: preset.
 	ciel shell "systemctl enable ModemManager.service NetworkManager-dispatcher.service \
 		NetworkManager-wait-online.service NetworkManager.service accounts-daemon.service acpid.service \
-		acpid.socket apt-update.timer autovt@.service bluetooth.service ctrl-alt-del.target \
+		acpid.socket apt-update.timer autovt@.service bluetooth.service \
 		fc-cache.service fcron.service fstrim.timer \
 		getty@.service gpm.service lightdm.service lircd.service lvm2-lvmetad.service lvm2-monitor.service \
 		machines.target org.cups.cupsd.path org.cups.cupsd.service org.cups.cupsd.socket reboot.target \
@@ -224,7 +224,7 @@ _recipe_gnome_config() {
 	# FIXME: preset.
 	ciel shell "systemctl enable ModemManager.service NetworkManager-dispatcher.service \
 		NetworkManager-wait-online.service NetworkManager.service accounts-daemon.service acpid.service \
-		acpid.socket apt-update.timer autovt@.service bluetooth.service ctrl-alt-del.target \
+		acpid.socket apt-update.timer autovt@.service bluetooth.service \
 		fc-cache.service fcron.service fstrim.timer \
 		gdm.service getty@.service gpm.service httpd.service lircd.service lvm2-lvmetad.service lvm2-monitor.service \
 		machines.target org.cups.cupsd.path org.cups.cupsd.service org.cups.cupsd.socket \
@@ -236,19 +236,19 @@ _recipe_i3wm_config() {
 	# FIXME: preset.
 	ciel shell "systemctl enable ModemManager.service NetworkManager-dispatcher.service \
 		NetworkManager-wait-online.service NetworkManager.service accounts-daemon.service acpid.service \
-		acpid.socket apt-update.timer autovt@.service bluetooth.service ctrl-alt-del.target \
+		acpid.socket apt-update.timer autovt@.service bluetooth.service \
 		fc-cache.service fcron.service fstrim.timer \
 		getty@.service gpm.service lightdm.service lircd.service lvm2-lvmetad.service lvm2-monitor.service \
 		machines.target org.cups.cupsd.path org.cups.cupsd.service org.cups.cupsd.socket reboot.target \
 		remote-fs.target smartd.service smbd.service sshd.service systemd-networkd-wait-online.service \
 		systemd-networkd.service systemd-networkd.socket systemd-resolved.service systemd-timesyncd.service \
-		tlp-sleep.service tlp.service udisks2.service upower.service"
+		tlp-sleep.service tlp.service udisks2.service"
 }
 _recipe_kde_config() {
 	# FIXME: preset.
 	ciel shell "systemctl enable ModemManager.service NetworkManager-dispatcher.service \
 		NetworkManager-wait-online.service NetworkManager.service accounts-daemon.service acpid.service \
-		acpid.socket apt-update.timer autovt@.service bluetooth.service ctrl-alt-del.target \
+		acpid.socket apt-update.timer autovt@.service bluetooth.service \
 		fc-cache.service fcron.service fstrim.timer \
 		getty@.service gpm.service lircd.service lvm2-lvmetad.service lvm2-monitor.service \
 		machines.target org.cups.cupsd.path org.cups.cupsd.service org.cups.cupsd.socket reboot.target \
@@ -260,19 +260,19 @@ _recipe_lxde_config() {
 	# FIXME: preset.
 	ciel shell "systemctl enable ModemManager.service NetworkManager-dispatcher.service \
 		NetworkManager-wait-online.service NetworkManager.service accounts-daemon.service acpid.service \
-		acpid.socket apt-update.timer autovt@.service bluetooth.service ctrl-alt-del.target \
+		acpid.socket apt-update.timer autovt@.service bluetooth.service \
 		fc-cache.service fcron.service fstrim.timer \
 		getty@.service gpm.service lightdm.service lircd.service lvm2-lvmetad.service lvm2-monitor.service \
 		machines.target org.cups.cupsd.path org.cups.cupsd.service org.cups.cupsd.socket reboot.target \
 		remote-fs.target smartd.service smbd.service sshd.service systemd-networkd-wait-online.service \
 		systemd-networkd.service systemd-networkd.socket systemd-resolved.service systemd-timesyncd.service \
-		tlp-sleep.service tlp.service udisks2.service upower.service"
+		tlp-sleep.service tlp.service udisks2.service"
 }
 _recipe_mate_config() {
 	# FIXME: preset.
 	ciel shell "systemctl enable ModemManager.service NetworkManager-dispatcher.service \
 		NetworkManager-wait-online.service NetworkManager.service accounts-daemon.service acpid.service \
-		acpid.socket apt-update.timer autovt@.service bluetooth.service ctrl-alt-del.target \
+		acpid.socket apt-update.timer autovt@.service bluetooth.service \
 		fc-cache.service fcron.service fstrim.timer \
 		getty@.service gpm.service lightdm.service lircd.service lvm2-lvmetad.service lvm2-monitor.service \
 		machines.target org.cups.cupsd.path org.cups.cupsd.service org.cups.cupsd.socket reboot.target \
@@ -284,7 +284,7 @@ _recipe_xfce_config() {
 	# FIXME: preset.
 	ciel shell "systemctl enable ModemManager.service NetworkManager-dispatcher.service \
 		NetworkManager-wait-online.service NetworkManager.service accounts-daemon.service acpid.service \
-		acpid.socket apt-update.timer autovt@.service bluetooth.service ctrl-alt-del.target \
+		acpid.socket apt-update.timer autovt@.service bluetooth.service \
 		fc-cache.service fcron.service fstrim.timer \
 		getty@.service gpm.service lightdm.service lircd.service lvm2-lvmetad.service lvm2-monitor.service \
 		machines.target org.cups.cupsd.path org.cups.cupsd.service org.cups.cupsd.socket reboot.target \
