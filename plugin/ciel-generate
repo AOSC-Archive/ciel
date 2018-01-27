@@ -101,27 +101,28 @@ fi
 # Specific recipes of all variants.
 CONTAINER_RECIPE="admin-base core-base editor-base python-base network-base \
                   systemd-base web-base util-base"
-BASE_RECIPE="${CONTAINER_RECIPE} ${BOOTABLE_RECIPE}"
+BASE_RECIPE="${CONTAINER_RECIPE} ${BOOTABLE_RECIPE} alsa-utils"
 BUILDKIT_RECIPE="${CONTAINER_RECIPE} devel-base debug-base git autobuild3 acbs"
 BUDGIE_RECIPE="${BASE_RECIPE} ${DESKTOP_RECIPE} budgie-base ibus-base gnome-distro-base \
-               budgie-default-settings lightdm-gtk-greeter-settings"
+               budgie-default-settings lightdm-gtk-greeter-settings alsa-utils"
 CINNAMON_RECIPE="${BASE_RECIPE} ${DESKTOP_RECIPE} cinnamon-base cinnamon-distro-base ibus-base \
                  lightdm-gtk-greeter-settings gnome-packagekit gnome-software \
-                 cinnamon-default-settings"
+                 cinnamon-default-settings alsa-utils"
 GNOME_RECIPE="${BASE_RECIPE} ${DESKTOP_RECIPE} gnome-base ibus-base gnome-distro-base \
-              gnome-default-settings"
+              gnome-default-settings alsa-utils"
 I3WM_RECIPE="${BASE_RECIPE} ${DESKTOP_RECIPE} i3-distro-base i3-default-settings \
              lightdm-gtk-greeter-settings arc-theme flat-remix-icon-theme \
-             desktop-base"
-KDE_RECIPE="${BASE_RECIPE} ${DESKTOP_RECIPE} kde-base fcitx-base sddm mpv kdeplasma-addons"
+             desktop-base alsa-utils"
+KDE_RECIPE="${BASE_RECIPE} ${DESKTOP_RECIPE} kde-base fcitx-base sddm mpv kdeplasma-addons \
+            alsa-utils"
 LXDE_RECIPE="${BASE_RECIPE} ${DESKTOP_RECIPE} lxde-base lxde-distro-base ibus-base \
              lightdm-gtk-greeter-settings lxde-default-settings \
              arc-icon-theme arc-openbox network-manager-applet \
-             gnome-screenshot volumeicon"
+             gnome-screenshot volumeicon alsa-utils"
 MATE_RECIPE="${BASE_RECIPE} ${DESKTOP_RECIPE} mate-base mate-distro-base ibus-base \
-             lightdm-gtk-greeter-settings mpv mate-default-settings"
+             lightdm-gtk-greeter-settings mpv mate-default-settings alsa-utils"
 XFCE_RECIPE="${BASE_RECIPE} ${DESKTOP_RECIPE} xfce-base xfce-distro-base ibus-base \
-             lightdm-gtk-greeter-settings mpv xfce4-default-settings"
+             lightdm-gtk-greeter-settings mpv xfce4-default-settings alsa-utils"
 
 # Common functions.
 _recipe_post() {
