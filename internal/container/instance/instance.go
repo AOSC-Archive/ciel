@@ -122,7 +122,8 @@ func (i *Instance) Mounted() bool {
 	a, err := ioutil.ReadFile("/proc/self/mountinfo")
 	s := string(a)
 	list := strings.Split(s, "\n")
-	match, _ := filepath.Abs(i.MountPoint())
+	absPath, _ := filepath.Abs(i.MountPoint())
+	match, _ := filepath.EvalSymlinks(absPath)
 	for _, item := range list {
 		if item == "" {
 			continue
