@@ -128,7 +128,7 @@ XFCE_RECIPE="${BASE_RECIPE} ${DESKTOP_RECIPE} xfce-base xfce-distro-base ibus-ba
 
 # Common functions.
 _recipe_post() {
-	# Clean up.
+	# TODO: Clean up.
 	ciel commit
 	ciel del $CIEL_INST
 }
