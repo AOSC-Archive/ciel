@@ -10,10 +10,10 @@ import (
 	"strings"
 	"syscall"
 
+	"ciel/display"
 	"ciel/internal/ciel"
-	"ciel/internal/ciel/packaging"
-	"ciel/internal/ciel/pkgtree"
-	"ciel/internal/display"
+	"ciel/internal/packaging"
+	"ciel/internal/pkgtree"
 )
 
 func buildConfig() {

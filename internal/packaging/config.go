@@ -6,14 +6,17 @@ import (
 	"os/exec"
 	"path"
 
-	"ciel/internal/ciel/abstract"
-	"ciel/internal/display"
-	"ciel/internal/utils"
+	"ciel/display"
+	"ciel/internal/abstract"
+)
+
+const (
+	DefaultEditor = "/usr/bin/editor"
 )
 
 func EditSourceList(i abstract.Instance) {
 	root := i.MountPoint()
-	editor := utils.Editor()
+	editor := editor()
 	cmd := exec.Command(editor, path.Join(root, "/etc/apt/sources.list"))
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
@@ -40,4 +43,14 @@ func SetMaintainer(i abstract.Instance, person string) {
 	d.ITEM("set maintainer")
 	err := ioutil.WriteFile(path.Join(root, "/usr/lib/autobuild3/etc/autobuild/ab3cfg.sh"), []byte(config), 0644)
 	d.ERR(err)
+}
+
+func editor() string {
+	if s := os.Getenv("VISUAL"); s != "" {
+		return s
+	}
+	if s := os.Getenv("EDITOR"); s != "" {
+		return s
+	}
+	return DefaultEditor
 }

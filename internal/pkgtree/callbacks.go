@@ -3,7 +3,7 @@ package pkgtree
 import (
 	"path"
 
-	"ciel/internal/ciel/abstract"
+	"ciel/internal/abstract"
 )
 
 const (

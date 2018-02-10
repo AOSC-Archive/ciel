@@ -10,9 +10,9 @@ import (
 	"strconv"
 	"strings"
 
+	"ciel/display"
 	"ciel/internal/ciel"
-	"ciel/internal/ciel/container/instance"
-	"ciel/internal/display"
+	"ciel/internal/container/instance"
 )
 
 func add() {

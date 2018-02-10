@@ -4,7 +4,7 @@ import (
 	"os"
 	"syscall"
 
-	"ciel/internal/display"
+	"ciel/display"
 )
 
 func (t *Tree) Mount(mountPoint string) {
@@ -20,6 +20,6 @@ func (t *Tree) Unmount(mountPoint string) {
 		return
 	}
 	d.ITEM("unmount tree")
-	syscall.Unmount(mountPoint, 0)
-	d.OK()
+	err := syscall.Unmount(mountPoint, 0)
+	d.ERR(err)
 }

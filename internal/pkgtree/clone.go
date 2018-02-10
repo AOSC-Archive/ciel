@@ -3,7 +3,7 @@ package pkgtree
 import (
 	"os/exec"
 
-	"ciel/internal/ciel/abstract"
+	"ciel/internal/abstract"
 	"log"
 	"os"
 	"syscall"

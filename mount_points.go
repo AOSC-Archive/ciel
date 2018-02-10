@@ -3,8 +3,8 @@ package main
 import (
 	"log"
 
+	"ciel/display"
 	"ciel/internal/ciel"
-	"ciel/internal/display"
 )
 
 func mountCiel() {

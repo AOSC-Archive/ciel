@@ -27,50 +27,56 @@ func (e ErrCancelled) Error() string {
 	return "cancelled: " + e.reason
 }
 
-func SystemdNspawn(ctx context.Context, directory string, boot bool, machineId string, args ...string) (int, error) {
+func SystemdNspawnRun(ctx context.Context, directory string, machineId string, args ...string) (int, error) {
 	a := []string{
 		"--quiet",
 		"-D", directory,
-	}
-	if boot {
-		a = append(a, "--boot")
 	}
 	if machineId != "" {
 		a = append(a, "-M", machineId)
 	}
 	a = append(a, args...)
 	cmd := exec.CommandContext(ctx, "systemd-nspawn", a...)
-	if !boot {
-		cmd.Stderr = os.Stderr
-		cmd.Stdout = os.Stdout
-		cmd.Stdin = os.Stdin
+	cmd.Stderr = os.Stderr
+	cmd.Stdout = os.Stdout
+	cmd.Stdin = os.Stdin
+
+	err := cmd.Run()
+	if exitErr, ok := err.(*exec.ExitError); ok {
+		return exitErr.Sys().(syscall.WaitStatus).ExitStatus(), nil
 	}
+	if err != nil {
+		return -1, err
+	}
+
+	return 0, nil
+}
+func SystemdNspawnBoot(ctx context.Context, directory string, machineId string, args ...string) (int, error) {
+	a := []string{
+		"--quiet",
+		"--boot",
+		"-D", directory,
+	}
+	if machineId != "" {
+		a = append(a, "-M", machineId)
+	}
+	a = append(a, args...)
+	cmd := exec.CommandContext(ctx, "systemd-nspawn", a...)
 
 	var err error
-	if boot {
-		waitCtx, cancelFunc := context.WithCancel(context.Background())
-		go func() {
-			errBuf := &bytes.Buffer{}
-			cmd.Stderr = errBuf
-			cmd.Run()
-			output := errBuf.String()
-			err = ErrCancelled{reason: string(output)}
-			cancelFunc()
-		}()
-		cancelled := waitUntilRunningOrDegraded(waitCtx, machineId)
-		if cancelled {
-			return -1, err
-		}
-	} else {
-		err = cmd.Run()
-		if exitErr, ok := err.(*exec.ExitError); ok {
-			return exitErr.Sys().(syscall.WaitStatus).ExitStatus(), nil
-		}
-		if err != nil {
-			return -1, err
-		}
+	waitCtx, cancelFunc := context.WithCancel(context.Background())
+	go func() {
+		errBuf := &bytes.Buffer{}
+		cmd.Stderr = errBuf
+		cmd.Run()
+		output := errBuf.String()
+		err = ErrCancelled{reason: string(output)}
+		cancelFunc()
+	}()
+	cancelled := waitUntilRunningOrDegraded(waitCtx, machineId)
+	if cancelled {
+		return -1, err
 	}
-
 	return 0, nil
 }
 

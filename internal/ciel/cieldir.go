@@ -6,9 +6,9 @@ import (
 	"path"
 	"strings"
 
-	"ciel/internal/ciel/abstract"
-	"ciel/internal/ciel/container"
-	"ciel/internal/ciel/pkgtree"
+	"ciel/internal/abstract"
+	"ciel/internal/container"
+	"ciel/internal/pkgtree"
 	"ciel/internal/utils"
 )
 
@@ -49,7 +49,7 @@ func (i *Ciel) treeDir() string {
 }
 
 func (i *Ciel) Init() {
-	utils.Mkdir(i.CielDir())
+	utils.MustMkdir(i.CielDir())
 	if err := ioutil.WriteFile(i.VerFile(), []byte(Version), 0644); err != nil {
 		log.Panic(err)
 	}

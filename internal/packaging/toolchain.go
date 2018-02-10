@@ -4,8 +4,8 @@ import (
 	"os"
 	"path"
 
-	"ciel/internal/ciel/abstract"
-	"ciel/internal/display"
+	"ciel/display"
+	"ciel/internal/abstract"
 )
 
 const (

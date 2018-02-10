@@ -6,8 +6,8 @@ import (
 	"os"
 	"path"
 
-	"ciel/internal/ciel/abstract"
-	"ciel/internal/ciel/container/instance"
+	"ciel/internal/abstract"
+	"ciel/internal/container/instance"
 	"ciel/internal/utils"
 )
 
@@ -29,9 +29,9 @@ func (i *Container) InstDir() string {
 }
 
 func (i *Container) Init() {
-	utils.Mkdir(i.BasePath)
-	utils.Mkdir(i.DistDir())
-	utils.Mkdir(i.InstDir())
+	utils.MustMkdir(i.BasePath)
+	utils.MustMkdir(i.DistDir())
+	utils.MustMkdir(i.InstDir())
 }
 
 func (i *Container) Instance(name string) *instance.Instance {
@@ -39,7 +39,7 @@ func (i *Container) Instance(name string) *instance.Instance {
 }
 
 func (i *Container) AddInst(name string) error {
-	utils.Mkdir(path.Join(i.InstDir(), name))
+	utils.MustMkdir(path.Join(i.InstDir(), name))
 	return i.Instance(name).Init()
 }
 func (i *Container) DelInst(name string) error {
