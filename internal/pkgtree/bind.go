@@ -16,7 +16,7 @@ func (t *Tree) Mount(mountPoint string) {
 }
 
 func (t *Tree) Unmount(mountPoint string) {
-	if _, err := os.Stat(t.BasePath); os.IsNotExist(err) {
+	if _, err := os.Stat(mountPoint); os.IsNotExist(err) {
 		return
 	}
 	d.ITEM("unmount tree")

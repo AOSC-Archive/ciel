@@ -33,6 +33,15 @@ func SetTreePath(i abstract.Instance, tree string) {
 	d.ERR(err)
 }
 
+func DisableDNSSEC(i abstract.Instance) {
+	root := i.MountPoint()
+	config := `[Resolve]` + "\n"
+	config += `DNSSEC=no` + "\n"
+	d.ITEM("disable DNSSEC")
+	err := ioutil.WriteFile(path.Join(root, "/etc/systemd/resolved.conf"), []byte(config), 0644)
+	d.ERR(err)
+}
+
 func SetMaintainer(i abstract.Instance, person string) {
 	root := i.MountPoint()
 	config := `#!/bin/bash` + "\n"
