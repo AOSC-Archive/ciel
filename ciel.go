@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"ciel/internal/ciel"
+	"fmt"
 )
 
 var rawArgs []string
@@ -34,6 +35,10 @@ func parse() {
 }
 
 func router(subCmd string) {
+	if subCmd == "version" {
+		fmt.Println("ciel", Version)
+		return
+	}
 	var routeTable = map[string]func(){
 		// Create Directory Structures
 		"init": initCiel, // here

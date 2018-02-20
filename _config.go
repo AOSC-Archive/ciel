@@ -1,6 +1,6 @@
 package main
 
-func init() {
+const (
     Version = "__VERSION__"
     Prefix = "__PREFIX__"
-}
+)
