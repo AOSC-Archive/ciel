@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	LibExecDir   = "/usr/libexec"
+	LibExecDir   = Prefix + "/libexec"
 	PluginDir    = LibExecDir + "/ciel-plugin"
 	PluginPrefix = "ciel-"
 )
