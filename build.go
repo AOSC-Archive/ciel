@@ -103,15 +103,16 @@ func build() {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	cmd = exec.Command("sh", "-c", "cp -p "+inst.MountPoint()+"/var/log/apt/history.log OUTPUT/")
-	cmd.Stderr = os.Stderr
-	err = cmd.Run()
-	if exitErr, ok := err.(*exec.ExitError); ok {
-		os.Exit(exitErr.Sys().(syscall.WaitStatus).ExitStatus())
-	}
-	if err != nil {
-		log.Fatalln(err)
-	}
+
+	//cmd = exec.Command("sh", "-c", "cp -p "+inst.MountPoint()+"/var/log/apt/history.log OUTPUT/")
+	//cmd.Stderr = os.Stderr
+	//err = cmd.Run()
+	//if exitErr, ok := err.(*exec.ExitError); ok {
+	//	os.Exit(exitErr.Sys().(syscall.WaitStatus).ExitStatus())
+	//}
+	//if err != nil {
+	//	log.Fatalln(err)
+	//}
 
 	// TODO: collect information
 }
