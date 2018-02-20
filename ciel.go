@@ -58,7 +58,7 @@ func router(subCmd string) {
 		"shell-with-poweroff": shellStop, // instances.go
 		"run": run, // instances.go
 
-		// Preparing Build
+		// Building Configuration
 		"load-tree":   clone,       // tree.go
 		"update-tree": pull,        // tree.go
 		"config":      buildConfig, // build.go
