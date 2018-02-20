@@ -1,0 +1,4 @@
+package: ciel
+import:
+- package: github.com/godbus/dbus
+  version: ^4.1.0

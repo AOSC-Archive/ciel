@@ -1,6 +1,13 @@
 # Binaries for programs and plugins
 /bin
 
+# Build cache
+/workdir/
+/instdir/
+
+# Vendor packages
+/vendor/
+
 # Test binary, build with `go test -c`
 *.test
 
@@ -9,6 +16,7 @@
 
 # Project-local glide cache, RE: https://github.com/Masterminds/glide/issues/736
 .glide/
+/glide.lock
 
 # Post-sed constants
 version.go
