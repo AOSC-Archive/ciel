@@ -1,24 +1,20 @@
 # ciel [![Build Status](https://api.travis-ci.org/AOSC-Dev/ciel.svg)](https://travis-ci.org/AOSC-Dev/ciel)
-A tool for controlling multi-layer file systems and containers
+An integrated packaging environment for AOSC OS.
 
 ## manual
 
 During the rapid iteration (before version 1.x.x), you may read help messages:
-```
+```bash
 ciel help
 ```
-
-Or Wiki:
-- https://github.com/AOSC-Dev/ciel/wiki/The-Ciel-User-Manual-en
-- https://github.com/AOSC-Dev/ciel/wiki/The-Ciel-User-Manual-zh_CN
 
 ## installation
 
 
-```
+```bash
 git clone https://github.com/AOSC-Dev/ciel
 cd ciel
-git submodule update --init --recursive
+
 make
 sudo make install
 ```
@@ -26,12 +22,11 @@ sudo make install
 ## dependencies
 
 Building:
-- git
-- make
 - Go
+- make
 
 Runtime:
-- systemd's container components
-- overlayfs (kernel module)
+- systemd
+- overlayfs (kernel feature)
 - coreutils
 - tar

@@ -35,8 +35,12 @@ func parse() {
 }
 
 func router(subCmd string) {
-	if subCmd == "version" {
+	switch subCmd {
+	case "version":
 		fmt.Println("ciel", Version)
+		return
+	case "help":
+		docHelp()
 		return
 	}
 	var routeTable = map[string]func(){
