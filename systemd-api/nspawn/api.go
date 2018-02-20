@@ -85,6 +85,7 @@ func SystemdRun(ctx context.Context, machineId string, args ...string) (int, err
 		"--quiet",
 		"--wait",
 		"--pty",
+		"--uid=root", // for login sessions
 		"-M", machineId,
 	}
 	a = append(a, args...)
