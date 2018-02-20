@@ -4,7 +4,6 @@ import (
 	"context"
 	"flag"
 	"io/ioutil"
-	"log"
 	"os"
 	"os/exec"
 	"strconv"
@@ -12,6 +11,11 @@ import (
 
 	"ciel/display"
 	"ciel/internal/ciel"
+)
+
+const (
+	LatestTarballURL = "https://repo.aosc.io/aosc-os/os-amd64/buildkit/aosc-os_buildkit_20180128_amd64.tar.xz"
+	DownloadTarball  = "os.tar.xz"
 )
 
 func untarGuestOS() {
@@ -22,8 +26,24 @@ func untarGuestOS() {
 	i.Check()
 	c := i.Container()
 
-	if tar := flag.Arg(0); tar == "" {
-		log.Fatalln("no tar file specified")
+	tar := flag.Arg(0)
+	if tar == "" {
+		d.SECTION("Download OS")
+		d.ITEM("latest tarball url")
+		d.Println(d.C(d.CYAN, LatestTarballURL))
+		cmd := exec.Command("curl", "-o", DownloadTarball, "-#", LatestTarballURL)
+		cmd.Stdin = os.Stdin
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+		err := cmd.Run()
+		d.ITEM("download")
+		if err != nil {
+			d.FAILED_BECAUSE(err.Error())
+			os.Remove(DownloadTarball)
+			return
+		}
+		d.OK()
+		tar = DownloadTarball
 	}
 
 	d.SECTION("Load OS From Compressed File")
@@ -78,7 +98,7 @@ func untarGuestOS() {
 	}
 
 	d.ITEM("untar os")
-	cmd := exec.Command("tar", "-xpf", flag.Arg(0), "-C", c.DistDir())
+	cmd := exec.Command("tar", "-xpf", tar, "-C", c.DistDir())
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		d.FAILED_BECAUSE(strings.TrimSpace(string(output)))
