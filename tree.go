@@ -7,6 +7,10 @@ import (
 	"ciel/internal/ciel"
 )
 
+const (
+	GitAOSCOSABBS = "https://github.com/AOSC-Dev/aosc-os-abbs"
+)
+
 func clone() {
 	basePath := flagCielDir()
 	parse()
@@ -15,7 +19,11 @@ func clone() {
 	i.Check()
 	t := i.Tree()
 
-	os.Exit(t.Clone(flag.Arg(0)))
+	tree := flag.Arg(0)
+	if tree == "" {
+		tree = GitAOSCOSABBS
+	}
+	os.Exit(t.Clone(tree))
 }
 
 func pull() {
