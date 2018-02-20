@@ -4,6 +4,7 @@
 # Build cache
 /workdir/
 /instdir/
+/config.go
 
 # Vendor packages
 /vendor/
