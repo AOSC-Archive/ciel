@@ -3,7 +3,7 @@ PREFIX:=/usr/local
 VERSION=$(shell git describe --tags)
 SRCDIR=$(shell pwd)
 
-GOPATH=$(SRCDIR)/workdir
+export GOPATH=$(SRCDIR)/workdir
 GOSRC=$(GOPATH)/src
 GOBIN=$(GOPATH)/bin
 CIELPATH=$(GOSRC)/ciel
@@ -21,25 +21,25 @@ $(CIELPATH):
 	ln -f -s -T $(SRCDIR) $(CIELPATH)
 
 $(GLIDE):
-	curl https://glide.sh/get | sh
+	curl -# https://glide.sh/get | sh
 
-deps: $(CIELPATH) $(GLIDE)
+deps: $(CIELPATH) $(GLIDE) $(SRCDIR)/glide.yaml
 	cd $(CIELPATH)
 	$(GLIDE) install
 	cd $(SRCDIR)
 
-config:
-	cp $(SRCDIR)/_config.go $(SRCDIR)/config.go
-	sed 's,__VERSION__,$(VERSION),g' -i $(SRCDIR)/config.go
-	sed 's,__PREFIX__,$(PREFIX),g' -i $(SRCDIR)/config.go
+$(SRCDIR)/config.go: $(SRCDIR)/_config.go
+	cp $< $@
+	sed 's,__VERSION__,$(VERSION),g' -i $@
+	sed 's,__PREFIX__,$(PREFIX),g' -i $@
 
-compile: deps config
-	go build -o $(DISTDIR)/bin/ciel ciel
+$(DISTDIR)/bin/ciel: deps $(SRCDIR)/config.go
+	go build -o $@ ciel
 
-plugins: plugin/*
-	cp -fR plugin/* $(DISTDIR)/libexec/ciel-plugin
+$(DISTDIR)/libexec/ciel-plugin: plugin/*
+	cp -fR $^ $@
 
-build: compile plugins
+build: $(DISTDIR)/bin/ciel $(DISTDIR)/libexec/ciel-plugin
 
 clean:
 	-rm -r $(GOPATH)
@@ -50,4 +50,4 @@ clean:
 install:
 	cp -R $(DISTDIR)/* $(PREFIX)
 
-.PHONY: all deps compile plugins build install
+.PHONY: all deps build install clean
