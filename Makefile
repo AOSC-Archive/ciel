@@ -42,9 +42,9 @@ $(DISTDIR)/libexec/ciel-plugin: plugin/*
 build: $(DISTDIR)/bin/ciel $(DISTDIR)/libexec/ciel-plugin
 
 clean:
-	-rm -r $(GOPATH)
-	-rm -r $(DISTDIR)
-	-rm -r $(SRCDIR)/vendor
+	rm -rf $(GOPATH)
+	rm -rf $(DISTDIR)
+	rm -rf $(SRCDIR)/vendor
 	git clean -f -d $(SRCDIR)
 
 install:
