@@ -12,7 +12,7 @@ type Color int
 const MaxLength = 30
 
 const (
-	BLACK Color = 30 + iota
+	_ Color = 30 + iota
 	RED
 	GREEN
 	YELLOW
@@ -32,9 +32,15 @@ func C(cid Color, s string) string {
 	return Clr(cid) + s + ClrRst()
 }
 func Clr0(cid Color) string {
+	if cid == WHITE {
+		return "\033[0m"
+	}
 	return "\033[0;" + strconv.Itoa(int(cid)) + "m"
 }
 func Clr(cid Color) string {
+	if cid == WHITE {
+		return "\033[1m"
+	}
 	return "\033[1;" + strconv.Itoa(int(cid)) + "m"
 }
 func ClrRst() string {
