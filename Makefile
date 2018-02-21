@@ -21,7 +21,7 @@ $(CIELPATH):
 	ln -f -s -T $(SRCDIR) $(CIELPATH)
 
 $(GLIDE):
-	curl -# https://glide.sh/get | sh
+	curl -\# https://glide.sh/get | PATH=$(GOBIN):$(PATH) sh
 
 deps: $(CIELPATH) $(GLIDE) $(SRCDIR)/glide.yaml
 	cd $(CIELPATH)
