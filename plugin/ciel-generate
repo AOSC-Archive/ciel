@@ -43,11 +43,11 @@ fi
 # Available from all desktop variants.
 if "$SMALL_ARCH"; then
     DESKTOP_RECIPE="${BROWSER_RECIPE} ${FONT_RECIPE} \
-                    codec-base xdg-user-dirs xdg-user-dirs-gtk"
+                    codec-base xdg-user-dirs xdg-user-dirs-gtk imchooser"
 else
     DESKTOP_RECIPE="${BROWSER_RECIPE} ${FONT_RECIPE} productivity-base \
                     print-base codec-base proofread-base xdg-user-dirs \
-                    xdg-user-dirs-gtk"
+                    xdg-user-dirs-gtk imchooser"
 fi
 
 USE_DKMS=0
