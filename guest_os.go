@@ -4,8 +4,10 @@ import (
 	"context"
 	"flag"
 	"io/ioutil"
+	"net/url"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -14,8 +16,7 @@ import (
 )
 
 const (
-	LatestTarballURL = "https://repo.aosc.io/aosc-os/os-amd64/buildkit/aosc-os_buildkit_20180128_amd64.tar.xz"
-	DownloadTarball  = "os.tar.xz"
+	LatestTarballURL = "https://repo.aosc.io/aosc-os/os-amd64/buildkit/aosc-os_buildkit_latest_amd64.tar.xz"
 )
 
 func untarGuestOS() {
@@ -31,6 +32,11 @@ func untarGuestOS() {
 		d.SECTION("Download OS")
 		d.ITEM("latest tarball url")
 		d.Println(d.C(d.CYAN, LatestTarballURL))
+		tarUrl, _ := url.Parse(LatestTarballURL)
+		_, DownloadTarball := filepath.Split(tarUrl.Path)
+		if DownloadTarball == "" {
+			DownloadTarball = "latest.tar.xz"
+		}
 		cmd := exec.Command("curl", "-o", DownloadTarball, "-#", LatestTarballURL)
 		cmd.Stdin = os.Stdin
 		cmd.Stdout = os.Stdout
