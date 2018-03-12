@@ -19,7 +19,7 @@ import (
 func buildConfig() {
 	basePath := flagCielDir()
 	instName := flagInstance()
-	ci := flagCI()
+	batch := flagBatch()
 	parse()
 
 	i := &ciel.Ciel{BasePath: *basePath}
@@ -37,7 +37,7 @@ func buildConfig() {
 	packaging.DetectToolChain(inst)
 	packaging.SetTreePath(inst, pkgtree.TreePath)
 	var person string
-	if !*ci {
+	if !*batch {
 		for person == "" {
 			person = d.ASK("Maintainer Info", "Foo Bar <myname@example.com>")
 		}
@@ -45,10 +45,10 @@ func buildConfig() {
 		person = "Bot <discussions@lists.aosc.io>"
 	}
 	packaging.SetMaintainer(inst, person)
-	if !*ci && d.ASK("Would you like to disable DNSSEC feature?", "yes/no") == "yes" {
+	if !*batch && d.ASK("Would you like to disable DNSSEC feature?", "yes/no") == "yes" {
 		packaging.DisableDNSSEC(inst)
 	}
-	if !*ci && d.ASK("Would you like to edit source list?", "yes/no") == "yes" {
+	if !*batch && d.ASK("Would you like to edit source list?", "yes/no") == "yes" {
 		packaging.EditSourceList(inst)
 	}
 }
@@ -58,7 +58,7 @@ func build() {
 	instName := flagInstance()
 	networkFlag := flagNetwork()
 	noBooting := flagNoBooting()
-	bootConfig := flagBootConfig()
+	containerArg := flagArgs()
 	parse()
 
 	i := &ciel.Ciel{BasePath: *basePath}
@@ -68,7 +68,7 @@ func build() {
 	inst := c.Instance(*instName)
 	inst.Mount()
 
-	bootConf := strings.Split(strings.TrimSpace(*bootConfig), "\n")
+	containerArgs := strings.Split(strings.TrimSpace(*containerArg), "\n")
 
 	shell, err := inst.Shell("root")
 	if err != nil {
@@ -83,7 +83,7 @@ func build() {
 	exitStatus, err := inst.Run(context.Background(),
 		!*noBooting,
 		*networkFlag,
-		bootConf,
+		containerArgs,
 		args...,
 	)
 	if err != nil {

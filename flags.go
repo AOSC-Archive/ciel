@@ -41,21 +41,21 @@ func saveNoBooting(noBooting bool) {
 	saveEnv("CIEL_BOOT", noBooting)
 }
 
-func flagBootConfig() *string {
-	bootConfig := getEnv("CIEL_BOOTCFG", "")
-	return &bootConfig
+func flagArgs() *string {
+	containerArg := getEnv("CIEL_FLAGS", "")
+	return &containerArg
 }
-func saveBootConfig(bootConfig string) {
-	saveEnv("CIEL_BOOTCFG", bootConfig)
+func saveArgs(args string) {
+	saveEnv("CIEL_FLAGS", args)
 }
 
-func flagCI() *bool {
-	ci := getEnv("CIEL_CI_MODE", "false") == "true"
-	flag.BoolVar(&ci, "ci", ci, "do not ask; CIEL_CI_MODE")
-	return &ci
+func flagBatch() *bool {
+	batch := getEnv("CIEL_BATCH_MODE", "false") == "true"
+	flag.BoolVar(&batch, "batch", batch, "do not ask; CIEL_BATCH_MODE")
+	return &batch
 }
-func saveCI(network bool) {
-	saveEnv("CIEL_CI_MODE", network)
+func saveBatch(batch bool) {
+	saveEnv("CIEL_BATCH_MODE", batch)
 }
 
 func getEnv(key, def string) string {

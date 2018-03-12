@@ -61,7 +61,7 @@ func doctor() {
 	instName := flagInstance()
 	networkFlag := flagNetwork()
 	noBooting := flagNoBooting()
-	bootConfig := flagBootConfig()
+	args := flagArgs()
 	parse()
 
 	if flag.NArg() > 1 {
@@ -87,14 +87,14 @@ func doctor() {
 	inst := c.Instance(*instName)
 	inst.Mount()
 
-	bootConf := strings.Split(strings.TrimSpace(*bootConfig), "\n")
+	containerArgs := strings.Split(strings.TrimSpace(*args), "\n")
 
 	if flag.NArg() == 0 {
 		exitStatus, err := _openShell(
 			inst,
 			*networkFlag,
 			!*noBooting,
-			bootConf,
+			containerArgs,
 		)
 		if err != nil {
 			log.Println(err)
@@ -105,7 +105,7 @@ func doctor() {
 		inst,
 		*networkFlag,
 		!*noBooting,
-		bootConf,
+		containerArgs,
 		false,
 		flag.Arg(0),
 	)

@@ -125,7 +125,7 @@ func update() {
 
 	basePath := flagCielDir()
 	networkFlag := flagNetwork()
-	bootConfig := flagBootConfig()
+	args := flagArgs()
 	parse()
 
 	i := &ciel.Ciel{BasePath: *basePath}
@@ -180,11 +180,11 @@ func update() {
 		inst.Stop(context.TODO())
 	}()
 
-	bootConf := strings.Split(strings.TrimSpace(*bootConfig), "\n")
+	containerArgs := strings.Split(strings.TrimSpace(*args), "\n")
 
 	type ExitError struct{}
 	var run = func(cmd string, poweroff bool) (int, error) {
-		return _shellRun(inst, *networkFlag, true, bootConf, poweroff, cmd)
+		return _shellRun(inst, *networkFlag, true, containerArgs, poweroff, cmd)
 	}
 	defer func() {
 		p := recover()
