@@ -8,6 +8,7 @@ import (
 	"os"
 	"strings"
 
+	"ciel/display"
 	"ciel/internal/ciel"
 )
 
@@ -45,7 +46,8 @@ func router(subCmd string) {
 	}
 	var routeTable = map[string]func(){
 		// Create Directory Structures
-		"init": initCiel, // here
+		"init":     initCiel, // here
+		"farewell": farewell, // here
 
 		// Preparing and Removing Instance
 		"add":           add,          // instances.go
@@ -104,4 +106,29 @@ func initCiel() {
 
 	i := &ciel.Ciel{BasePath: *basePath}
 	i.Init()
+}
+
+func farewell() {
+	basePath := flagCielDir()
+	batchFlag := flagBatch()
+	parse()
+
+	i := &ciel.Ciel{BasePath: *basePath}
+	i.Check()
+	c := i.Container()
+
+	if !*batchFlag && d.ASK("DELETE ALL CIEL THINGS?", "yes/no") != "yes" {
+		os.Exit(1)
+	}
+
+	d.SECTION("Farewell To Thee (Good Bye)")
+	instList := c.GetAll()
+	for _, inst := range instList {
+		d.SECTION("Shutdown Instance " + inst.Name)
+		inst.Unmount()
+	}
+	d.SECTION("DELETE .ciel DIRECTORY")
+	d.ITEM("delete")
+	err := os.RemoveAll(i.CielDir())
+	d.ERR(err)
 }

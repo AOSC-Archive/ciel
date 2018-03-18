@@ -33,6 +33,8 @@ Rarely used:
 	ciel run -i INSTANCE ABSPATH_TO_EXE ARG1 ARG2 ...
 	                  // lower-level version of 'shell', without login environment,
 	                  // without sourcing ~/.bash_profile
+	ciel farewell  // DELETE ALL CIEL THINGS, except OUTPUT, TREE etc.
+	               // equals to 'ciel down && rm -r .ciel'
 
 Global flags:
 	-C CIEL_DIR    // use CIEL_DIR as workdir instead of current directory
