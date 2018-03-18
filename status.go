@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 
+	"ciel/display"
 	"ciel/internal/ciel"
 )
 
@@ -24,8 +25,23 @@ func list() {
 		if len(showInst) > 14 {
 			showInst = showInst[:12] + ".."
 		}
-		status, boot := inst.ContainerStat()
-		fmt.Printf("\t%s%s%s\t%s\t%s\n", showInst, tabs, inst.FileSystemStat(), status, boot)
+		var fsStatus, ctnStatus, boot string
+		if inst.Running() {
+			ctnStatus = d.C0(d.CYAN, "running")
+		} else {
+			ctnStatus = d.C0(d.GREEN, "offline")
+		}
+		if inst.RunningAsBootMode() {
+			boot = d.C0(d.CYAN, "yes")
+		} else {
+			boot = d.C0(d.WHITE, "no")
+		}
+		if inst.Mounted() {
+			fsStatus = d.C0(d.GREEN, "mounted")
+		} else {
+			fsStatus = "free"
+		}
+		fmt.Printf("\t%s%s%s\t%s\t%s\n", showInst, tabs, fsStatus, ctnStatus, boot)
 	}
 	fmt.Println()
 	count := len(c.GetAllNames())

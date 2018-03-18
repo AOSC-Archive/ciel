@@ -196,35 +196,6 @@ func (i *Instance) Stop(ctx context.Context) error {
 	return err
 }
 
-const cRST = "\x1b[0m"
-const cGRE = "\x1b[92m"
-const cGRY = "\x1b[37m"
-const cCYA = "\x1b[96m"
-
-func (i *Instance) FileSystemStat() string {
-	if i.Mounted() {
-		return cGRE + "mounted" + cRST
-	}
-	return cRST + "free" + cRST
-}
-
-func (i *Instance) ContainerStat() (status, boot string) {
-	//if utils.Locked(i.RefractoryLock()) {
-	//	return cRED + "locked" + cRST, cGRY + "unknown" + cRST
-	//}
-	if i.Running() {
-		status = cCYA + "running" + cRST
-	} else {
-		status = cGRY + "offline" + cRST
-	}
-	if i.RunningAsBootMode() {
-		boot = cCYA + "yes" + cRST
-	} else {
-		boot = cGRY + "no" + cRST
-	}
-	return
-}
-
 func (i *Instance) Running() bool {
 	m := machined.NewManager()
 	_, err := m.GetMachine(i.MachineId())
