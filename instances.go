@@ -144,7 +144,7 @@ func run() {
 
 	ctnInfo := buildContainerInfo(!*noBooting, *networkFlag)
 	runInfo := buildRunInfo(flag.Args())
-
+	runInfo.UseSystemdRun = true
 	exitStatus, err := inst.Run(
 		context.TODO(),
 		ctnInfo,

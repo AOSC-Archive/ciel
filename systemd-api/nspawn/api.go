@@ -72,6 +72,21 @@ func SystemdRun(ctx context.Context, machineId string, runInfo *RunInfo) (int, e
 	return unpackExecErr(err)
 }
 
+func MachinectlShell(ctx context.Context, machineId string, runInfo *RunInfo) (int, error) {
+	a := msArgs(machineId, runInfo)
+	cmd := exec.CommandContext(ctx, "machinectl", a...)
+	setCmdStdDev(cmd, runInfo.StdDev)
+
+	err := cmd.Run()
+	defer func() {
+		// shutting down...
+		if !MachineRunning(MachineStatus(ctx, machineId)) {
+			waitUntilShutdown(ctx, machineId)
+		}
+	}()
+	return unpackExecErr(err)
+}
+
 func MachinectlTerminate(ctx context.Context, machineId string) error {
 	err := machinectlTerminate(ctx, machineId)
 	waitUntilShutdown(ctx, machineId)
@@ -160,6 +175,17 @@ func runArgs(machineId string, runInfo *RunInfo) []string {
 		"-M", machineId,
 	}
 	a = append(a, "--")
+	a = append(a, runInfo.App)
+	a = append(a, runInfo.Args...)
+	return a
+}
+
+func msArgs(machineId string, runInfo *RunInfo) []string {
+	a := []string{
+		"shell",
+		"--quiet",
+		machineId,
+	}
 	a = append(a, runInfo.App)
 	a = append(a, runInfo.Args...)
 	return a

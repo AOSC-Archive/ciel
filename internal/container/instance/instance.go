@@ -170,7 +170,10 @@ func (i *Instance) Run(ctx context.Context, ctnInfo *nspawn.ContainerInfo, runIn
 		if !i.RunningAsBootMode() {
 			return -1, ErrMode
 		}
-		return nspawn.SystemdRun(ctx, machineId, runInfo)
+		if runInfo.UseSystemdRun {
+			return nspawn.SystemdRun(ctx, machineId, runInfo)
+		}
+		return nspawn.MachinectlShell(ctx, machineId, runInfo)
 	} else {
 		return nspawn.SystemdNspawnRun(ctx, machineId, i.MountPoint(), ctnInfo, runInfo)
 	}

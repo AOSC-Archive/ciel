@@ -6,6 +6,8 @@ type RunInfo struct {
 	App    string
 	Args   []string
 	StdDev *StdDevInfo
+
+	UseSystemdRun bool
 }
 
 type ContainerInfo struct {
