@@ -1,20 +1,13 @@
 package pkgtree
 
 import (
-	"path"
-
 	"ciel/internal/abstract"
 )
 
-const (
-	TreePath = "/tree"
-)
-
 func (t *Tree) MountHandler(i abstract.Instance, mount bool) {
-	treeMountPoint := path.Join(i.MountPoint(), TreePath)
 	if mount {
-		t.Mount(treeMountPoint)
+		t.Mount(i.MountPoint())
 	} else {
-		t.Unmount(treeMountPoint)
+		t.Unmount(i.MountPoint())
 	}
 }
