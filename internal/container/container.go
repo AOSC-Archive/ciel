@@ -1,10 +1,12 @@
 package container
 
 import (
+	"errors"
 	"io/ioutil"
 	"log"
 	"os"
 	"path"
+	"strings"
 
 	"ciel/internal/abstract"
 	"ciel/internal/container/instance"
@@ -14,6 +16,10 @@ import (
 const (
 	DistDirName = "dist"
 	InstDirName = "instances"
+)
+
+var (
+	ErrInvalidInstName = errors.New("invalid instance name")
 )
 
 type Container struct {
@@ -39,6 +45,9 @@ func (i *Container) Instance(name string) *instance.Instance {
 }
 
 func (i *Container) AddInst(name string) error {
+	if strings.ContainsAny(name, "/\\ ") {
+		return ErrInvalidInstName
+	}
 	utils.MustMkdir(path.Join(i.InstDir(), name))
 	return i.Instance(name).Init()
 }
@@ -47,6 +56,9 @@ func (i *Container) DelInst(name string) error {
 }
 
 func (i *Container) InstExists(name string) bool {
+	if strings.ContainsAny(name, "/\\ ") {
+		return false
+	}
 	instDir := path.Join(i.InstDir(), name)
 	if instDir == path.Clean(i.InstDir()) {
 		return false
