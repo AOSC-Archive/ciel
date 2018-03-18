@@ -1,5 +1,5 @@
 #!/bin/bash
-# Usage: ciel-gen <recipe>, one recipe at a time.
+# Usage: ciel-generate <recipe>, one recipe at a time.
 
 export CIEL_INST="__generate__"
 export CIEL_BATCH_MODE="true"
@@ -135,8 +135,8 @@ _recipe_post() {
 }
 
 _recipe_pre_install() {
-	ciel update-os
 	ciel add $CIEL_INST
+	ciel update-os
 	ciel shell "apt -o Dpkg::Options::=\"--force-confnew\" install --yes ${PREREQ_RECIPE}"
 }
 
