@@ -244,7 +244,6 @@ func factoryReset() {
 
 	basePath := flagCielDir()
 	instName := flagInstance()
-	batchFlag := flagBatch()
 	parse()
 
 	i := &ciel.Ciel{BasePath: *basePath}
@@ -254,39 +253,10 @@ func factoryReset() {
 	inst := c.Instance(*instName)
 
 	d.SECTION("Factory Reset Guest Operating System")
-	d.ITEM("are there online instances?")
-	ready := true
-	for _, inst := range c.GetAll() {
-		if inst.Running() || inst.Mounted() {
-			ready = false
-			d.Print(d.C(d.YELLOW, inst.Name) + " ")
-		}
-	}
-	if ready {
-		d.Print(d.C(d.CYAN, "NO"))
-	}
-	d.Println()
-
-	if !ready {
-		if !*batchFlag && d.ASK("Stop all instances?", "yes/no") != "yes" {
-			os.Exit(1)
-		}
-		for _, inst := range c.GetAll() {
-			if inst.Running() {
-				inst.Stop(context.TODO())
-			}
-			if inst.Mounted() {
-				inst.Unmount()
-			}
-		}
-	}
-
-	d.ITEM("mount temporary instance")
+	inst.Stop(context.TODO())
+	d.ITEM("mount instance")
 	inst.Mount()
 	d.OK()
-	defer func() {
-		inst.Unmount()
-	}()
 
 	d.ITEM("collect package list in dpkg")
 	pkgList := dpkgPackages(inst)
