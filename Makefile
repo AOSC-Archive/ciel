@@ -28,12 +28,12 @@ deps: $(CIELPATH) $(GLIDE) $(SRCDIR)/glide.yaml
 	$(GLIDE) install
 	cd $(SRCDIR)
 
-$(SRCDIR)/config.go: $(SRCDIR)/_config.go
-	cp $< $@
-	sed 's,__VERSION__,$(VERSION),g' -i $@
-	sed 's,__PREFIX__,$(PREFIX),g' -i $@
+config:
+	cp $(SRCDIR)/_config.go $(SRCDIR)/config.go
+	sed 's,__VERSION__,$(VERSION),g' -i $(SRCDIR)/config.go
+	sed 's,__PREFIX__,$(PREFIX),g' -i $(SRCDIR)/config.go
 
-$(DISTDIR)/bin/ciel: deps $(SRCDIR)/config.go
+$(DISTDIR)/bin/ciel: deps config
 	go build -o $@ ciel
 
 $(DISTDIR)/libexec/ciel-plugin: plugin/*
@@ -50,4 +50,4 @@ clean:
 install:
 	cp -R $(DISTDIR)/* $(PREFIX)
 
-.PHONY: all deps build install clean
+.PHONY: all deps config build install clean
