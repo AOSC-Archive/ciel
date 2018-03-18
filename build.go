@@ -44,7 +44,7 @@ func buildConfig() {
 		person = "Bot <discussions@lists.aosc.io>"
 	}
 	packaging.SetMaintainer(inst, person)
-	if !*batch && d.ASK("Would you like to disable DNSSEC feature?", "yes/no") == "yes" {
+	if *batch || d.ASK("Would you like to disable DNSSEC feature?", "yes/no") == "yes" {
 		packaging.DisableDNSSEC(inst)
 	}
 	if !*batch && d.ASK("Would you like to edit source list?", "yes/no") == "yes" {
