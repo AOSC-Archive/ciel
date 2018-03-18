@@ -24,6 +24,7 @@ Rarely used:
 	ciel mount [-i INSTANCE]   // mount all or one instance
 	ciel down [-i INSTANCE]    // shutdown and unmount all or one instance
 	ciel stop -i INSTANCE      // shutdown an instance
+	ciel factory-reset -i INSTACE // delete all out-of-dpkg files in an instance
 	ciel commit -i INSTANCE    // commit the change onto the underlying OS image
 	ciel shell-with-poweroff -i INSTANCE "SHELL COMMAND LINE"
 	                  // similar to 'shell' and additionally poweroff after executing command line,

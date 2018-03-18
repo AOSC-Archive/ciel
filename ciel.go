@@ -48,12 +48,13 @@ func router(subCmd string) {
 		"init": initCiel, // here
 
 		// Preparing and Removing Instance
-		"add":       add,          // instances.go
-		"load-os":   untarGuestOS, // guest_os.go
-		"update-os": update,       // guest_os.go
-		"rollback":  rollback,     // instances.go
-		"commit":    commit,       // instances.go
-		"del":       del,          // instances.go
+		"add":           add,          // instances.go
+		"load-os":       untarGuestOS, // guest_os.go
+		"factory-reset": factoryReset, // guest_os.go
+		"update-os":     update,       // guest_os.go
+		"rollback":      rollback,     // instances.go
+		"commit":        commit,       // instances.go
+		"del":           del,          // instances.go
 
 		// Maintaining Instance Status
 		"mount": mountCiel, // mount_points.go
