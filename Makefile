@@ -43,10 +43,10 @@ $(DISTDIR)/bin/ciel: deps config
 	export CXX
 	go build -o $@ ciel
 
-$(DISTDIR)/libexec/ciel-plugin: plugin/*
-	cp -fR $^ $@
+plugin: plugin/*
+	cp -fR $^ $(DISTDIR)/libexec/ciel-plugin
 
-build: $(DISTDIR)/bin/ciel $(DISTDIR)/libexec/ciel-plugin
+build: $(DISTDIR)/bin/ciel plugin
 
 clean:
 	rm -rf $(GOPATH)
@@ -57,4 +57,4 @@ clean:
 install:
 	cp -R $(DISTDIR)/* $(PREFIX)
 
-.PHONY: all deps config build install clean
+.PHONY: all deps config build plugin install clean
