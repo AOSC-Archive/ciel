@@ -6,6 +6,9 @@ VERSION=$(shell git describe --tags)
 SRCDIR=$(shell pwd)
 
 export GOPATH=$(SRCDIR)/workdir
+export CC
+export CXX
+
 GOSRC=$(GOPATH)/src
 GOBIN=$(GOPATH)/bin
 CIELPATH=$(GOSRC)/ciel
