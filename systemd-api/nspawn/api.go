@@ -17,7 +17,7 @@ var BootableFiles = []string{
 	"/sbin/init",
 }
 
-const PoweroffTimeout = 5 * time.Second
+const PowerOffTimeout = 30 * time.Second
 
 type ErrCancelled struct {
 	reason string
@@ -118,7 +118,7 @@ func MachinectlTerminate(ctx context.Context, machineId string) error {
 	return err
 }
 
-func MachinectlPoweroff(ctx context.Context, machineId string) error {
+func MachinectlPowerOff(ctx context.Context, machineId string) error {
 	a := []string{
 		"poweroff",
 		"--quiet",
@@ -131,7 +131,7 @@ func MachinectlPoweroff(ctx context.Context, machineId string) error {
 	} else if err != nil {
 		return err
 	}
-	waitCtx, _ := context.WithTimeout(ctx, PoweroffTimeout)
+	waitCtx, _ := context.WithTimeout(ctx, PowerOffTimeout)
 	if waitUntilShutdown(waitCtx, machineId) { // cancelled
 		machinectlTerminate(context.Background(), machineId)
 	}

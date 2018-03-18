@@ -188,7 +188,7 @@ func (i *Instance) Stop(ctx context.Context) error {
 	}
 	var err error
 	if i.RunningAsBootMode() {
-		err = nspawn.MachinectlPoweroff(ctx, i.MachineId())
+		err = nspawn.MachinectlPowerOff(ctx, i.MachineId())
 	} else {
 		err = nspawn.MachinectlTerminate(ctx, i.MachineId())
 	}
