@@ -1,4 +1,6 @@
 PREFIX:=/usr/local
+CC:=/bin/cc
+CXX:=/bin/c++
 
 VERSION=$(shell git describe --tags)
 SRCDIR=$(shell pwd)
@@ -34,6 +36,8 @@ config:
 	sed 's,__PREFIX__,$(PREFIX),g' -i $(SRCDIR)/config.go
 
 $(DISTDIR)/bin/ciel: deps config
+	export CC
+	export CXX
 	go build -o $@ ciel
 
 $(DISTDIR)/libexec/ciel-plugin: plugin/*
