@@ -20,17 +20,29 @@ func docHelp() {
 	ciel build -i INSTANCE PACKAGE
 	ciel rollback -i INSTANCE
 
-Rarely used:
+	ciel down [-i INSTANCE]    // shutdown & unmount all or one instance
 	ciel mount [-i INSTANCE]   // mount all or one instance
-	ciel down [-i INSTANCE]    // shutdown and unmount all or one instance
+
+Rarely used:
 	ciel stop -i INSTANCE      // shutdown an instance
-	ciel factory-reset -i INSTACE // delete all out-of-dpkg files in an instance
-	ciel commit -i INSTANCE    // commit the change onto the underlying OS image
 	ciel run -i INSTANCE ABSPATH_TO_EXE ARG1 ARG2 ...
 	                  // lower-level version of 'shell', without login environment,
 	                  // without sourcing ~/.bash_profile
 	ciel farewell  // DELETE ALL CIEL THINGS, except OUTPUT, TREE etc.
 	               // equals to 'ciel down && rm -r .ciel'
+
+Altering OS & Releasing OS:
+	ciel load-os
+	ciel update-os  // see above
+
+	ciel generate
+	             // (plugin) install packages and set up enviorment by RECIPE
+	ciel factory-reset -i INSTACE
+	             // delete all out-of-dpkg files
+	ciel commit -i INSTANCE
+	             // commit changes onto the shared underlying OS
+	ciel release VARIANT THREADS
+	             // (plugin) make a .tar.xz release for the underlying OS
 
 Global flags:
 	-C CIEL_DIR    // use CIEL_DIR as workdir instead of current directory
