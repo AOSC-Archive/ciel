@@ -3,12 +3,12 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
 	"os"
 	"strings"
 
 	"ciel/internal/ciel"
-	"fmt"
 )
 
 var rawArgs []string

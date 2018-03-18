@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"flag"
 	"io/ioutil"
@@ -13,6 +14,7 @@ import (
 
 	"ciel/display"
 	"ciel/internal/ciel"
+	"ciel/internal/container/instance"
 )
 
 const (
@@ -125,7 +127,6 @@ func update() {
 
 	basePath := flagCielDir()
 	networkFlag := flagNetwork()
-	args := flagArgs()
 	parse()
 
 	i := &ciel.Ciel{BasePath: *basePath}
@@ -180,11 +181,9 @@ func update() {
 		inst.Stop(context.TODO())
 	}()
 
-	containerArgs := strings.Split(strings.TrimSpace(*args), "\n")
-
 	type ExitError struct{}
 	var run = func(cmd string, poweroff bool) (int, error) {
-		return _shellRun(inst, *networkFlag, true, containerArgs, poweroff, cmd)
+		return _shellRun(inst, *networkFlag, true, poweroff, cmd)
 	}
 	defer func() {
 		p := recover()

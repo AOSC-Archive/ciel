@@ -54,7 +54,6 @@ func shell() {
 	instName := flagInstance()
 	networkFlag := flagNetwork()
 	noBooting := flagNoBooting()
-	args := flagArgs()
 	parse()
 
 	if flag.NArg() > 1 {
@@ -69,14 +68,11 @@ func shell() {
 	inst := c.Instance(*instName)
 	inst.Mount()
 
-	containerArgs := strings.Split(strings.TrimSpace(*args), "\n")
-
 	if flag.NArg() == 0 {
 		exitStatus, err := _openShell(
 			inst,
 			*networkFlag,
 			!*noBooting,
-			containerArgs,
 		)
 		if err != nil {
 			log.Println(err)
@@ -87,7 +83,6 @@ func shell() {
 		inst,
 		*networkFlag,
 		!*noBooting,
-		containerArgs,
 		false,
 		flag.Arg(0),
 	)
@@ -102,7 +97,6 @@ func shellStop() {
 	instName := flagInstance()
 	networkFlag := flagNetwork()
 	noBooting := flagNoBooting()
-	args := flagArgs()
 	parse()
 
 	if flag.NArg() != 1 {
@@ -117,12 +111,10 @@ func shellStop() {
 	inst := c.Instance(*instName)
 	inst.Mount()
 
-	containerArgs := strings.Split(strings.TrimSpace(*args), "\n")
 	exitStatus, err := _shellRun(
 		inst,
 		*networkFlag,
 		!*noBooting,
-		containerArgs,
 		true,
 		flag.Arg(0),
 	)
@@ -137,7 +129,6 @@ func run() {
 	instName := flagInstance()
 	networkFlag := flagNetwork()
 	noBooting := flagNoBooting()
-	args := flagArgs()
 	parse()
 
 	i := &ciel.Ciel{BasePath: *basePath}
@@ -148,13 +139,13 @@ func run() {
 	inst := c.Instance(*instName)
 	inst.Mount()
 
-	containerArgs := strings.Split(strings.TrimSpace(*args), "\n")
+	ctnInfo := buildContainerInfo(!*noBooting, *networkFlag)
+	runInfo := buildRunInfo(flag.Args())
+
 	exitStatus, err := inst.Run(
 		context.TODO(),
-		!*noBooting,
-		*networkFlag,
-		containerArgs,
-		flag.Args()...,
+		ctnInfo,
+		runInfo,
 	)
 
 	if err != nil {
@@ -163,18 +154,19 @@ func run() {
 	os.Exit(exitStatus)
 }
 
-func _openShell(inst *instance.Instance, network bool, boot bool, containerArgs []string) (int, error) {
+func _openShell(inst *instance.Instance, network bool, boot bool) (int, error) {
 	inst.Mount()
 	rootShell, err := inst.Shell("root")
 	if err != nil {
 		return -1, err
 	}
+	ctnInfo := buildContainerInfo(boot, network)
+	runInfo := buildRunInfo([]string{rootShell})
+
 	exitStatus, err := inst.Run(
 		context.TODO(),
-		boot,
-		network,
-		containerArgs,
-		rootShell,
+		ctnInfo,
+		runInfo,
 	)
 	if err != nil {
 		return -1, err
@@ -182,7 +174,7 @@ func _openShell(inst *instance.Instance, network bool, boot bool, containerArgs 
 	return exitStatus, nil
 }
 
-func _shellRun(inst *instance.Instance, network bool, boot bool, containerArgs []string, with_poweroff bool, cmd string) (int, error) {
+func _shellRun(inst *instance.Instance, network bool, boot bool, with_poweroff bool, cmd string) (int, error) {
 	inst.Mount()
 	var args []string
 	rootShell, err := inst.Shell("root")
@@ -203,12 +195,12 @@ func _shellRun(inst *instance.Instance, network bool, boot bool, containerArgs [
 			rootShell,
 		}
 	}
+	ctnInfo := buildContainerInfo(boot, network)
+	runInfo := buildRunInfo(args)
 	exitStatus, err := inst.Run(
 		context.TODO(),
-		boot,
-		network,
-		containerArgs,
-		args...,
+		ctnInfo,
+		runInfo,
 	)
 	if with_poweroff {
 		exitStatusFile := path.Join(inst.MountPoint(), ".ciel-exit-status")

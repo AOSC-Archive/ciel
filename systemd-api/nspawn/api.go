@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"log"
 	"os"
 	"os/exec"
 	"strings"
@@ -27,40 +28,16 @@ func (e ErrCancelled) Error() string {
 	return "cancelled: " + e.reason
 }
 
-func SystemdNspawnRun(ctx context.Context, directory string, machineId string, args ...string) (int, error) {
-	a := []string{
-		"--quiet",
-		"-D", directory,
-	}
-	if machineId != "" {
-		a = append(a, "-M", machineId)
-	}
-	a = append(a, args...)
+func SystemdNspawnRun(ctx context.Context, machineId string, dir string, ctnInfo *ContainerInfo, runInfo *RunInfo) (int, error) {
+	a := nspawnArgs(machineId, dir, ctnInfo, runInfo)
 	cmd := exec.CommandContext(ctx, "systemd-nspawn", a...)
-	cmd.Stderr = os.Stderr
-	cmd.Stdout = os.Stdout
-	cmd.Stdin = os.Stdin
+	setCmdStdDev(cmd, runInfo.StdDev)
 
 	err := cmd.Run()
-	if exitErr, ok := err.(*exec.ExitError); ok {
-		return exitErr.Sys().(syscall.WaitStatus).ExitStatus(), nil
-	}
-	if err != nil {
-		return -1, err
-	}
-
-	return 0, nil
+	return unpackExecErr(err)
 }
-func SystemdNspawnBoot(ctx context.Context, directory string, machineId string, args ...string) (int, error) {
-	a := []string{
-		"--quiet",
-		"--boot",
-		"-D", directory,
-	}
-	if machineId != "" {
-		a = append(a, "-M", machineId)
-	}
-	a = append(a, args...)
+func SystemdNspawnBoot(ctx context.Context, machineId string, dir string, ctnInfo *ContainerInfo) error {
+	a := nspawnArgs(machineId, dir, ctnInfo, nil)
 	cmd := exec.CommandContext(ctx, "systemd-nspawn", a...)
 
 	var err error
@@ -75,41 +52,24 @@ func SystemdNspawnBoot(ctx context.Context, directory string, machineId string, 
 	}()
 	cancelled := waitUntilRunningOrDegraded(waitCtx, machineId)
 	if cancelled {
-		return -1, err
+		return err
 	}
-	return 0, nil
+	return nil
 }
 
-func SystemdRun(ctx context.Context, machineId string, args ...string) (int, error) {
-	a := []string{
-		"--quiet",
-		"--wait",
-		"--pty",
-		"--uid=root", // for login sessions
-		"-M", machineId,
-	}
-	a = append(a, args...)
+func SystemdRun(ctx context.Context, machineId string, runInfo *RunInfo) (int, error) {
+	a := runArgs(machineId, runInfo)
 	cmd := exec.CommandContext(ctx, "systemd-run", a...)
-	cmd.Stderr = os.Stderr
-	cmd.Stdout = os.Stdout
-	cmd.Stdin = os.Stdin
+	setCmdStdDev(cmd, runInfo.StdDev)
 
 	err := cmd.Run()
-
 	defer func() {
 		// shutting down...
 		if !MachineRunning(MachineStatus(ctx, machineId)) {
 			waitUntilShutdown(ctx, machineId)
 		}
 	}()
-
-	if exitErr, ok := err.(*exec.ExitError); ok {
-		return exitErr.Sys().(syscall.WaitStatus).ExitStatus(), nil
-	}
-	if err != nil {
-		return -1, err
-	}
-	return 0, nil
+	return unpackExecErr(err)
 }
 
 func MachinectlTerminate(ctx context.Context, machineId string) error {
@@ -151,4 +111,78 @@ func machinectlTerminate(ctx context.Context, machineId string) error {
 	} else {
 		return err
 	}
+}
+
+func nspawnArgs(machineId string, dir string, ctnInfo *ContainerInfo, runInfo *RunInfo) []string {
+	if machineId == "" {
+		log.Panicln("no machineId specified")
+	}
+
+	a := []string{
+		"--quiet",
+		"-D", dir,
+		"-M", machineId,
+	}
+
+	for _, v := range ctnInfo.Properties {
+		a = append(a, "--property="+v)
+	}
+
+	if ctnInfo.Init {
+		a = append(a, "--boot")
+	}
+	if ctnInfo.Network != nil {
+		netInfo := ctnInfo.Network
+		if netInfo.Zone != "" {
+			a = append(a, "--network-zone="+netInfo.Zone)
+		}
+	}
+
+	a = append(a, "--")
+
+	if ctnInfo.Init {
+		a = append(a, ctnInfo.InitArgs...)
+	} else {
+		a = append(a, runInfo.App)
+		a = append(a, runInfo.Args...)
+	}
+
+	return a
+}
+
+func runArgs(machineId string, runInfo *RunInfo) []string {
+	a := []string{
+		"--quiet",
+		"--wait",
+		"--pty",
+		"--uid=root", // for login sessions
+		"--send-sighup",
+		"-M", machineId,
+	}
+	a = append(a, "--")
+	a = append(a, runInfo.App)
+	a = append(a, runInfo.Args...)
+	return a
+}
+
+func setCmdStdDev(cmd *exec.Cmd, stdDev *StdDevInfo) {
+	if stdDev == nil {
+		cmd.Stdin = os.Stdin
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+	} else {
+		cmd.Stdin = stdDev.Stdin
+		cmd.Stdout = stdDev.Stdout
+		cmd.Stderr = stdDev.Stderr
+	}
+}
+
+func unpackExecErr(err error) (int, error) {
+	if exitErr, ok := err.(*exec.ExitError); ok {
+		return exitErr.Sys().(syscall.WaitStatus).ExitStatus(), nil
+	}
+	if err != nil {
+		return -1, err
+	}
+	return 0, nil
 }

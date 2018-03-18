@@ -3,6 +3,8 @@ package main
 import (
 	"flag"
 	"os"
+
+	"ciel/systemd-api/nspawn"
 )
 
 func flagCielDir() *string {
@@ -41,14 +43,6 @@ func saveNoBooting(noBooting bool) {
 	saveEnv("CIEL_BOOT", noBooting)
 }
 
-func flagArgs() *string {
-	containerArg := getEnv("CIEL_FLAGS", "")
-	return &containerArg
-}
-func saveArgs(args string) {
-	saveEnv("CIEL_FLAGS", args)
-}
-
 func flagBatch() *bool {
 	batch := getEnv("CIEL_BATCH_MODE", "false") == "true"
 	flag.BoolVar(&batch, "batch", batch, "do not ask; CIEL_BATCH_MODE")
@@ -76,4 +70,26 @@ func saveEnv(key string, value interface{}) {
 	case string:
 		os.Setenv(key, v)
 	}
+}
+
+func buildContainerInfo(boot bool, network bool) *nspawn.ContainerInfo {
+	ci := &nspawn.ContainerInfo{
+		Init: boot,
+	}
+	if network {
+		ci.Network = &nspawn.NetworkInfo{
+			Zone: "ciel",
+		}
+	}
+	return ci
+}
+
+func buildRunInfo(args []string) *nspawn.RunInfo {
+	ri := &nspawn.RunInfo{
+		App: args[0],
+	}
+	if len(args) > 1 {
+		ri.Args = args
+	}
+	return ri
 }

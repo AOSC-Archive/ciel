@@ -139,7 +139,7 @@ func (i *Instance) Mounted() bool {
 	return false
 }
 
-func (i *Instance) Run(ctx context.Context, boot bool, network bool, containerArgs []string, args ...string) (int, error) {
+func (i *Instance) Run(ctx context.Context, ctnInfo *nspawn.ContainerInfo, runInfo *nspawn.RunInfo) (int, error) {
 	defer RecoverTerminalAttr()
 	machineId := fmt.Sprintf("%s_%x", i.Name, ipc.GenFileKey(i.Parent.GetCiel().GetBasePath(), 0))
 
@@ -149,22 +149,19 @@ func (i *Instance) Run(ctx context.Context, boot bool, network bool, containerAr
 		return -1, ErrMode
 	}
 
-	var preferBoot bool
+	var boot bool
 
-	if boot && nspawn.IsBootable(i.MountPoint()) {
-		preferBoot = true
+	if ctnInfo.Init && nspawn.IsBootable(i.MountPoint()) {
+		boot = true
 	} else {
-		preferBoot = false
+		boot = false
 	}
 
-	if preferBoot {
+	if boot {
 		var err error
 		CriticalSection.Lock()
 		if !i.Running() {
-			if network {
-				containerArgs = append([]string{"--network-zone=ciel"}, containerArgs...)
-			}
-			_, err = nspawn.SystemdNspawnBoot(ctx, i.MountPoint(), machineId, containerArgs...)
+			err = nspawn.SystemdNspawnBoot(ctx, i.MountPoint(), machineId, ctnInfo)
 		}
 		CriticalSection.Unlock()
 		if !i.RunningAsBootMode() {
@@ -173,10 +170,9 @@ func (i *Instance) Run(ctx context.Context, boot bool, network bool, containerAr
 		if err != nil {
 			return -1, err
 		}
-		return nspawn.SystemdRun(ctx, machineId, args...)
+		return nspawn.SystemdRun(ctx, machineId, runInfo)
 	} else {
-		es, err := nspawn.SystemdNspawnRun(ctx, i.MountPoint(), machineId, args...)
-		return es, err
+		return nspawn.SystemdNspawnRun(ctx, i.MountPoint(), machineId, ctnInfo, runInfo)
 	}
 }
 

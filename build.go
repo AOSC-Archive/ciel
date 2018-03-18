@@ -7,7 +7,6 @@ import (
 	"os"
 	"os/exec"
 	"path"
-	"strings"
 	"syscall"
 
 	"ciel/display"
@@ -58,7 +57,6 @@ func build() {
 	instName := flagInstance()
 	networkFlag := flagNetwork()
 	noBooting := flagNoBooting()
-	containerArg := flagArgs()
 	parse()
 
 	i := &ciel.Ciel{BasePath: *basePath}
@@ -68,23 +66,23 @@ func build() {
 	inst := c.Instance(*instName)
 	inst.Mount()
 
-	containerArgs := strings.Split(strings.TrimSpace(*containerArg), "\n")
-
-	shell, err := inst.Shell("root")
+	rootShell, err := inst.Shell("root")
 	if err != nil {
 		log.Fatal(err)
 	}
 	args := []string{
-		shell,
+		rootShell,
 		"--login",
 		"-c", `acbs-build "` + flag.Arg(0) + `"`,
 	}
 
-	exitStatus, err := inst.Run(context.Background(),
-		!*noBooting,
-		*networkFlag,
-		containerArgs,
-		args...,
+	ctnInfo := buildContainerInfo(!*noBooting, *networkFlag)
+	runInfo := buildRunInfo(args)
+
+	exitStatus, err := inst.Run(
+		context.Background(),
+		ctnInfo,
+		runInfo,
 	)
 	if err != nil {
 		log.Fatalln(err)
