@@ -143,7 +143,7 @@ func (i *Instance) Run(ctx context.Context, ctnInfo *nspawn.ContainerInfo, runIn
 	defer RecoverTerminalAttr()
 	machineId := fmt.Sprintf("%s_%x", i.Name, ipc.GenFileKey(i.Parent.GetCiel().GetBasePath(), 0))
 
-	CriticalSection := ipc.NewMutex(i.MountPoint(), SemIdBootMutex, true)
+	CriticalSection := ipc.NewMutex(i.Dir(), SemIdBootMutex, true)
 
 	if i.RunningAsExcludedMode() {
 		return -1, ErrMode
@@ -259,7 +259,7 @@ func (i *Instance) MachineId() string {
 }
 
 func (i *Instance) FileSystemLock() ipc.Mutex {
-	return ipc.NewMutex(i.MountPoint(), SemIdFileSystemMutex, true)
+	return ipc.NewMutex(i.Dir(), SemIdFileSystemMutex, true)
 }
 
 func (i *Instance) Shell(user string) (string, error) {
