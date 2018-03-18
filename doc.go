@@ -18,7 +18,7 @@ func docHelp() {
 	ciel shell -i INSTANCE "SHELL COMMAND LINE"
 	ciel config -i INSTANCE        // configure toolchain for building (interactively)
 	ciel build -i INSTANCE PACKAGE
-	ciel rollback -i INSTANCE 
+	ciel rollback -i INSTANCE
 
 Rarely used:
 	ciel mount [-i INSTANCE]   // mount all or one instance
@@ -29,6 +29,7 @@ Rarely used:
 	ciel shell-with-poweroff -i INSTANCE "SHELL COMMAND LINE"
 	                  // similar to 'shell' and additionally poweroff after executing command line,
 	                  // may be useful for updating critical system components (dbus, systemd, etc.)
+	                  // which may break the connection between container and host
 	ciel run -i INSTANCE ABSPATH_TO_EXE ARG1 ARG2 ...
 	                  // lower-level version of 'shell', without login environment,
 	                  // without sourcing ~/.bash_profile
