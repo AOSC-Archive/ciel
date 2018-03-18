@@ -1,5 +1,8 @@
 #!/bin/bash
-# Usage: ciel-gen <recipe>, one recipe at a time.
+# Usage: ciel-generate <recipe>, one recipe at a time.
+
+export CIEL_INST="__generate__"
+export CIEL_BATCH_MODE="true"
 
 # Determine architecture of build host.
 BUILD_ARCH="$(dpkg-architecture -qDEB_BUILD_ARCH)"
@@ -126,24 +129,19 @@ XFCE_RECIPE="${BASE_RECIPE} ${DESKTOP_RECIPE} xfce-base xfce-distro-base ibus-ba
 
 # Common functions.
 _recipe_post() {
-	# Clean up.
-	ciel merge-cache
-	ciel clean --factory-reset
-	ciel merge dist /
+	ciel factory-reset
+	ciel commit
+	ciel del $CIEL_INST
 }
 
 _recipe_pre_install() {
-	ciel ~update
-	ciel shell "apt update --yes"
+	ciel add $CIEL_INST
+	ciel update-os
 	ciel shell "apt -o Dpkg::Options::=\"--force-confnew\" install --yes ${PREREQ_RECIPE}"
-	ciel merge-cache
-	ciel clean --factory-reset
-	ciel merge dist /
 }
 
 # Recipe-specific functions.
 _recipe_install() {
-	ciel shell "apt update --yes"
 	ciel shell "apt -o Dpkg::Options::=\"--force-confnew\" install --yes ${!CALCULATED_RECIPE}"
 	ciel shell "apt autoremove --purge --yes"
 }
@@ -160,7 +158,6 @@ _recipe_base_config() {
 }
 _recipe_sunxi-base_pre_install() {
 	ciel shell "echo deb https://repo.aosc.io/os-armel/sunxi/os3-dpkg / > /etc/apt/sources.list.d/sunxi.list"
-	ciel merge dist /
 }
 _recipe_sunxi-base_config(){
 	# FIXME: preset.
@@ -174,7 +171,6 @@ _recipe_sunxi-base_config(){
 }
 _recipe_sunxi64-base_pre_install() {
 	ciel shell "echo deb https://repo.aosc.io/os-arm64/sunxi/os3-dpkg / > /etc/apt/sources.list.d/sunxi64.list"
-	ciel merge dist /
 }
 _recipe_sunxi64-base_config(){
 	# FIXME: preset.

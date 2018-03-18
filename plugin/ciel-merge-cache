@@ -1,4 +1,0 @@
-#!/bin/bash
-# Merge APT caches: packages and catalogues.
-ciel merge cache /var/lib/apt
-ciel merge cache /var/cache/apt

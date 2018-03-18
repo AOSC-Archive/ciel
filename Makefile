@@ -1,39 +1,60 @@
-PREFIX:=/usr
-PLGDIR:=$(PREFIX)/libexec/ciel-plugin
-BINDIR:=$(PREFIX)/bin
-ARCHS:=amd64 386 arm64 arm mips64le mipsle ppc64 # no powerpc 32 yet
+PREFIX:=/usr/local
+CC:=/bin/cc
+CXX:=/bin/c++
 
-all: ciel
+VERSION=$(shell git describe --tags)
+SRCDIR=$(shell pwd)
 
-src/ciel/version.go:
-	echo "package main" > src/ciel/version.go
-	echo >> src/ciel/version.go
-	echo -n "const Version = \"" >> src/ciel/version.go
-	echo -n $$(git describe --abbrev=0 --tags)-$$(( $$(git rev-list --count HEAD) - $$(git rev-list --count $$(git describe --abbrev=0 --tags)) ))+$$(git rev-parse --short HEAD) >> src/ciel/version.go
-	echo -n "\"" >> src/ciel/version.go
+export GOPATH=$(SRCDIR)/workdir
+export CC
+export CXX
 
-ciel: src/ciel/version.go
-	GOPATH="$$PWD" go build ciel
+GOSRC=$(GOPATH)/src
+GOBIN=$(GOPATH)/bin
+CIELPATH=$(GOSRC)/ciel
 
-test-cross: src/ciel/version.go
-	for arch in $(ARCHS); \
-	do \
-		echo "Cross compiling ciel for Linux/$$arch ..."; \
-		GOPATH="$$PWD" GOOS="linux" GOARCH="$$arch" go build -o /tmp/ciel-$$arch ciel; \
-	done
+DISTDIR=$(SRCDIR)/instdir
+GLIDE=$(GOBIN)/glide
 
-test: ciel
-	GOPATH="$$PWD" go test ciel
-	GOPATH="$$PWD" go test ciel-driver
+all: build
 
-install: ciel
-	mkdir -pm755 $(BINDIR)
-	install -Dm755 ciel $(BINDIR)
-	mkdir -pm755 $(PLGDIR)
-	install -Dm755 ./plugin/* $(PLGDIR)
+$(CIELPATH):
+	mkdir -p $(DISTDIR)/bin
+	mkdir -p $(DISTDIR)/libexec/ciel-plugin
+	mkdir -p $(GOSRC)
+	mkdir -p $(GOBIN)
+	ln -f -s -T $(SRCDIR) $(CIELPATH)
+
+$(GLIDE):
+	curl -\# https://glide.sh/get | PATH=$(GOBIN):$(PATH) sh
+
+deps: $(CIELPATH) $(GLIDE) $(SRCDIR)/glide.yaml
+	cd $(CIELPATH)
+	$(GLIDE) install
+	cd $(SRCDIR)
+
+config:
+	cp $(SRCDIR)/_config.go $(SRCDIR)/config.go
+	sed 's,__VERSION__,$(VERSION),g' -i $(SRCDIR)/config.go
+	sed 's,__PREFIX__,$(PREFIX),g' -i $(SRCDIR)/config.go
+
+$(DISTDIR)/bin/ciel: deps config
+	export CC
+	export CXX
+	go build -o $@ ciel
+
+plugin: plugin/*
+	cp -fR $^ $(DISTDIR)/libexec/ciel-plugin
+
+build: $(DISTDIR)/bin/ciel plugin
 
 clean:
-	rm -f ciel
-	rm -f src/ciel/version.go
+	rm -rf $(GOPATH)
+	rm -rf $(DISTDIR)
+	rm -rf $(SRCDIR)/vendor
+	git clean -f -d $(SRCDIR)
 
-.PHONY: all test-cross test install clean
+install:
+	cp -R $(DISTDIR)/* $(PREFIX)
+
+.PHONY: all deps config build plugin install clean

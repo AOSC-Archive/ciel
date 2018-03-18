@@ -1,7 +1,9 @@
 package main
 
 import (
+	"flag"
 	"io/ioutil"
+	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -10,6 +12,7 @@ import (
 )
 
 const (
+	LibExecDir   = Prefix + "/libexec"
 	PluginDir    = LibExecDir + "/ciel-plugin"
 	PluginPrefix = "ciel-"
 )
@@ -21,19 +24,32 @@ type Plugin struct {
 	Usage string
 }
 
-func cielPlugin() int {
-	proc := filepath.Join(PluginDir, PluginPrefix+SubCommand)
-	cmd := exec.Command(proc, SubArgs...)
+func plugin(subCmd string) int {
+	basePath := flagCielDir()
+	instName := flagInstance()
+	networkFlag := flagNetwork()
+	noBooting := flagNoBooting()
+	batchFlag := flagBatch()
+	parse()
+	saveCielDir(*basePath)
+	saveInstance(*instName)
+	saveNetwork(*networkFlag)
+	saveNoBooting(*noBooting)
+	saveBatch(*batchFlag)
+
+	proc := filepath.Join(PluginDir, PluginPrefix+subCmd)
+	cmd := exec.Command(proc, flag.Args()...)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	err := cmd.Run()
+
 	if err != nil {
 		if exitError, ok := err.(*exec.ExitError); ok {
 			exitStatus := exitError.Sys().(syscall.WaitStatus)
 			return exitStatus.ExitStatus()
 		}
-		errlog.Printf("failed to run plugin %s: %v\n", SubCommand, err)
+		log.Printf("failed to run plugin %s: %v\n", subCmd, err)
 		return 1
 	}
 	return 0
@@ -43,7 +59,7 @@ func getPlugins() []Plugin {
 	var Plugins []Plugin
 	files, err := ioutil.ReadDir(PluginDir)
 	if err != nil {
-		errlog.Fatalf("failed to get files under plugin directory: %v\n", err)
+		log.Fatalf("failed to get files under plugin directory: %v\n", err)
 	}
 	for _, f := range files {
 		if f.IsDir() {
