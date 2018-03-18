@@ -161,18 +161,18 @@ func (i *Instance) Run(ctx context.Context, ctnInfo *nspawn.ContainerInfo, runIn
 		var err error
 		CriticalSection.Lock()
 		if !i.Running() {
-			err = nspawn.SystemdNspawnBoot(ctx, i.MountPoint(), machineId, ctnInfo)
+			err = nspawn.SystemdNspawnBoot(ctx, machineId, i.MountPoint(), ctnInfo)
 		}
 		CriticalSection.Unlock()
-		if !i.RunningAsBootMode() {
-			return -1, ErrMode
-		}
 		if err != nil {
 			return -1, err
 		}
+		if !i.RunningAsBootMode() {
+			return -1, ErrMode
+		}
 		return nspawn.SystemdRun(ctx, machineId, runInfo)
 	} else {
-		return nspawn.SystemdNspawnRun(ctx, i.MountPoint(), machineId, ctnInfo, runInfo)
+		return nspawn.SystemdNspawnRun(ctx, machineId, i.MountPoint(), ctnInfo, runInfo)
 	}
 }
 
