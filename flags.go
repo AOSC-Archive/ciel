@@ -89,7 +89,7 @@ func buildRunInfo(args []string) *nspawn.RunInfo {
 		App: args[0],
 	}
 	if len(args) > 1 {
-		ri.Args = args
+		ri.Args = args[1:]
 	}
 	return ri
 }
