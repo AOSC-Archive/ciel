@@ -185,8 +185,8 @@ func update() {
 	}()
 
 	type ExitError struct{}
-	var run = func(cmd string, poweroff bool) (int, error) {
-		return _shellRun(inst, *networkFlag, true, poweroff, cmd)
+	var run = func(cmd string) (int, error) {
+		return _shellRun(inst, *networkFlag, true, cmd)
 	}
 	defer func() {
 		p := recover()
@@ -203,21 +203,21 @@ func update() {
 		}
 	}()
 
-	exitStatus, runErr = run(`apt update --yes`, false)
+	exitStatus, runErr = run(`apt update --yes`)
 	d.ITEM("update database")
 	if runErr != nil || exitStatus != 0 {
 		panic(ExitError{})
 	}
 	d.OK()
 
-	exitStatus, runErr = run(`apt -o Dpkg::Options::="--force-confnew" full-upgrade --yes`, true)
+	exitStatus, runErr = run(`apt -o Dpkg::Options::="--force-confnew" full-upgrade --yes`)
 	d.ITEM("update packages")
 	if runErr != nil || exitStatus != 0 {
 		panic(ExitError{})
 	}
 	d.OK()
 
-	exitStatus, runErr = run(`apt autoremove --purge --yes`, true)
+	exitStatus, runErr = run(`apt autoremove --purge --yes`)
 	d.ITEM("auto-remove packages")
 	if runErr != nil || exitStatus != 0 {
 		panic(ExitError{})

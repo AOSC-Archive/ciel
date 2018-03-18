@@ -26,10 +26,6 @@ Rarely used:
 	ciel stop -i INSTANCE      // shutdown an instance
 	ciel factory-reset -i INSTACE // delete all out-of-dpkg files in an instance
 	ciel commit -i INSTANCE    // commit the change onto the underlying OS image
-	ciel shell-with-poweroff -i INSTANCE "SHELL COMMAND LINE"
-	                  // similar to 'shell' and additionally poweroff after executing command line,
-	                  // may be useful for updating critical system components (dbus, systemd, etc.)
-	                  // which may break the connection between container and host
 	ciel run -i INSTANCE ABSPATH_TO_EXE ARG1 ARG2 ...
 	                  // lower-level version of 'shell', without login environment,
 	                  // without sourcing ~/.bash_profile

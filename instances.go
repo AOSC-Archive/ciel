@@ -86,39 +86,6 @@ func shell() {
 		inst,
 		*networkFlag,
 		!*noBooting,
-		false,
-		flag.Arg(0),
-	)
-	if err != nil {
-		log.Println(err)
-	}
-	os.Exit(exitStatus)
-}
-
-func shellStop() {
-	basePath := flagCielDir()
-	instName := flagInstance()
-	networkFlag := flagNetwork()
-	noBooting := flagNoBooting()
-	parse()
-
-	if flag.NArg() != 1 {
-		log.Fatalln("you must pass one argument only")
-	}
-
-	i := &ciel.Ciel{BasePath: *basePath}
-	i.Check()
-	c := i.Container()
-	c.CheckInst(*instName)
-
-	inst := c.Instance(*instName)
-	inst.Mount()
-
-	exitStatus, err := _shellRun(
-		inst,
-		*networkFlag,
-		!*noBooting,
-		true,
 		flag.Arg(0),
 	)
 	if err != nil {
@@ -177,7 +144,7 @@ func _openShell(inst *instance.Instance, network bool, boot bool) (int, error) {
 	return exitStatus, nil
 }
 
-func _shellRun(inst *instance.Instance, network bool, boot bool, with_poweroff bool, cmd string) (int, error) {
+func _shellRun(inst *instance.Instance, network bool, boot bool, cmd string) (int, error) {
 	inst.Mount()
 	var args []string
 	rootShell, err := inst.Shell("root")
@@ -185,9 +152,7 @@ func _shellRun(inst *instance.Instance, network bool, boot bool, with_poweroff b
 		return -1, err
 	}
 	if cmd != "" {
-		if with_poweroff {
-			cmd += "; echo $?>/.ciel-exit-status; poweroff"
-		}
+		cmd += "; echo $?>/.ciel-exit-status"
 		args = []string{
 			rootShell,
 			"--login",
@@ -205,25 +170,26 @@ func _shellRun(inst *instance.Instance, network bool, boot bool, with_poweroff b
 		ctnInfo,
 		runInfo,
 	)
-	if with_poweroff {
-		exitStatusFile := path.Join(inst.MountPoint(), ".ciel-exit-status")
-		if b, err := ioutil.ReadFile(exitStatusFile); err == nil {
-			if realExitStatus, err := strconv.Atoi(strings.TrimSpace(string(b))); err == nil {
-				os.Remove(exitStatusFile)
-				return realExitStatus, nil
-			} else {
-				log.Println(err)
-				return exitStatus, nil
-			}
+	exitStatusFile := path.Join(inst.MountPoint(), ".ciel-exit-status")
+	if b, err := ioutil.ReadFile(exitStatusFile); err == nil {
+		os.Remove(exitStatusFile)
+		if realExitStatus, err := strconv.Atoi(strings.TrimSpace(string(b))); err == nil {
+			return realExitStatus, nil
 		} else {
 			log.Println(err)
 			return exitStatus, nil
 		}
+	} else {
+		if os.IsNotExist(err) {
+			log.Println("session was accidentally terminated")
+		} else {
+			log.Println(err)
+		}
+		if exitStatus == 0 {
+			exitStatus = 1
+		}
+		return exitStatus, nil
 	}
-	if err != nil {
-		return -1, err
-	}
-	return exitStatus, nil
 }
 
 func stop() {
