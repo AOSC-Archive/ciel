@@ -20,6 +20,9 @@ func add() {
 	parse()
 	instName := flag.Arg(0)
 
+	if instName == "" {
+		log.Fatalln("give me a name for the new instance")
+	}
 	if strings.Contains(instName, " ") {
 		log.Fatalln("do not contain white space")
 	}
