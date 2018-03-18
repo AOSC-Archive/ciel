@@ -1,7 +1,8 @@
 #!/bin/bash
 # Usage: ciel-gen <recipe>, one recipe at a time.
 
-CIEL_INST="__generate__"
+export CIEL_INST="__generate__"
+export CIEL_BATCH_MODE="true"
 
 # Determine architecture of build host.
 BUILD_ARCH="$(dpkg-architecture -qDEB_BUILD_ARCH)"
@@ -128,7 +129,7 @@ XFCE_RECIPE="${BASE_RECIPE} ${DESKTOP_RECIPE} xfce-base xfce-distro-base ibus-ba
 
 # Common functions.
 _recipe_post() {
-	# TODO: Clean up.
+	ciel factory-reset
 	ciel commit
 	ciel del $CIEL_INST
 }
