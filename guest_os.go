@@ -369,7 +369,11 @@ func dpkgPackages(i *instance.Instance) []string {
 		log.Println(err)
 		return nil
 	}
-	return strings.Split(strings.TrimSpace(stdout.String()), "\n")
+	pkgList := strings.Split(strings.TrimSpace(stdout.String()), "\n")
+	for i := range pkgList {
+		pkgList[i] = strings.TrimSpace(pkgList[i])
+	}
+	return pkgList
 }
 
 func dpkgPackageFiles(i *instance.Instance, packages []string) map[string]bool {
@@ -396,6 +400,7 @@ func dpkgPackageFiles(i *instance.Instance, packages []string) map[string]bool {
 	dataSet := strings.Split(stdout.String(), "\n")
 	root := i.MountPoint()
 	for _, record := range dataSet {
+		record = strings.TrimSpace(record)
 		if len(record) == 0 {
 			continue
 		}
