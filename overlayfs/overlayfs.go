@@ -1,6 +1,7 @@
 package overlayfs
 
 import (
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -80,22 +81,18 @@ func (i *Instance) Rollback() error {
 	dir := layers[len(layers)-1]
 	d.Println(d.C(d.WHITE, dir))
 
-	d.ITEM("remove diff dir")
-	err := os.RemoveAll(dir)
+	d.ITEM("clean diff dir")
+	fi, err := ioutil.ReadDir(dir)
 	if err == nil {
-		d.OK()
+		for _, f := range fi {
+			err = os.RemoveAll(filepath.Join(dir, f.Name()))
+		}
+		d.ERR(err)
 	} else if os.IsNotExist(err) {
 		d.SKIPPED()
 	} else {
 		d.FAILED_BECAUSE(err.Error())
 		return err
 	}
-
-	d.ITEM("re-create diff dir")
-	if err := os.Mkdir(dir, 0755); err != nil {
-		d.FAILED_BECAUSE(err.Error())
-		return err
-	}
-	d.OK()
 	return nil
 }
