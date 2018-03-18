@@ -11,7 +11,12 @@ int get_sem_stat(int semid, struct semid_ds *buf) {
 	return semctl(semid, 0, IPC_STAT, buf);
 }
 int init_sem(int semid, int val) {
-	return semctl(semid, 0, SETVAL, val);
+	if (semctl(semid, 0, SETVAL, val-1) == -1) return -1;
+	struct sembuf sop;
+	sop.sem_num = 0;
+	sop.sem_op = 1;
+	sop.sem_flg = 0;
+	return semop(semid, &sop, 1);
 }
 int op_sem(int semid, int op, int flag) {
 	struct sembuf sop;
@@ -48,15 +53,23 @@ import "C"
 
 import (
 	"log"
-	"runtime"
 	"syscall"
+	"time"
 	"unsafe"
+)
+
+const (
+	BusyWaitTimeout = time.Millisecond * 500
 )
 
 func GenFileKey(pathName string, projectId int) C.key_t {
 	c := C.CString(pathName)
 	defer C.free(unsafe.Pointer(c))
-	return C.ftok(c, C.int(projectId))
+	r, err := C.ftok(c, C.int(projectId))
+	if err != nil {
+		log.Panicln("ftok:", pathName, projectId, err)
+	}
+	return r
 }
 
 type Semaphore C.int
@@ -71,16 +84,27 @@ func NewSemaphore(pathName string, projectId int, initVal int) Semaphore {
 		}
 	} else if err == syscall.EEXIST {
 		semId, err = C.semget(semKey, 1, 0600)
+		if err != nil {
+			log.Fatalln(err)
+		}
 		var sds C.struct_semid_ds
-		runtime.LockOSThread()
+		var timeout = time.After(BusyWaitTimeout)
 		for sds.sem_otime == 0 {
-			C.sched_yield()
-			_, err = C.get_sem_stat(semId, &sds)
-			if err != nil {
-				log.Fatalln(err)
+			select {
+			case <-timeout:
+				_, err = C.init_sem(semId, C.int(initVal))
+				log.Println("busywait: timeout", pathName, projectId)
+				if err != nil {
+					log.Fatalln(err)
+				}
+			default:
+				C.sched_yield()
+				_, err = C.get_sem_stat(semId, &sds)
+				if err != nil {
+					log.Fatalln(err)
+				}
 			}
 		}
-		runtime.UnlockOSThread()
 	} else {
 		log.Fatalln(err)
 	}
