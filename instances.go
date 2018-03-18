@@ -152,7 +152,7 @@ func _shellRun(inst *instance.Instance, network bool, boot bool, cmd string) (in
 		return -1, err
 	}
 	if cmd != "" {
-		cmd = "stty -onlcr; " + cmd + "; echo $?>/.ciel-exit-status"
+		cmd = cmd + "; echo $?>/.ciel-exit-status"
 		args = []string{
 			rootShell,
 			"--login",
