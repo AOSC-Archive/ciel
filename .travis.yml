@@ -1,0 +1,17 @@
+language: go
+sudo: required
+go:
+  - 1.7.6
+  - 1.10
+  - tip
+os:
+  - linux
+matrix:
+  allow_failures:
+    - go: tip
+  fast_finish: true
+script:
+  - make
+  - sudo make install
+  - ciel version
+  - ciel help
