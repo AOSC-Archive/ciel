@@ -4,8 +4,9 @@ import "fmt"
 
 func docHelp() {
 	fmt.Print(`Usage:
+	ciel version
 	ciel init
-	ciel load-os [TAR_FILE]    // unpack OS tarball or fetch the latest from internet directly
+	ciel load-os [TAR_FILE]    // unpack OS tarball or fetch the latest BuildKit from internet directly
 	ciel load-tree [GIT_URL]   // clone package tree from your link or AOSC OS ABBS at GitHub
 
 	ciel update-os      // similar to 'apt update && apt full-upgrade'
@@ -34,7 +35,6 @@ Rarely used:
 Altering OS & Releasing OS:
 	ciel load-os
 	ciel update-os  // see above
-
 	ciel generate
 	             // (plugin) install packages and set up enviorment by RECIPE
 	ciel factory-reset -i INSTACE
