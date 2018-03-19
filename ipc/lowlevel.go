@@ -18,6 +18,9 @@ int init_sem(int semid, int val) {
 	sop.sem_flg = 0;
 	return semop(semid, &sop, 1);
 }
+int remove_sem(int semid) {
+	return semctl(semid, 0, IPC_RMID);
+}
 int op_sem(int semid, int op, int flag) {
 	struct sembuf sop;
 	sop.sem_num = 0;
@@ -122,6 +125,10 @@ func (s Semaphore) TryWaitHold() bool {
 	_, err := C.try_wait_sem(C.int(s))
 	return err == nil
 }
+func (s Semaphore) Remove() error {
+	_, err := C.remove_sem(C.int(s))
+	return err
+}
 
 type Mutex struct {
 	s    Semaphore
@@ -151,4 +158,7 @@ func (m Mutex) TryLock() bool {
 	} else {
 		return m.s.TryWait()
 	}
+}
+func (m Mutex) Remove() error {
+	return m.s.Remove()
 }

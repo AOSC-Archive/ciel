@@ -52,6 +52,8 @@ func (i *Container) AddInst(name string) error {
 	return i.Instance(name).Init()
 }
 func (i *Container) DelInst(name string) error {
+	i.Instance(name).RunLock().Remove()
+	i.Instance(name).FileSystemLock().Remove()
 	return os.RemoveAll(path.Join(i.InstDir(), name))
 }
 

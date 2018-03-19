@@ -23,8 +23,8 @@ import (
 
 const (
 	LayerDirName         = "layers"
-	SemIdFileSystemMutex = 101
-	SemIdBootMutex       = 1
+	SemIdFileSystemMutex = 0x11
+	SemIdRunMutex        = 0x22
 )
 
 var (
@@ -143,7 +143,7 @@ func (i *Instance) Run(ctx context.Context, ctnInfo *nspawn.ContainerInfo, runIn
 	defer RecoverTerminalAttr()
 	machineId := fmt.Sprintf("%s_%x", i.Name, ipc.GenFileKey(i.Parent.GetCiel().GetBasePath(), 0))
 
-	CriticalSection := ipc.NewMutex(i.Dir(), SemIdBootMutex, true)
+	CriticalSection := i.RunLock()
 
 	if i.RunningAsExcludedMode() {
 		return -1, ErrMode
@@ -263,6 +263,10 @@ func (i *Instance) MachineId() string {
 
 func (i *Instance) FileSystemLock() ipc.Mutex {
 	return ipc.NewMutex(i.Dir(), SemIdFileSystemMutex, true)
+}
+
+func (i *Instance) RunLock() ipc.Mutex {
+	return ipc.NewMutex(i.Dir(), SemIdRunMutex, true)
 }
 
 func (i *Instance) Shell(user string) (string, error) {
