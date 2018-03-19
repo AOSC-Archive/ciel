@@ -110,7 +110,7 @@ func untarGuestOS() {
 		d.Println(d.C(d.CYAN, "YES"))
 	}
 
-	d.ITEM("untar os")
+	d.ITEM("unpacking os...")
 	cmd := exec.Command("tar", "-xpf", tar, "-C", c.DistDir())
 	output, err := cmd.CombinedOutput()
 	if err != nil {
