@@ -48,5 +48,6 @@ Global flags:
 	-C CIEL_DIR    // use CIEL_DIR as workdir instead of current directory
 	-i INSTANCE    // specify the INSTANCE to manipulate
 	-batch         // batch mode, no input is required
+	-n             // do not start 'init' (systemd)
 `)
 }

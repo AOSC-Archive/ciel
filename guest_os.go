@@ -227,8 +227,6 @@ func update() {
 	d.ITEM("merge changes")
 	err := inst.FileSystem().Merge()
 	d.ERR(err)
-
-	// TODO: clean
 }
 
 func factoryReset() {
