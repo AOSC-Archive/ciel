@@ -1,6 +1,6 @@
 PREFIX:=/usr/local
-CC:=/bin/cc
-CXX:=/bin/c++
+CC:=/usr/bin/cc
+CXX:=/usr/bin/c++
 
 VERSION=$(shell git describe --tags)
 SRCDIR=$(shell pwd)
