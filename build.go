@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"path"
+	"strings"
 	"syscall"
 
 	"ciel/display"
@@ -78,7 +79,8 @@ func build() {
 	args := []string{
 		rootShell,
 		"--login",
-		"-c", `acbs-build "` + flag.Arg(0) + `"`,
+		"-c", `acbs-build "` + strings.Join(flag.Args, " ") + `"`,
+		// FIXME: 'strict mode' -- only one package, require Local DEB Repository
 	}
 
 	ctnInfo := buildContainerInfo(!*noBooting, *networkFlag)
