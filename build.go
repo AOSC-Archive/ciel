@@ -12,6 +12,7 @@ import (
 
 	"ciel/display"
 	"ciel/internal/ciel"
+	"ciel/internal/container/instance"
 	"ciel/internal/packaging"
 	"ciel/internal/pkgtree"
 )
@@ -20,41 +21,52 @@ func buildConfig() {
 	basePath := flagCielDir()
 	instName := flagInstance()
 	batch := flagBatch()
+	var global = false
+	flag.BoolVar(&global, "g", global, "global, configure for underlying OS")
 	parse()
 
 	i := &ciel.Ciel{BasePath: *basePath}
 	i.Check()
 	c := i.Container()
-	c.CheckInst(*instName)
 
-	inst := c.Instance(*instName)
-	inst.Unmount()
-	inst.MountLocal()
-	defer func() {
+	var inst *instance.Instance
+
+	if !global {
+		c.CheckInst(*instName)
+		inst = c.Instance(*instName)
 		inst.Unmount()
-	}()
+		inst.MountLocal()
+		defer func() {
+			inst.Unmount()
+		}()
 
-	tc := packaging.DetectToolChain(inst)
-	if tc.ACBS {
-		packaging.SetTreePath(inst, pkgtree.TreePath)
-	}
-
-	var person string
-	if tc.AB {
-		if !*batch {
-			for person == "" {
-				person = d.ASK("Maintainer Info", "Foo Bar <myname@example.com>")
-			}
-		} else {
-			person = "Bot <discussions@lists.aosc.io>"
+		tc := packaging.DetectToolChain(inst)
+		if tc.ACBS {
+			packaging.SetTreePath(inst, pkgtree.TreePath)
 		}
-		packaging.SetMaintainer(inst, person)
+
+		var person string
+		if tc.AB {
+			if !*batch {
+				for person == "" {
+					person = d.ASK("Maintainer Info", "Foo Bar <myname@example.com>")
+				}
+			} else {
+				person = "Bot <discussions@lists.aosc.io>"
+			}
+			packaging.SetMaintainer(inst, person)
+		}
+		if *batch || d.ASKLower("Would you like to disable DNSSEC feature?", "yes/no") == "yes" {
+			packaging.DisableDNSSEC(inst)
+		}
 	}
-	if *batch || d.ASKLower("Would you like to disable DNSSEC feature?", "yes/no") == "yes" {
-		packaging.DisableDNSSEC(inst)
+
+	suffix := " of UNDERLYING OS"
+	if !global {
+		suffix = ""
 	}
-	if !*batch && d.ASKLower("Would you like to edit sources.list of UNDERLYING OS?", "yes/no") == "yes" {
-		packaging.EditSourceList(inst)
+	if !*batch && d.ASKLower("Would you like to edit sources.list"+suffix+"?", "yes/no") == "yes" {
+		packaging.EditSourceList(global, inst, c)
 	}
 }
 

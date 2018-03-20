@@ -14,8 +14,13 @@ const (
 	DefaultEditor = "/usr/bin/editor"
 )
 
-func EditSourceList(i abstract.Instance) {
-	root := i.GetContainer().DistDir()
+func EditSourceList(global bool, i abstract.Instance, c abstract.Container) {
+	var root string
+	if global {
+		root = c.DistDir()
+	} else {
+		root = i.MountPoint()
+	}
 	editor := editor()
 	cmd := exec.Command(editor, path.Join(root, "/etc/apt/sources.list"))
 	cmd.Stdin = os.Stdin
