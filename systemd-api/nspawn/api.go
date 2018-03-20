@@ -84,6 +84,7 @@ func MachinectlShell(ctx context.Context, machineId string, runInfo *RunInfo) (i
 			waitUntilShutdown(ctx, machineId)
 		}
 	}()
+	// FIXME: machinectl shell cannot return the exit status of executable
 	return unpackExecErr(err)
 }
 
