@@ -13,12 +13,19 @@ const (
 	ACBSPath = "/usr/bin/acbs-build"
 )
 
-func DetectToolChain(i abstract.Instance) {
+type ToolChain struct {
+	AB   bool
+	ACBS bool
+}
+
+func DetectToolChain(i abstract.Instance) *ToolChain {
 	root := i.MountPoint()
+	tc := &ToolChain{}
 	d.ITEM("detect autobuild3")
-	exists(root, AB3Path)
+	tc.AB = exists(root, AB3Path)
 	d.ITEM("detect acbs")
-	exists(root, ACBSPath)
+	tc.ACBS = exists(root, ACBSPath)
+	return tc
 }
 
 func exists(root, target string) bool {

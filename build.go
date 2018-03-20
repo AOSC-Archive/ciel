@@ -33,17 +33,22 @@ func buildConfig() {
 		inst.Unmount()
 	}()
 
-	packaging.DetectToolChain(inst)
-	packaging.SetTreePath(inst, pkgtree.TreePath)
-	var person string
-	if !*batch {
-		for person == "" {
-			person = d.ASK("Maintainer Info", "Foo Bar <myname@example.com>")
-		}
-	} else {
-		person = "Bot <discussions@lists.aosc.io>"
+	tc := packaging.DetectToolChain(inst)
+	if tc.ACBS {
+		packaging.SetTreePath(inst, pkgtree.TreePath)
 	}
-	packaging.SetMaintainer(inst, person)
+
+	var person string
+	if tc.AB {
+		if !*batch {
+			for person == "" {
+				person = d.ASK("Maintainer Info", "Foo Bar <myname@example.com>")
+			}
+		} else {
+			person = "Bot <discussions@lists.aosc.io>"
+		}
+		packaging.SetMaintainer(inst, person)
+	}
 	if *batch || d.ASKLower("Would you like to disable DNSSEC feature?", "yes/no") == "yes" {
 		packaging.DisableDNSSEC(inst)
 	}
