@@ -116,7 +116,7 @@ func farewell() {
 	i.Check()
 	c := i.Container()
 
-	if !*batchFlag && d.ASK("DELETE ALL CIEL THINGS?", "yes/no") != "yes" {
+	if !*batchFlag && d.ASKLower("DELETE ALL CIEL THINGS?", "yes/no") != "yes" {
 		os.Exit(1)
 	}
 

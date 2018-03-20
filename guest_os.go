@@ -64,7 +64,7 @@ func untarGuestOS() {
 
 	if instList := c.GetAllNames(); len(instList) != 0 {
 		d.Println(d.C(d.YELLOW, strings.Join(instList, " ")))
-		if !*batchFlag && d.ASK("DELETE ALL INSTANCES?", "yes/no") != "yes" {
+		if !*batchFlag && d.ASKLower("DELETE ALL INSTANCES?", "yes/no") != "yes" {
 			os.Exit(1)
 		}
 		for _, inst := range c.GetAll() {
@@ -87,7 +87,7 @@ func untarGuestOS() {
 	list, err := ioutil.ReadDir(c.DistDir())
 	if len(list) != 0 {
 		d.Println(d.C(d.YELLOW, "NO"))
-		if !*batchFlag && d.ASK("DELETE the old OS?", "yes/no") != "yes" {
+		if !*batchFlag && d.ASKLower("DELETE the old OS?", "yes/no") != "yes" {
 			os.Exit(1)
 		}
 		d.ITEM("remove dist dir")
@@ -154,7 +154,7 @@ func update() {
 	d.Println()
 
 	if !ready {
-		if !*batchFlag && d.ASK("Stop all instances?", "yes/no") != "yes" {
+		if !*batchFlag && d.ASKLower("Stop all instances?", "yes/no") != "yes" {
 			os.Exit(1)
 		}
 		for _, inst := range c.GetAll() {
