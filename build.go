@@ -79,7 +79,7 @@ func build() {
 	args := []string{
 		rootShell,
 		"--login",
-		"-c", `acbs-build ` + strings.Join(flag.Args, " "),
+		"-c", `acbs-build ` + strings.Join(flag.Args(), " "),
 		// FIXME: 'strict mode' -- only one package, require Local DEB Repository
 	}
 
