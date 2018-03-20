@@ -8,7 +8,6 @@ import (
 	"log"
 	"os"
 	"path"
-	"path/filepath"
 	"strings"
 
 	"ciel/display"
@@ -119,24 +118,7 @@ func tryRemove(path string) {
 	d.FAILED_BECAUSE(err.Error())
 }
 func (i *Instance) Mounted() bool {
-	a, err := ioutil.ReadFile("/proc/self/mountinfo")
-	s := string(a)
-	list := strings.Split(s, "\n")
-	absPath, _ := filepath.Abs(i.MountPoint())
-	match, _ := filepath.EvalSymlinks(absPath)
-	for _, item := range list {
-		if item == "" {
-			continue
-		}
-		fields := strings.Split(item, " ")
-		if fields[4] == match {
-			return true
-		}
-	}
-	if err != nil {
-		log.Panicln(err)
-	}
-	return false
+	return proc.Mounted(i.MountPoint())
 }
 
 func (i *Instance) Run(ctx context.Context, ctnInfo *nspawn.ContainerInfo, runInfo *nspawn.RunInfo) (int, error) {

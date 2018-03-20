@@ -135,3 +135,11 @@ func ERR(err error) {
 		FAILED_BECAUSE(err.Error())
 	}
 }
+
+func WARN(err error) {
+	if err == nil {
+		OK()
+	} else {
+		Println(C(YELLOW, err.Error()))
+	}
+}

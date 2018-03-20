@@ -2,10 +2,11 @@ package pkgtree
 
 import (
 	"os"
+	"path"
 	"syscall"
 
 	"ciel/display"
-	"path"
+	"ciel/proc-api"
 )
 
 const (
@@ -26,13 +27,16 @@ func (t *Tree) Unmount(mountPoint string) {
 	if _, err := os.Stat(treeMountPoint); os.IsNotExist(err) {
 		return
 	}
+	if !proc.Mounted(treeMountPoint) {
+		return
+	}
 	d.ITEM("unmount tree")
 	err := syscall.Unmount(treeMountPoint, 0)
-	d.ERR(err)
+	d.WARN(err)
 	if err != nil {
 		return
 	}
 	d.ITEM("remove tree mount point")
 	err = os.Remove(treeMountPoint)
-	d.ERR(err)
+	d.WARN(err)
 }

@@ -3,6 +3,8 @@ package proc
 import (
 	"bytes"
 	"io/ioutil"
+	"log"
+	"path/filepath"
 	"strconv"
 	"strings"
 )
@@ -28,4 +30,25 @@ func GetCommandLineByPID(pid uint32) ([]string, error) {
 	}
 	b = bytes.TrimSuffix(b, []byte{'\x00'})
 	return strings.Split(string(b), string('\x00')), nil
+}
+
+func Mounted(target string) bool {
+	a, err := ioutil.ReadFile("/proc/self/mountinfo")
+	s := string(a)
+	list := strings.Split(s, "\n")
+	absPath, _ := filepath.Abs(target)
+	match, _ := filepath.EvalSymlinks(absPath)
+	for _, item := range list {
+		if item == "" {
+			continue
+		}
+		fields := strings.Split(item, " ")
+		if fields[4] == match {
+			return true
+		}
+	}
+	if err != nil {
+		log.Panicln(err)
+	}
+	return false
 }
