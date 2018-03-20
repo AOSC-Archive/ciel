@@ -53,7 +53,7 @@ func buildConfig() {
 	if *batch || d.ASKLower("Would you like to disable DNSSEC feature?", "yes/no") == "yes" {
 		packaging.DisableDNSSEC(inst)
 	}
-	if !*batch && d.ASKLower("Would you like to edit source list?", "yes/no") == "yes" {
+	if !*batch && d.ASKLower("Would you like to edit sources.list of UNDERLYING OS?", "yes/no") == "yes" {
 		packaging.EditSourceList(inst)
 	}
 }

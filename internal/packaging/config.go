@@ -15,7 +15,7 @@ const (
 )
 
 func EditSourceList(i abstract.Instance) {
-	root := i.MountPoint()
+	root := i.GetContainer().DistDir()
 	editor := editor()
 	cmd := exec.Command(editor, path.Join(root, "/etc/apt/sources.list"))
 	cmd.Stdin = os.Stdin
