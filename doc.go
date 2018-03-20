@@ -17,7 +17,7 @@ func docHelp() {
 	ciel del INSTANCE
 	ciel shell -i INSTANCE         // start an interactive shell
 	ciel shell -i INSTANCE "SHELL COMMAND LINE"
-	ciel config -i INSTANCE        // configure toolchain for building (interactively)
+	ciel config (-i INSTANCE | -g) // configure system and toolchain for building (interactively)
 	ciel build -i INSTANCE PACKAGE
 	ciel rollback -i INSTANCE
 
