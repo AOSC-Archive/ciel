@@ -24,7 +24,7 @@ func MachineStatus(ctx context.Context, machindId string) string {
 		"-M", machindId,
 	}
 	cmd := exec.CommandContext(ctx, "systemctl", a...)
-	cmd.Env = append(os.Environ(), "LANG=C")
+	cmd.Env = dedupEnv(append(os.Environ(), "LC_ALL=C.UTF-8"))
 	output, _ := cmd.CombinedOutput()
 	return strings.TrimSpace(string(output))
 }
