@@ -34,6 +34,7 @@ func SystemdNspawnRun(ctx context.Context, machineId string, dir string, ctnInfo
 	setCmdStdDev(cmd, runInfo.StdDev)
 
 	err := cmd.Run()
+	waitUntilShutdown(ctx, machineId)
 	return unpackExecErr(err)
 }
 func SystemdNspawnBoot(ctx context.Context, machineId string, dir string, ctnInfo *ContainerInfo) error {
