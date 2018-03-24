@@ -25,13 +25,8 @@ $(CIELPATH):
 	mkdir -p $(GOBIN)
 	ln -f -s -T $(SRCDIR) $(CIELPATH)
 
-$(GLIDE):
-	curl -\# https://glide.sh/get | PATH=$(GOBIN):$(PATH) sh
-
-deps: $(CIELPATH) $(GLIDE) $(SRCDIR)/glide.yaml
-	cd $(CIELPATH)
-	$(GLIDE) install
-	cd $(SRCDIR)
+deps: $(CIELPATH)
+	go get -u github.com/godbus/dbus
 
 config:
 	cp $(SRCDIR)/_config.go $(SRCDIR)/config.go
