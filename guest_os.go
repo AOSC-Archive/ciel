@@ -251,6 +251,13 @@ func factoryReset() {
 	inst := c.Instance(*instName)
 
 	d.SECTION("Factory Reset Guest Operating System")
+
+	ctnInfo := buildContainerInfo(false, false)
+	runInfo := buildRunInfo([]string{"/bin/apt-gen-list", "-e", "40-source"})
+	if exitStatus, err := inst.Run(context.TODO(), ctnInfo, runInfo); exitStatus != 0 {
+		log.Println(err)
+	}
+
 	inst.Stop(context.TODO())
 	d.ITEM("mount instance")
 	inst.Mount()
@@ -293,12 +300,6 @@ func factoryReset() {
 			return nil
 		})
 	d.ERR(err)
-
-	ctnInfo := buildContainerInfo(false, false)
-	runInfo := buildRunInfo([]string{"/bin/apt-gen-list", "-e", "40-source"})
-	if exitStatus, err := inst.Run(context.TODO(), ctnInfo, runInfo); exitStatus != 0 {
-		log.Println(err)
-	}
 }
 
 func clean(root string, packageFiles map[string]bool, preserve []string, delete []string, fn filepath.WalkFunc) error {
