@@ -132,28 +132,28 @@ func (s Semaphore) Remove() error {
 
 type Mutex struct {
 	s    Semaphore
-	asym bool
+	hold bool
 }
 
 func NewMutex(pathName string, projectId int, symmetric bool) Mutex {
 	return Mutex{NewSemaphore(pathName, projectId, 1), !symmetric}
 }
 func (m Mutex) Lock() {
-	if m.asym {
+	if m.hold {
 		m.s.WaitHold()
 	} else {
 		m.s.Wait()
 	}
 }
 func (m Mutex) Unlock() {
-	if m.asym {
+	if m.hold {
 		m.s.SignalHold()
 	} else {
 		m.s.Signal()
 	}
 }
 func (m Mutex) TryLock() bool {
-	if m.asym {
+	if m.hold {
 		return m.s.TryWaitHold()
 	} else {
 		return m.s.TryWait()

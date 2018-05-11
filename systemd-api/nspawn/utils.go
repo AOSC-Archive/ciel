@@ -5,10 +5,10 @@ import (
 	"time"
 )
 
-func waitUntilRunningOrDegraded(ctx context.Context, machindId string) (cancelled bool) {
+func waitUntilRunningOrDegraded(ctx context.Context, machineId string) (cancelled bool) {
 	for {
 		switch {
-		case MachineRunning(MachineStatus(context.TODO(), machindId)):
+		case MachineRunning(MachineStatus(context.TODO(), machineId)):
 			return false
 		default:
 			if ctx != nil {
@@ -23,10 +23,10 @@ func waitUntilRunningOrDegraded(ctx context.Context, machindId string) (cancelle
 	}
 }
 
-func waitUntilShutdown(ctx context.Context, machindId string) (cancelled bool) {
+func waitUntilShutdown(ctx context.Context, machineId string) (cancelled bool) {
 	for {
 		switch {
-		case MachineDead(MachineStatus(ctx, machindId)):
+		case MachineDead(MachineStatus(ctx, machineId)):
 			return false
 		default:
 			if ctx != nil {

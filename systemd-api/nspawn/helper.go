@@ -18,10 +18,10 @@ func IsBootable(p string) bool {
 	return false
 }
 
-func MachineStatus(ctx context.Context, machindId string) string {
+func MachineStatus(ctx context.Context, machineId string) string {
 	a := []string{
 		"is-system-running",
-		"-M", machindId,
+		"-M", machineId,
 	}
 	cmd := exec.CommandContext(ctx, "systemctl", a...)
 	cmd.Env = dedupEnv(append(os.Environ(), "LC_ALL=C.UTF-8"))
