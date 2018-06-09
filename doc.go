@@ -36,8 +36,8 @@ Altering OS & Releasing OS:
 	ciel load-os
 	ciel update-os  // see above
 	ciel generate
-	             // (plugin) install packages and set up enviorment by RECIPE
-	ciel factory-reset -i INSTACE
+	             // (plugin) install packages and set up environment by RECIPE
+	ciel factory-reset -i INSTANCE
 	             // delete all out-of-dpkg files
 	ciel commit -i INSTANCE
 	             // commit changes onto the shared underlying OS
