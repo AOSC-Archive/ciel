@@ -1,6 +1,6 @@
 package main
 
 const (
-    Version = "__VERSION__"
-    Prefix = "__PREFIX__"
+	Version = "__VERSION__"
+	Prefix  = "__PREFIX__"
 )
