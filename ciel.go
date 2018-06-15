@@ -76,6 +76,8 @@ func router(subCmd string) {
 
 		// Building
 		"build": build, // build.go
+
+		"doctor": doctor, // doctor.go
 	}
 	requireEUID0()
 	route, exists := routeTable[subCmd]
