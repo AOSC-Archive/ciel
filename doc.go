@@ -32,6 +32,8 @@ Rarely used:
 	ciel farewell  // DELETE ALL CIEL THINGS, except OUTPUT, TREE etc.
 	               // equals to 'ciel down && rm -r .ciel'
 
+	ciel doctor    // diagnose problems
+
 Altering OS & Releasing OS:
 	ciel load-os
 	ciel update-os  // see above
