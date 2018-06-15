@@ -71,6 +71,9 @@ func (i *Container) InstExists(name string) bool {
 	return true
 }
 func (i *Container) CheckInst(name string) {
+	if name == "" {
+		log.Fatalln("you must specify a instance")
+	}
 	if !i.InstExists(name) {
 		log.Fatalln("instance '" + name + "' does not exist")
 	}
