@@ -125,13 +125,17 @@ func (s Semaphore) TryWaitHold() bool {
 	_, err := C.try_wait_sem(C.int(s))
 	return err == nil
 }
+func (s Semaphore) Get() (int, error) {
+	i, err := C.get_sem(C.int(s))
+	return int(i), err
+}
 func (s Semaphore) Remove() error {
 	_, err := C.remove_sem(C.int(s))
 	return err
 }
 
 type Mutex struct {
-	s    Semaphore
+	S    Semaphore
 	hold bool
 }
 
@@ -140,25 +144,28 @@ func NewMutex(pathName string, projectId int, symmetric bool) Mutex {
 }
 func (m Mutex) Lock() {
 	if m.hold {
-		m.s.WaitHold()
+		m.S.WaitHold()
 	} else {
-		m.s.Wait()
+		m.S.Wait()
 	}
 }
 func (m Mutex) Unlock() {
 	if m.hold {
-		m.s.SignalHold()
+		m.S.SignalHold()
 	} else {
-		m.s.Signal()
+		m.S.Signal()
 	}
 }
 func (m Mutex) TryLock() bool {
 	if m.hold {
-		return m.s.TryWaitHold()
+		return m.S.TryWaitHold()
 	} else {
-		return m.s.TryWait()
+		return m.S.TryWait()
 	}
 }
 func (m Mutex) Remove() error {
-	return m.s.Remove()
+	return m.S.Remove()
+}
+func (m Mutex) Get() (int, error) {
+	return m.S.Get()
 }
