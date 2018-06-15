@@ -252,6 +252,8 @@ func factoryReset() {
 
 	d.SECTION("Factory Reset Guest Operating System")
 
+	inst.Stop(context.TODO())
+
 	ctnInfo := buildContainerInfo(false, false)
 	runInfo := buildRunInfo([]string{"/bin/apt-gen-list", "-e", "40-source"})
 	if exitStatus, err := inst.Run(context.TODO(), ctnInfo, runInfo); exitStatus != 0 {
