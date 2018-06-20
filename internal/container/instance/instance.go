@@ -27,7 +27,7 @@ const (
 )
 
 var (
-	ErrMode = errors.New("another instance is running in excluded mode")
+	ErrMode = errors.New("another instance is running in exclusive mode")
 )
 
 type Instance struct {
@@ -127,7 +127,7 @@ func (i *Instance) Run(ctx context.Context, ctnInfo *nspawn.ContainerInfo, runIn
 
 	CriticalSection := i.RunLock()
 
-	if i.RunningAsExcludedMode() {
+	if i.RunningAsExclusiveMode() {
 		return -1, ErrMode
 	}
 
@@ -209,7 +209,7 @@ func (i *Instance) RunningAsBootMode() bool {
 	return false
 }
 
-func (i *Instance) RunningAsExcludedMode() bool {
+func (i *Instance) RunningAsExclusiveMode() bool {
 	m := machined.NewManager()
 	machine, err := m.GetMachine(i.MachineId())
 	if err != nil {

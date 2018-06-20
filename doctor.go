@@ -57,7 +57,7 @@ func doctor() {
 			d.Print(" ")
 			d.Print(d.C0(switchColor(inst.RunningAsBootMode()), "bootMode"))
 			d.Print(" ")
-			d.Print(d.C0(switchColor(inst.RunningAsExcludedMode()), "simpleMode"))
+			d.Print(d.C0(switchColor(inst.RunningAsExclusiveMode()), "simpleMode"))
 			d.Println()
 
 			d.ITEM("SYSTEMD")
