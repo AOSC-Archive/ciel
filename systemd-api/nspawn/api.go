@@ -137,6 +137,7 @@ func nspawnArgs(machineId string, dir string, ctnInfo *ContainerInfo, runInfo *R
 
 	a := []string{
 		"--quiet",
+		"--system-call-filter=swapcontext",
 		"-D", dir,
 		"-M", machineId,
 	}
