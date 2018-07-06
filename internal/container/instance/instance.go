@@ -123,7 +123,7 @@ func (i *Instance) Mounted() bool {
 
 func (i *Instance) Run(ctx context.Context, ctnInfo *nspawn.ContainerInfo, runInfo *nspawn.RunInfo) (int, error) {
 	defer RecoverTerminalAttr()
-	machineId := fmt.Sprintf("%s_%x", i.Name, ipc.GenFileKey(i.Parent.GetCiel().GetBasePath(), 0))
+	machineId := i.MachineId()
 
 	CriticalSection := i.RunLock()
 
