@@ -41,11 +41,20 @@ func SystemdNspawnBoot(ctx context.Context, machineId string, dir string, ctnInf
 	a := nspawnArgs(machineId, dir, ctnInfo, nil)
 	cmd := exec.CommandContext(ctx, "systemd-nspawn", a...)
 
+	var debug = true
+	_, e := os.Lstat("/tmp/ciel.debug")
+	if os.IsNotExist(e) {
+		debug = false
+	}
+
 	var err error
 	waitCtx, cancelFunc := context.WithCancel(context.Background())
 	go func() {
 		errBuf := &bytes.Buffer{}
 		cmd.Stderr = errBuf
+		if debug {
+			cmd.Stdout, _ = os.Create("/tmp/ciel." + machineId)
+		}
 		cmd.Run()
 		output := errBuf.String()
 		err = ErrCancelled{reason: string(output)}
