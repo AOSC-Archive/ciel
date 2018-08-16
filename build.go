@@ -111,7 +111,7 @@ func build() {
 	}
 
 	os.Mkdir(path.Join(i.GetBasePath(), "OUTPUT"), 0755)
-	cmd := exec.Command("sh", "-c", "cp -rp "+inst.MountPoint()+"/debs* OUTPUT/")
+	cmd := exec.Command("sh", "-c", "cp -rp "+inst.MountPoint()+"/debs OUTPUT/")
 	cmd.Stderr = os.Stderr
 	err = cmd.Run()
 	if exitErr, ok := err.(*exec.ExitError); ok {
