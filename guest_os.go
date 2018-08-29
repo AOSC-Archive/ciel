@@ -210,15 +210,8 @@ func update() {
 	}
 	d.OK()
 
-	exitStatus, runErr = run(`apt -o Dpkg::Options::="--force-confnew" full-upgrade --yes`)
-	d.ITEM("update packages")
-	if runErr != nil || exitStatus != 0 {
-		panic(ExitError{})
-	}
-	d.OK()
-
-	exitStatus, runErr = run(`apt autoremove --purge --yes`)
-	d.ITEM("auto-remove packages")
+	exitStatus, runErr = run(`apt -o Dpkg::Options::="--force-confnew" full-upgrade --autoremove --purge --yes`)
+	d.ITEM("update and auto-remove packages")
 	if runErr != nil || exitStatus != 0 {
 		panic(ExitError{})
 	}
