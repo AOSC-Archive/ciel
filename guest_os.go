@@ -248,7 +248,9 @@ func factoryReset() {
 	inst.Stop(context.TODO())
 
 	ctnInfo := buildContainerInfo(false, false)
-	runInfo := buildRunInfo([]string{"/bin/apt-gen-list", "-e", "40-source"})
+	runInfo := buildRunInfo([]string{
+		"/bin/apt-gen-list",
+	})
 	if exitStatus, err := inst.Run(context.TODO(), ctnInfo, runInfo); exitStatus != 0 {
 		log.Println(err)
 	}
@@ -277,6 +279,7 @@ func factoryReset() {
 			`^/etc`,
 			`^/run`,
 			`^/usr`,
+			`^/var/lib/apt/gen/status\.json$`,
 			`^/var/lib/apt/extended_states`,
 			`^/var/lib/dpkg`,
 			`^/var/log/journal$`,
