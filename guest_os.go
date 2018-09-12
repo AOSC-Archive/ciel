@@ -290,7 +290,12 @@ func factoryReset() {
 			`^/etc/.*-$`,
 			`^/etc/machine-id`,
 			`^/etc/ssh/ssh_host_.*`,
+			`^/root/.bash_history`,
 			`^/var/lib/dpkg/[^/]*-old`,
+			`^/var/tmp/*`,
+			`^/var/log/apt/*`,
+			`^/var/log/alternative.log`,
+			`^/var/log/journal/[^remote$].*`,
 		}, func(path string, info os.FileInfo, err error) error {
 			if err := os.RemoveAll(path); err != nil {
 				log.Println("clean:", err.Error())
