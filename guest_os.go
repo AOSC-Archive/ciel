@@ -295,7 +295,6 @@ func factoryReset() {
 			`^/var/tmp/*`,
 			`^/var/log/apt/*`,
 			`^/var/log/alternative.log`,
-			`^/var/log/journal/^(?!remote).*`,
 		}, func(path string, info os.FileInfo, err error) error {
 			if err := os.RemoveAll(path); err != nil {
 				log.Println("clean:", err.Error())
@@ -346,8 +345,8 @@ func clean(root string, packageFiles map[string]bool, preserve []string, delete 
 
 func wrapWalkFunc(root string, fn filepath.WalkFunc) filepath.WalkFunc {
 	return func(path string, info os.FileInfo, err error) error {
-		if info == nil {
-			return err
+		if err != nil {
+			return nil
 		}
 		if path == root {
 			return nil
