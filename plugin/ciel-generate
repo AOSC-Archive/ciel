@@ -120,7 +120,7 @@ KDE_RECIPE="${BASE_RECIPE} ${DESKTOP_RECIPE} kde-base fcitx-base sddm mpv kdepla
             alsa-utils"
 LXDE_RECIPE="${BASE_RECIPE} ${DESKTOP_RECIPE} lxde-base lxde-distro-base ibus-base \
              lightdm-gtk-greeter-settings lxde-default-settings \
-             arc-icon-theme arc-openbox network-manager-applet \
+             arc-icon-theme network-manager-applet \
              gnome-screenshot volumeicon alsa-utils"
 MATE_RECIPE="${BASE_RECIPE} ${DESKTOP_RECIPE} mate-base mate-distro-base ibus-base \
              lightdm-gtk-greeter-settings mpv mate-default-settings alsa-utils"
