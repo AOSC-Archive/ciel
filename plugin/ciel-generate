@@ -153,13 +153,15 @@ _recipe_install() {
 _recipe_base_config() {
 	# FIXME: preset.
 	ciel shell "systemctl enable ModemManager.service NetworkManager-dispatcher.service \
-		NetworkManager-wait-online.service NetworkManager.service acpid.service acpid.socket \
+		NetworkManager-wait-online.service NetworkManager.service \
 		apt-update.timer autovt@.service bluetooth.service  \
 		fc-cache.service fcron.service fstrim.timer getty@.service \
 		gpm.service lvm2-lvmetad.service lvm2-monitor.service machines.target \
 		reboot.target remote-fs.target smartd.service sshd.service systemd-networkd-wait-online.service \
-		systemd-networkd.service systemd-networkd.socket systemd-resolved.service systemd-timesyncd.service \
-		tlp-sleep.service tlp.service"
+		systemd-networkd.service systemd-networkd.socket systemd-resolved.service systemd-timesyncd.service"
+	if [[ "${BUILD_ARCH}" = "amd64" ]]; then
+		ciel shell "systemctl enable acpid.service acpid.socket tlp-sleep.service tlp.service"
+	fi
 }
 _recipe_sunxi-base_pre_install() {
 	ciel shell "echo deb https://repo.aosc.io/debs stable bsp-sunxi > /etc/apt/sources.list.d/sunxi.list"
@@ -201,14 +203,17 @@ _recipe_buildkit_config() {
 _recipe_budgie_config() {
 	# FIXME: preset.
 	ciel shell "systemctl enable ModemManager.service NetworkManager-dispatcher.service \
-		NetworkManager-wait-online.service NetworkManager.service accounts-daemon.service acpid.service \
-		acpid.socket apt-update.timer autovt@.service bluetooth.service \
+		NetworkManager-wait-online.service NetworkManager.service accounts-daemon.service \
+		apt-update.timer autovt@.service bluetooth.service \
 		fc-cache.service fcron.service fstrim.timer \
-		getty@.service gpm.service lightdm.service lircd.service lvm2-lvmetad.service lvm2-monitor.service \
+		getty@.service gpm.service lightdm.service lvm2-lvmetad.service lvm2-monitor.service \
 		machines.target org.cups.cupsd.path org.cups.cupsd.service org.cups.cupsd.socket \
 		reboot.target remote-fs.target smartd.service smbd.service sshd.service systemd-networkd-wait-online.service \
 		systemd-networkd.service systemd-networkd.socket systemd-resolved.service systemd-timesyncd.service \
-		tlp-sleep.service tlp.service udisks2.service upower.service"
+		udisks2.service upower.service"
+	if [[ "${BUILD_ARCH}" = "amd64" ]]; then
+		ciel shell "systemctl enable acpid.service acpid.socket tlp-sleep.service tlp.service lircd.service"
+	fi
 }
 _recipe_container_config() {
 	# FIXME: apply this to all recipes later.
@@ -217,86 +222,107 @@ _recipe_container_config() {
 _recipe_cinnamon_config() {
 	# FIXME: preset.
 	ciel shell "systemctl enable ModemManager.service NetworkManager-dispatcher.service \
-		NetworkManager-wait-online.service NetworkManager.service accounts-daemon.service acpid.service \
-		acpid.socket apt-update.timer autovt@.service bluetooth.service \
+		NetworkManager-wait-online.service NetworkManager.service accounts-daemon.service \
+		apt-update.timer autovt@.service bluetooth.service \
 		fc-cache.service fcron.service fstrim.timer \
-		getty@.service gpm.service lightdm.service lircd.service lvm2-lvmetad.service lvm2-monitor.service \
+		getty@.service gpm.service lightdm.service lvm2-lvmetad.service lvm2-monitor.service \
 		machines.target org.cups.cupsd.path org.cups.cupsd.service org.cups.cupsd.socket reboot.target \
 		remote-fs.target smartd.service smbd.service sshd.service systemd-networkd-wait-online.service \
 		systemd-networkd.service systemd-networkd.socket systemd-resolved.service systemd-timesyncd.service \
-		tlp-sleep.service tlp.service udisks2.service upower.service"
+		udisks2.service upower.service"
+	if [[ "${BUILD_ARCH}" = "amd64" ]]; then
+		ciel shell "systemctl enable acpid.service acpid.socket tlp-sleep.service tlp.service lircd.service"
+	fi
 }
 _recipe_gnome_config() {
 	# FIXME: preset.
 	ciel shell "systemctl enable ModemManager.service NetworkManager-dispatcher.service \
-		NetworkManager-wait-online.service NetworkManager.service accounts-daemon.service acpid.service \
-		acpid.socket apt-update.timer autovt@.service bluetooth.service \
+		NetworkManager-wait-online.service NetworkManager.service accounts-daemon.service \
+		apt-update.timer autovt@.service bluetooth.service \
 		fc-cache.service fcron.service fstrim.timer \
-		gdm.service getty@.service gpm.service httpd.service lircd.service lvm2-lvmetad.service lvm2-monitor.service \
+		gdm.service getty@.service gpm.service httpd.service lvm2-lvmetad.service lvm2-monitor.service \
 		machines.target org.cups.cupsd.path org.cups.cupsd.service org.cups.cupsd.socket \
 		reboot.target remote-fs.target smartd.service smbd.service sshd.service systemd-networkd-wait-online.service \
 		systemd-networkd.service systemd-networkd.socket systemd-resolved.service systemd-timesyncd.service \
-		tlp-sleep.service tlp.service udisks2.service upower.service"
+		udisks2.service upower.service"
+	if [[ "${BUILD_ARCH}" = "amd64" ]]; then
+		ciel shell "systemctl enable acpid.service acpid.socket tlp-sleep.service tlp.service lircd.service"
+	fi
 }
 _recipe_i3wm_config() {
 	# FIXME: preset.
 	ciel shell "systemctl enable ModemManager.service NetworkManager-dispatcher.service \
-		NetworkManager-wait-online.service NetworkManager.service accounts-daemon.service acpid.service \
-		acpid.socket apt-update.timer autovt@.service bluetooth.service \
+		NetworkManager-wait-online.service NetworkManager.service accounts-daemon.service \
+		apt-update.timer autovt@.service bluetooth.service \
 		fc-cache.service fcron.service fstrim.timer \
-		getty@.service gpm.service lightdm.service lircd.service lvm2-lvmetad.service lvm2-monitor.service \
+		getty@.service gpm.service lightdm.service lvm2-lvmetad.service lvm2-monitor.service \
 		machines.target org.cups.cupsd.path org.cups.cupsd.service org.cups.cupsd.socket reboot.target \
 		remote-fs.target smartd.service smbd.service sshd.service systemd-networkd-wait-online.service \
 		systemd-networkd.service systemd-networkd.socket systemd-resolved.service systemd-timesyncd.service \
-		tlp-sleep.service tlp.service udisks2.service"
+		udisks2.service"
+	if [[ "${BUILD_ARCH}" = "amd64" ]]; then
+		ciel shell "systemctl enable acpid.service acpid.socket tlp-sleep.service tlp.service lircd.service"
+	fi
 }
 _recipe_kde_config() {
 	# FIXME: preset.
 	ciel shell "systemctl enable ModemManager.service NetworkManager-dispatcher.service \
-		NetworkManager-wait-online.service NetworkManager.service accounts-daemon.service acpid.service \
-		acpid.socket apt-update.timer autovt@.service bluetooth.service \
+		NetworkManager-wait-online.service NetworkManager.service accounts-daemon.service \
+		apt-update.timer autovt@.service bluetooth.service \
 		fc-cache.service fcron.service fstrim.timer \
-		getty@.service gpm.service lircd.service lvm2-lvmetad.service lvm2-monitor.service \
+		getty@.service gpm.service lvm2-lvmetad.service lvm2-monitor.service \
 		machines.target org.cups.cupsd.path org.cups.cupsd.service org.cups.cupsd.socket reboot.target \
 		remote-fs.target sddm.service smartd.service smbd.service sshd.service systemd-networkd-wait-online.service \
 		systemd-networkd.service systemd-networkd.socket systemd-resolved.service systemd-timesyncd.service \
-		tlp-sleep.service tlp.service udisks2.service upower.service"
+		udisks2.service upower.service"
+	if [[ "${BUILD_ARCH}" = "amd64" ]]; then
+		ciel shell "systemctl enable acpid.service acpid.socket tlp-sleep.service tlp.service lircd.service"
+	fi
 }
 _recipe_lxde_config() {
 	# FIXME: preset.
 	ciel shell "systemctl enable ModemManager.service NetworkManager-dispatcher.service \
-		NetworkManager-wait-online.service NetworkManager.service accounts-daemon.service acpid.service \
-		acpid.socket apt-update.timer autovt@.service bluetooth.service \
+		NetworkManager-wait-online.service NetworkManager.service accounts-daemon.service \
+		apt-update.timer autovt@.service bluetooth.service \
 		fc-cache.service fcron.service fstrim.timer \
-		getty@.service gpm.service lightdm.service lircd.service lvm2-lvmetad.service lvm2-monitor.service \
+		getty@.service gpm.service lightdm.service lvm2-lvmetad.service lvm2-monitor.service \
 		machines.target org.cups.cupsd.path org.cups.cupsd.service org.cups.cupsd.socket reboot.target \
 		remote-fs.target smartd.service smbd.service sshd.service systemd-networkd-wait-online.service \
 		systemd-networkd.service systemd-networkd.socket systemd-resolved.service systemd-timesyncd.service \
-		tlp-sleep.service tlp.service udisks2.service"
+		udisks2.service"
+	if [[ "${BUILD_ARCH}" = "amd64" ]]; then
+		ciel shell "systemctl enable acpid.service acpid.socket tlp-sleep.service tlp.service lircd.service"
+	fi
 }
 _recipe_mate_config() {
 	# FIXME: preset.
 	ciel shell "systemctl enable ModemManager.service NetworkManager-dispatcher.service \
-		NetworkManager-wait-online.service NetworkManager.service accounts-daemon.service acpid.service \
-		acpid.socket apt-update.timer autovt@.service bluetooth.service \
+		NetworkManager-wait-online.service NetworkManager.service accounts-daemon.service \
+		apt-update.timer autovt@.service bluetooth.service \
 		fc-cache.service fcron.service fstrim.timer \
-		getty@.service gpm.service lightdm.service lircd.service lvm2-lvmetad.service lvm2-monitor.service \
+		getty@.service gpm.service lightdm.service lvm2-lvmetad.service lvm2-monitor.service \
 		machines.target org.cups.cupsd.path org.cups.cupsd.service org.cups.cupsd.socket reboot.target \
 		remote-fs.target smartd.service smbd.service sshd.service systemd-networkd-wait-online.service \
 		systemd-networkd.service systemd-networkd.socket systemd-resolved.service systemd-timesyncd.service \
-		tlp-sleep.service tlp.service udisks2.service upower.service"
+		udisks2.service upower.service"
+	if [[ "${BUILD_ARCH}" = "amd64" ]]; then
+		ciel shell "systemctl enable acpid.service acpid.socket tlp-sleep.service tlp.service lircd.service"
+	fi
 }
 _recipe_xfce_config() {
 	# FIXME: preset.
 	ciel shell "systemctl enable ModemManager.service NetworkManager-dispatcher.service \
-		NetworkManager-wait-online.service NetworkManager.service accounts-daemon.service acpid.service \
-		acpid.socket apt-update.timer autovt@.service bluetooth.service \
+		NetworkManager-wait-online.service NetworkManager.service accounts-daemon.service \
+		apt-update.timer autovt@.service bluetooth.service \
 		fc-cache.service fcron.service fstrim.timer \
-		getty@.service gpm.service lightdm.service lircd.service lvm2-lvmetad.service lvm2-monitor.service \
+		getty@.service gpm.service lightdm.service lvm2-lvmetad.service lvm2-monitor.service \
 		machines.target org.cups.cupsd.path org.cups.cupsd.service org.cups.cupsd.socket reboot.target \
 		remote-fs.target smartd.service smbd.service sshd.service systemd-networkd-wait-online.service \
 		systemd-networkd.service systemd-networkd.socket systemd-resolved.service systemd-timesyncd.service \
-		tlp-sleep.service tlp.service udisks2.service upower.service"
+		udisks2.service upower.service"
+	if [[ "${BUILD_ARCH}" = "amd64" ]]; then
+		ciel shell "systemctl enable acpid.service acpid.socket tlp-sleep.service tlp.service lircd.service"
+	fi
 }
 
 # Nike.
