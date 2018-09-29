@@ -24,7 +24,11 @@ fi
 
 # Common denominators.
 PREREQ_RECIPE="systemd"
-BOOTABLE_RECIPE="boot-base kernel-base"
+if [[ "${BUILD_ARCH}" = arm* ]]; then
+    BOOTABLE_RECIPE="boot-base"
+else
+    BOOTABLE_RECIPE="boot-base kernel-base"
+fi
 if "$SMALL_ARCH"; then
     FONT_RECIPE="dejavu-fonts droid-fallback-fonts freefont liberation-fonts \
                  unifont"
