@@ -42,6 +42,7 @@ if [[ "${BUILD_ARCH}" = "ppc64" ]]; then
 else
 	BROWSER_RECIPE="firefox"
 fi
+BROWSER_RECIPE+=" thunderbird"
 
 # Available from all desktop variants.
 if "$SMALL_ARCH"; then
