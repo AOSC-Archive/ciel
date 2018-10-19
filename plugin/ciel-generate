@@ -80,6 +80,9 @@ if [[ "$VARIANT" == sunxi-* ]]; then
 		BOOTABLE_RECIPE+=" firmware-wifi-ap6210" ;;
 	sun8i-h3-bananapi-m2-plus|sun8i-r40-bananapi-m2-ultra)
 		BOOTABLE_RECIPE+=" firmware-wifi-ap6212" ;;
+	sun8i-h3-orangepi-plus)
+		BOOTABLE_RECIPE+=" rtl8189es"
+		USE_DKMS=1 ;;
 	esac
 	BOOTABLE_RECIPE+=" firmware-free firmware-nonfree"
 	BASE_VARIANT="$(echo $VARIANT | cut -d - -f 2-)"
