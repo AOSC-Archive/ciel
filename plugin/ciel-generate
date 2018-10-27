@@ -78,7 +78,7 @@ if [[ "$VARIANT" == sunxi-* ]]; then
 	case $DEVICE_NAME in
 	sun7i-a20-cubietruck|sun7i-a20-bananapi-m1-plus)
 		BOOTABLE_RECIPE+=" firmware-wifi-ap6210" ;;
-	sun8i-h3-bananapi-m2-plus|sun8i-r40-bananapi-m2-ultra)
+	sun8i-h2-plus-bananapi-m2-zero|sun8i-h3-bananapi-m2-plus|sun8i-r40-bananapi-m2-ultra)
 		BOOTABLE_RECIPE+=" firmware-wifi-ap6212" ;;
 	sun8i-h3-orangepi-plus)
 		BOOTABLE_RECIPE+=" rtl8189es"
