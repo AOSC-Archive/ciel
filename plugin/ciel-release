@@ -26,7 +26,7 @@ pushd "$OS_PATH" || exit $?
 
 _ciel_tarball() {
 	# Make a tarball
-	tar cvf - * | $COMPRESSOR > "$WORKDIR/$TARBALL" || exit $?
+	tar cf - * | $COMPRESSOR > "$WORKDIR/$TARBALL" || exit $?
 	# Generate SHA256 checksum.
 	sha256sum "$WORKDIR/$TARBALL" > "$WORKDIR/$TARBALL".sha256sum || exit $?
 }
