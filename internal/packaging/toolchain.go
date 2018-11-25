@@ -18,8 +18,13 @@ type ToolChain struct {
 	ACBS bool
 }
 
-func DetectToolChain(i abstract.Instance) *ToolChain {
-	root := i.MountPoint()
+func DetectToolChain(global bool, i abstract.Instance, c abstract.Container) *ToolChain {
+	var root string
+	if global {
+		root = c.DistDir()
+	} else {
+		root = i.MountPoint()
+	}
 	tc := &ToolChain{}
 	d.ITEM("detect autobuild3")
 	tc.AB = exists(root, AB3Path)

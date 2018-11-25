@@ -29,8 +29,13 @@ func EditSourceList(global bool, i abstract.Instance, c abstract.Container) {
 	cmd.Run()
 }
 
-func SetTreePath(i abstract.Instance, tree string) {
-	root := i.MountPoint()
+func SetTreePath(global bool, i abstract.Instance, c abstract.Container, tree string) {
+	var root string
+	if global {
+		root = c.DistDir()
+	} else {
+		root = i.MountPoint()
+	}
 	config := `[default]` + "\n"
 	config += `location = ` + path.Clean(tree) + "\n"
 	d.ITEM("set tree path")
@@ -38,8 +43,13 @@ func SetTreePath(i abstract.Instance, tree string) {
 	d.ERR(err)
 }
 
-func DisableDNSSEC(i abstract.Instance) {
-	root := i.MountPoint()
+func DisableDNSSEC(global bool, i abstract.Instance, c abstract.Container) {
+	var root string
+	if global {
+		root = c.DistDir()
+	} else {
+		root = i.MountPoint()
+	}
 	config := `[Resolve]` + "\n"
 	config += `DNSSEC=no` + "\n"
 	d.ITEM("disable DNSSEC")
@@ -47,8 +57,13 @@ func DisableDNSSEC(i abstract.Instance) {
 	d.ERR(err)
 }
 
-func SetMaintainer(i abstract.Instance, person string) {
-	root := i.MountPoint()
+func SetMaintainer(global bool, i abstract.Instance, c abstract.Container, person string) {
+	var root string
+	if global {
+		root = c.DistDir()
+	} else {
+		root = i.MountPoint()
+	}
 	config := `#!/bin/bash` + "\n"
 	config += `ABMPM=dpkg` + "\n"
 	config += `ABAPMS=` + "\n"
