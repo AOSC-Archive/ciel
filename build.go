@@ -39,32 +39,34 @@ func buildConfig() {
 		defer func() {
 			inst.Unmount()
 		}()
-
-		tc := packaging.DetectToolChain(inst)
-		if tc.ACBS {
-			packaging.SetTreePath(inst, pkgtree.TreePath)
-		}
-
-		var person string
-		if tc.AB {
-			if !*batch {
-				for person == "" {
-					person = d.ASK("Maintainer Info", "Foo Bar <myname@example.com>")
-				}
-			} else {
-				person = "Bot <discussions@lists.aosc.io>"
-			}
-			packaging.SetMaintainer(inst, person)
-		}
-		if *batch || d.ASKLower("Would you like to disable DNSSEC feature?", "yes/no") == "yes" {
-			packaging.DisableDNSSEC(inst)
-		}
 	}
 
 	suffix := " of UNDERLYING OS"
 	if !global {
 		suffix = ""
 	}
+
+	tc := packaging.DetectToolChain(global, inst, c)
+	if tc.ACBS {
+		packaging.SetTreePath(global, inst, c, pkgtree.TreePath)
+	}
+
+	var person string
+	if tc.AB {
+		if !*batch {
+			for person == "" {
+				person = d.ASK("Maintainer Info"+suffix, "Foo Bar <myname@example.com>")
+			}
+		} else {
+			person = "Bot <discussions@lists.aosc.io>"
+		}
+		packaging.SetMaintainer(global, inst, c, person)
+	}
+
+	if *batch || d.ASKLower("Would you like to disable DNSSEC feature"+suffix+"?", "yes/no") == "yes" {
+		packaging.DisableDNSSEC(global, inst, c)
+	}
+
 	if !*batch && d.ASKLower("Would you like to edit sources.list"+suffix+"?", "yes/no") == "yes" {
 		packaging.EditSourceList(global, inst, c)
 	}
