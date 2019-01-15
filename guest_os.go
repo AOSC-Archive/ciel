@@ -289,7 +289,7 @@ func factoryReset() {
 		}, []string{
 			`^/etc/.*-$`,
 			`^/etc/machine-id`,
-			`^/etc/\.ssh/ssh_host_.*`,
+			`^/etc/ssh/ssh_host_.*`,
 			`^/root/\.bash_history`,
 			`^/var/lib/dpkg/.*-old$`,
 			`^/var/tmp/.*`,
