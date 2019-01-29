@@ -240,7 +240,7 @@ func (i *Instance) Dir() string {
 }
 
 func (i *Instance) MachineId() string {
-	return fmt.Sprintf("%s_%x", i.Name, ipc.GenFileKey(i.Parent.GetCiel().GetBasePath(), 0))
+	return fmt.Sprintf("%s-%x", i.Name, ipc.GenFileKey(i.Parent.GetCiel().GetBasePath(), 0))
 }
 
 func (i *Instance) FileSystemLock() ipc.Mutex {
