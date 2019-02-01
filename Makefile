@@ -65,7 +65,7 @@ clean:
 	git clean -f -d $(SRCDIR)
 
 install:
-	mkdir -p $(PREFIX)
-	cp -R $(DISTDIR)/* $(PREFIX)
+	mkdir -p $(DESTDIR)/$(PREFIX)
+	cp -R $(DISTDIR)/* $(DESTDIR)/$(PREFIX)
 
 .PHONY: all deps config build plugin install clean
