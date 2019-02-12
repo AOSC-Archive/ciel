@@ -213,7 +213,7 @@ _recipe_sunxi64-mate_config(){
 		apt-update.timer autovt@.service bluetooth.service \
 		fc-cache.service fcron.service fstrim.timer \
 		getty@.service gpm.service lightdm.service lvm2-lvmetad.service lvm2-monitor.service \
-		machines.target org.cups.cupsd.path org.cups.cupsd.service org.cups.cupsd.socket reboot.target \
+		machines.target reboot.target \
 		remote-fs.target smartd.service smbd.service sshd.service systemd-networkd-wait-online.service \
 		systemd-networkd.service systemd-networkd.socket systemd-resolved.service systemd-timesyncd.service \
 		udisks2.service upower.service"
