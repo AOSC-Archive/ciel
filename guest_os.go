@@ -44,7 +44,7 @@ func untarGuestOS() {
 		if DownloadTarball == "" {
 			DownloadTarball = "latest.tar.xz"
 		}
-		cmd := exec.Command("curl", "-o", DownloadTarball, "-#", LatestTarballURL)
+		cmd := exec.Command("curl", "-Lo", DownloadTarball, "-#", LatestTarballURL)
 		cmd.Stdin = os.Stdin
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
