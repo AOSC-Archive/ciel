@@ -22,7 +22,7 @@ import (
 )
 
 const (
-	LatestTarballURL = "https://repo.aosc.io/aosc-os/os-amd64/buildkit/aosc-os_buildkit_latest_amd64.tar.xz"
+	LatestTarballURL = "https://releases.aosc.io/os-amd64/buildkit/aosc-os_buildkit_latest_amd64.tar.xz"
 )
 
 func untarGuestOS() {
