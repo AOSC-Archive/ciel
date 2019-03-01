@@ -167,7 +167,7 @@ func update() {
 		}
 	}
 
-	const instName = "__update__"
+	const instName = "--update--"
 	d.ITEM("create temporary instance")
 	c.AddInst(instName)
 	d.OK()
