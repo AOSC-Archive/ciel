@@ -167,7 +167,7 @@ func update() {
 		}
 	}
 
-	const instName = "--update--"
+	const instName = "cielroot----update"
 	d.ITEM("create temporary instance")
 	c.AddInst(instName)
 	d.OK()
