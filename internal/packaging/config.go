@@ -68,7 +68,7 @@ func SetMaintainer(global bool, i abstract.Instance, c abstract.Container, perso
 	config += `ABMPM=dpkg` + "\n"
 	config += `ABAPMS=` + "\n"
 	config += `MTER="` + person + `"` + "\n"
-	config += `ABINSTALL=` + "\n"
+	config += `ABINSTALL=dpkg` + "\n"
 	d.ITEM("set maintainer")
 	err := ioutil.WriteFile(path.Join(root, "/usr/lib/autobuild3/etc/autobuild/ab3cfg.sh"), []byte(config), 0644)
 	d.ERR(err)
