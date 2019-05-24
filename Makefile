@@ -33,6 +33,9 @@ deps: $(CIELPATH)
 else ifeq ($(ARCH), ppc)
 deps: $(CIELPATH)
 	go get -u github.com/godbus/dbus
+else ifeq ($(ARCH), aarch64)
+deps: $(CIELPATH)
+	go get -u github.com/godbus/dbus
 else
 $(GLIDE):
 	curl -\# https://glide.sh/get | PATH=$(GOBIN):$(PATH) sh
