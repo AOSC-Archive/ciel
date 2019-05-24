@@ -9,8 +9,8 @@ func docHelp() {
 	ciel load-os [TAR_FILE]    // unpack OS tarball or fetch the latest BuildKit from internet directly
 	ciel load-tree [GIT_URL]   // clone package tree from your link or AOSC OS ABBS at GitHub
 
-	ciel update-os      // similar to 'apt update && apt full-upgrade'
-	ciel update-tree    // similar to 'git pull'
+	ciel update-os -- [params] // similar to 'apt update && apt full-upgrade', params are appended to 'apt full-upgrade'
+	ciel update-tree           // similar to 'git pull'
 
 	ciel [list]
 	ciel add INSTANCE
