@@ -16,7 +16,7 @@ make
 sudo make install
 ```
 
-You may use `PREFIX=/usr make` and `sudo PREFIX=/usr make install` to install to other location. Defaults to `/usr/local`.
+You may use `make PREFIX=/usr` and `sudo make install PREFIX=/usr` to install to other location. Defaults to `/usr/local`.
 
 ## Dependencies
 
