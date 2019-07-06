@@ -1,7 +1,7 @@
 #!/bin/bash
 # Usage: ciel-generate <recipe>, one recipe at a time.
 
-export CIEL_INST="__generate__"
+export CIEL_INST="--generate--"
 export CIEL_BATCH_MODE="true"
 
 # Determine architecture of build host.
