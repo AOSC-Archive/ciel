@@ -1,7 +1,7 @@
 # CIEL 2 [![Build Status](https://api.travis-ci.org/AOSC-Dev/ciel.svg)](https://travis-ci.org/AOSC-Dev/ciel)
 An **integrated packaging environment** for AOSC OS.
 
-**Ciel** uses *systemd-nspawn* container as its backend and *overlay* file system as support rollback feature.
+**Ciel** /sjɛl/ uses *systemd-nspawn* container as its backend and *overlay* file system as support rollback feature.
 
 ## Manual
 
