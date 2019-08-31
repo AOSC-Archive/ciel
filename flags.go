@@ -9,7 +9,7 @@ import (
 
 func flagCielDir() *string {
 	basePath := getEnv("CIEL_DIR", ".")
-	flag.StringVar(&basePath, "C", basePath, "ciel work `directory`; CIEL_DIR")
+	flag.StringVar(&basePath, "C", basePath, "Ciel work `directory`; CIEL_DIR")
 	return &basePath
 }
 func saveCielDir(basePath string) {

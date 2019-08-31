@@ -38,7 +38,7 @@ func parse() {
 func router(subCmd string) {
 	switch subCmd {
 	case "version":
-		fmt.Println("ciel", Version)
+		fmt.Println("Ciel", Version)
 		return
 	case "help":
 		docHelp()
