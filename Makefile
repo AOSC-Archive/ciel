@@ -16,7 +16,6 @@ GOBIN=$(GOPATH)/bin
 CIELPATH=$(GOSRC)/ciel
 
 DISTDIR=$(SRCDIR)/instdir
-GLIDE=$(GOBIN)/glide
 
 all: build
 
@@ -27,24 +26,8 @@ $(CIELPATH):
 	mkdir -p $(GOBIN)
 	ln -f -s -T $(SRCDIR) $(CIELPATH)
 
-ifeq ($(ARCH), ppc64)
-deps: $(CIELPATH)
-	go get -u github.com/godbus/dbus
-else ifeq ($(ARCH), ppc)
-deps: $(CIELPATH)
-	go get -u github.com/godbus/dbus
-else ifeq ($(ARCH), aarch64)
-deps: $(CIELPATH)
-	go get -u github.com/godbus/dbus
-else
-$(GLIDE):
-	curl -\# https://glide.sh/get | PATH=$(GOBIN):$(PATH) sh
-
-deps: $(CIELPATH) $(GLIDE) $(SRCDIR)/glide.yaml
-	cd $(CIELPATH)
-	$(GLIDE) install
-	cd $(SRCDIR)
-endif
+deps: $(CIELPATH) $(SRCDIR)/go.mod $(SRCDIR)/go.sum
+	go mod vendor
 
 config:
 	cp $(SRCDIR)/_config.go $(SRCDIR)/config.go
