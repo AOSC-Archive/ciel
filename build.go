@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"flag"
+	"fmt"
 	"log"
 	"os"
 	"os/exec"
@@ -75,20 +76,24 @@ func buildConfig() {
 	if !*batch && d.ASKLower("Do you want to enable local packages repository?", "yes/no") == "yes" {
 		packaging.InitLocalRepo(global, inst, c)
 		// add the key to the APT trust store
-		d.ITEM("creating and importing gpg keys")
-		if refreshLocalRepo(inst.MountPoint()) == 0 {
+		d.ITEM("create and import gpg keys")
+		exitStatus := refreshLocalRepo(inst.MountPoint(), true)
+		if exitStatus == 0 {
 			d.OK()
 		} else {
-			d.FAILED()
+			d.FAILED_BECAUSE(fmt.Sprintf("Script exited with status %d", exitStatus))
 		}
 	}
 }
 
-func refreshLocalRepo(debsDir string) int {
+func refreshLocalRepo(debsDir string, firstRun bool) int {
 	proc := filepath.Join(PluginDir, PluginPrefix+"localrepo")
 	cmd := exec.Command(proc, debsDir)
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
+	if firstRun {
+		cmd.Env = []string{"CIEL_LR_FIRST=1"}
+	}
+	cmd.Stdout = nil
+	cmd.Stderr = nil
 	err := cmd.Run()
 	if exitErr, ok := err.(*exec.ExitError); ok {
 		return exitErr.Sys().(syscall.WaitStatus).ExitStatus()
@@ -169,7 +174,7 @@ func build() {
 	}
 
 	d.Println(d.C0(d.WHITE, "Refreshing local repository... "))
-	refreshLocalRepo(debsDir)
+	refreshLocalRepo(debsDir, false)
 	//cmd = exec.Command("sh", "-c", "cp -p "+inst.MountPoint()+"/var/log/apt/history.log OUTPUT/")
 	//cmd.Stderr = os.Stderr
 	//err = cmd.Run()

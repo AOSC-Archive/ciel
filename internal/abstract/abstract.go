@@ -3,6 +3,7 @@ package abstract
 type Ciel interface {
 	GetBasePath() string
 	GetTree() Tree
+	GetOutput() Tree
 	GetContainer() Container
 }
 
