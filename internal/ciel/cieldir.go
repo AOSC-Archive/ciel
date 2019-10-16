@@ -8,6 +8,7 @@ import (
 
 	"ciel/internal/abstract"
 	"ciel/internal/container"
+	"ciel/internal/packaging"
 	"ciel/internal/pkgtree"
 	"ciel/internal/utils"
 )
@@ -17,6 +18,7 @@ const (
 
 	ContainerDirName = DotCielDirName + "/container"
 	TreeDirName      = "TREE"
+	OutputDirName    = "OUTPUT/debs"
 
 	VersionFile = DotCielDirName + "/version"
 	Version     = "2"
@@ -47,6 +49,9 @@ func (i *Ciel) containerDir() string {
 func (i *Ciel) treeDir() string {
 	return path.Join(i.BasePath, TreeDirName)
 }
+func (i *Ciel) outDir() string {
+	return path.Join(i.BasePath, OutputDirName)
+}
 
 func (i *Ciel) Init() {
 	utils.MustMkdir(i.CielDir())
@@ -62,10 +67,16 @@ func (i *Ciel) Container() *container.Container {
 func (i *Ciel) Tree() *pkgtree.Tree {
 	return &pkgtree.Tree{Parent: i, BasePath: i.treeDir()}
 }
+func (i *Ciel) Output() *packaging.Tree {
+	return &packaging.Tree{Parent: i, BasePath: i.outDir()}
+}
 func (i *Ciel) GetContainer() abstract.Container {
 	return i.Container()
 }
 func (i *Ciel) GetTree() abstract.Tree {
 	return i.Tree()
+}
+func (i *Ciel) GetOutput() abstract.Tree {
+	return i.Output()
 }
 func (i *Ciel) GetBasePath() string { return i.BasePath }

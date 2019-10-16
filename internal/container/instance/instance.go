@@ -10,7 +10,7 @@ import (
 	"path"
 	"strings"
 
-	"ciel/display"
+	d "ciel/display"
 	"ciel/internal/abstract"
 	"ciel/internal/container/filesystem"
 	"ciel/ipc"
@@ -75,6 +75,7 @@ func (i *Instance) Mount() error {
 			return err
 		}
 		i.Parent.GetCiel().GetTree().MountHandler(i, true)
+		i.Parent.GetCiel().GetOutput().MountHandler(i, true)
 	}
 	return nil
 }
@@ -89,6 +90,7 @@ func (i *Instance) Unmount() error {
 	var err error
 	if i.Mounted() {
 		i.Parent.GetCiel().GetTree().MountHandler(i, false)
+		i.Parent.GetCiel().GetOutput().MountHandler(i, false)
 		d.ITEM("unmount " + i.Name)
 		if err := fs.Unmount(); err != nil {
 			d.FAILED_BECAUSE(err.Error())

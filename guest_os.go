@@ -15,7 +15,7 @@ import (
 	"strconv"
 	"strings"
 
-	"ciel/display"
+	d "ciel/display"
 	"ciel/internal/ciel"
 	"ciel/internal/container/instance"
 	"ciel/systemd-api/nspawn"
@@ -270,6 +270,7 @@ func factoryReset() {
 	d.OK()
 
 	i.GetTree().MountHandler(inst, false)
+	i.GetOutput().MountHandler(inst, false)
 
 	d.ITEM("remove out-of-package files")
 	err := clean(inst.MountPoint(), fileSet,

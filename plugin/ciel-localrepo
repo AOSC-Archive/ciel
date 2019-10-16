@@ -5,10 +5,8 @@
 REPO_ROOT="$1"
 GPG_KEYRING="/etc/ciel/ciel.gpg"
 APT_KEYRING="/etc/apt/trusted.gpg"
-FIRST_RUN=0
 
 function generate_key() {
-    FIRST_RUN=1
     gpg --no-default-keyring --keyring "$GPG_KEYRING" --fingerprint
     gpg --no-default-keyring --keyring "$GPG_KEYRING" --batch --gen-key - <<EOS
 Key-Type: 1
@@ -22,12 +20,14 @@ Key-Usage: sign
 Subkey-Usage: sign
 EOS
     gpg --no-default-keyring --keyring "$GPG_KEYRING" --batch --export -a > '/etc/ciel/ciel.pub'
-    gpg --no-default-keyring --keyring "$REPO_ROOT/$APT_KEYRING" --import -a < '/etc/ciel/ciel.pub'
 }
 
 [[ -d $(dirname "$GPG_KEYRING") ]] || mkdir -p $(dirname "$GPG_KEYRING")
 [[ -f "$GPG_KEYRING" ]] || generate_key
-[[ "$FIRST_RUN" != "0" ]] || exit 0
+if [[ "$CIEL_LR_FIRST" == '1' ]]; then
+    gpg --no-default-keyring --keyring "$REPO_ROOT/$APT_KEYRING" --import -a < '/etc/ciel/ciel.pub' || true
+    exit 0
+fi
 
 dpkg-scanpackages "$REPO_ROOT" > "$REPO_ROOT/Packages"
 
