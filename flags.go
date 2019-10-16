@@ -52,6 +52,14 @@ func saveBatch(batch bool) {
 	saveEnv("CIEL_BATCH_MODE", batch)
 }
 
+func flagLocalRepo() *bool {
+	localRepo := getEnv("CIEL_LOCAL_REPO", "false") == "true"
+	return &localRepo
+}
+func saveLocalRepo(localRepo bool) {
+	saveEnv("CIEL_LOCAL_REPO", localRepo)
+}
+
 func getEnv(key, def string) string {
 	v, ok := os.LookupEnv(key)
 	if !ok {
