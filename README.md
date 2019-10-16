@@ -1,7 +1,7 @@
-# CIEL 2 [![Build Status](https://api.travis-ci.org/AOSC-Dev/ciel.svg)](https://travis-ci.org/AOSC-Dev/ciel)
+# Ciel 2 [![Build Status](https://api.travis-ci.org/AOSC-Dev/ciel.svg)](https://travis-ci.org/AOSC-Dev/ciel)
 An **integrated packaging environment** for AOSC OS.
 
-**Ciel** uses *systemd-nspawn* container as its backend and *overlay* file system as support rollback feature.
+**Ciel** /sjɛl/ uses *systemd-nspawn* container as its backend and *overlay* file system as support rollback feature.
 
 ## Manual
 
@@ -16,7 +16,7 @@ make
 sudo make install
 ```
 
-You may use `PREFIX=/usr make` and `sudo PREFIX=/usr make install` to install to other location. Defaults to `/usr/local`.
+You may use `make PREFIX=/usr` and `sudo make install PREFIX=/usr` to install to other location. Defaults to `/usr/local`.
 
 ## Dependencies
 

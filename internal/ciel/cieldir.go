@@ -29,10 +29,10 @@ type Ciel struct {
 func (i *Ciel) Check() {
 	ver, err := ioutil.ReadFile(i.VerFile())
 	if err != nil {
-		log.Fatalln("not a ciel work directory here")
+		log.Fatalln("not a Ciel work directory here")
 	}
 	if strings.TrimSpace(string(ver)) != Version {
-		log.Fatalln("your cieldir is an incompatible version")
+		log.Fatalln("your Ciel work directory is an incompatible version")
 	}
 }
 func (i *Ciel) CielDir() string {

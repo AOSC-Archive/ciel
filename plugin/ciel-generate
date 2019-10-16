@@ -1,7 +1,7 @@
 #!/bin/bash
 # Usage: ciel-generate <recipe>, one recipe at a time.
 
-export CIEL_INST="__generate__"
+export CIEL_INST="ciel--generate--"
 export CIEL_BATCH_MODE="true"
 
 # Determine architecture of build host.
@@ -99,7 +99,7 @@ if [[ "$VARIANT" == sunxi64-* ]]; then
 	case $DEVICE_NAME in
 	sun50i-a64-bananapi-m64)
 		BOOTABLE_RECIPE+=" firmware-wifi-ap6212" ;;
-	sun50i-a64-pinebook)
+	sun50i-a64-pinebook|sun50i-a64-pinetab|sun50i-a64-pinephone)
 		BOOTABLE_RECIPE+=" rtl8723cs"
 		USE_DKMS=1 ;;
 	esac
