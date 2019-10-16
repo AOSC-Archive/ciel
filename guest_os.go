@@ -203,14 +203,15 @@ func update() {
 		}
 	}()
 
-	exitStatus, runErr = run(`apt update --yes`)
+	exitStatus, runErr = run(`apt-get update --yes`)
 	d.ITEM("update database")
 	if runErr != nil || exitStatus != 0 {
 		panic(ExitError{})
 	}
 	d.OK()
 
-	exitStatus, runErr = run(`apt -o Dpkg::Options::="--force-confnew" full-upgrade --autoremove --purge --yes ` + strings.Join(flag.Args(), " "))
+	exitStatus, runErr = run(`apt-get -o Dpkg::Options::="--force-confnew" dist-upgrade --autoremove --purge --yes ` + strings.Join(flag.Args(), " "))
+
 	d.ITEM("update and auto-remove packages")
 	if runErr != nil || exitStatus != 0 {
 		panic(ExitError{})
