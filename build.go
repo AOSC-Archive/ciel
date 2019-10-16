@@ -7,10 +7,11 @@ import (
 	"os"
 	"os/exec"
 	"path"
+	"path/filepath"
 	"strings"
 	"syscall"
 
-	"ciel/display"
+	d "ciel/display"
 	"ciel/internal/ciel"
 	"ciel/internal/container/instance"
 	"ciel/internal/packaging"
@@ -70,6 +71,32 @@ func buildConfig() {
 	if !*batch && d.ASKLower("Would you like to edit sources.list"+suffix+"?", "yes/no") == "yes" {
 		packaging.EditSourceList(global, inst, c)
 	}
+
+	if !*batch && d.ASKLower("Do you want to enable local packages repository?", "yes/no") == "yes" {
+		packaging.InitLocalRepo(global, inst, c)
+		// add the key to the APT trust store
+		d.ITEM("creating and importing gpg keys")
+		if refreshLocalRepo(inst.MountPoint()) == 0 {
+			d.OK()
+		} else {
+			d.FAILED()
+		}
+	}
+}
+
+func refreshLocalRepo(debsDir string) int {
+	proc := filepath.Join(PluginDir, PluginPrefix+"localrepo")
+	cmd := exec.Command(proc, debsDir)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	err := cmd.Run()
+	if exitErr, ok := err.(*exec.ExitError); ok {
+		return exitErr.Sys().(syscall.WaitStatus).ExitStatus()
+	}
+	if err != nil {
+		log.Fatalln(err)
+	}
+	return 0
 }
 
 func build() {
@@ -90,6 +117,26 @@ func build() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	debsDir := path.Join(i.GetBasePath(), "OUTPUT", "debs")
+	dir, err := os.Getwd()
+	debsDirTarget := path.Join(dir, inst.MountPoint(), "debs")
+	if err != nil {
+		log.Fatalln(err)
+	}
+	err = os.MkdirAll(debsDir, 0755)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	err = os.MkdirAll(debsDirTarget, 0755)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	err = syscall.Mount(debsDir, debsDirTarget, "", syscall.MS_BIND, "")
+	if err != nil {
+		log.Fatalln(err)
+	}
+
 	args := []string{
 		rootShell,
 		"--login",
@@ -112,17 +159,17 @@ func build() {
 		os.Exit(exitStatus)
 	}
 
-	os.Mkdir(path.Join(i.GetBasePath(), "OUTPUT"), 0755)
-	cmd := exec.Command("sh", "-c", "cp -rp "+inst.MountPoint()+"/debs OUTPUT/")
-	cmd.Stderr = os.Stderr
-	err = cmd.Run()
-	if exitErr, ok := err.(*exec.ExitError); ok {
-		os.Exit(exitErr.Sys().(syscall.WaitStatus).ExitStatus())
-	}
+	err = syscall.Unmount(debsDirTarget, 0)
 	if err != nil {
 		log.Fatalln(err)
 	}
+	aptConfigPath := path.Join(inst.MountPoint(), packaging.DefaultRepoConfig)
+	if _, err = os.Stat(aptConfigPath); err != nil {
+		return
+	}
 
+	d.Println(d.C0(d.WHITE, "Refreshing local repository... "))
+	refreshLocalRepo(debsDir)
 	//cmd = exec.Command("sh", "-c", "cp -p "+inst.MountPoint()+"/var/log/apt/history.log OUTPUT/")
 	//cmd.Stderr = os.Stderr
 	//err = cmd.Run()
