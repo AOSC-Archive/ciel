@@ -6,12 +6,13 @@ import (
 	"os/exec"
 	"path"
 
-	"ciel/display"
+	d "ciel/display"
 	"ciel/internal/abstract"
 )
 
 const (
-	DefaultEditor = "/usr/bin/editor"
+	DefaultEditor     = "/usr/bin/editor"
+	DefaultRepoConfig = "/etc/apt/sources.list.d/ciel-local.list"
 )
 
 func EditSourceList(global bool, i abstract.Instance, c abstract.Container) {
@@ -71,6 +72,19 @@ func SetMaintainer(global bool, i abstract.Instance, c abstract.Container, perso
 	config += `ABINSTALL=dpkg` + "\n"
 	d.ITEM("set maintainer")
 	err := ioutil.WriteFile(path.Join(root, "/usr/lib/autobuild3/etc/autobuild/ab3cfg.sh"), []byte(config), 0644)
+	d.ERR(err)
+}
+
+func InitLocalRepo(global bool, i abstract.Instance, c abstract.Container) {
+	var root string
+	if global {
+		root = c.DistDir()
+	} else {
+		root = i.MountPoint()
+	}
+	config := `deb file:///debs /` + "\n"
+	d.ITEM("initialize local repository")
+	err := ioutil.WriteFile(path.Join(root, DefaultRepoConfig), []byte(config), 0644)
 	d.ERR(err)
 }
 
