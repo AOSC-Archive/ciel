@@ -89,6 +89,14 @@ func buildConfig() {
 		} else {
 			d.FAILED_BECAUSE(fmt.Sprintf("Script exited with status %d", exitStatus))
 		}
+		d.ITEM("bootstrap local repository")
+		prefix = path.Join(c.GetCiel().GetBasePath(), "/OUTPUT/debs")
+		exitStatus = refreshLocalRepo(prefix, false)
+		if exitStatus == 0 {
+			d.OK()
+		} else {
+			d.FAILED_BECAUSE(fmt.Sprintf("2nd stage script exited with status %d", exitStatus))
+		}
 	}
 }
 
@@ -146,6 +154,9 @@ func build() {
 	err = syscall.Mount(debsDir, debsDirTarget, "", syscall.MS_BIND, "")
 	if err != nil {
 		log.Fatalln(err)
+	}
+	if _, err := os.Stat(path.Join(debsDirTarget, "InRelease")); err != nil {
+		refreshLocalRepo(debsDir, false)
 	}
 
 	args := []string{
