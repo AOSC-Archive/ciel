@@ -77,7 +77,13 @@ func buildConfig() {
 		packaging.InitLocalRepo(global, inst, c)
 		// add the key to the APT trust store
 		d.ITEM("create and import gpg keys")
-		exitStatus := refreshLocalRepo(inst.MountPoint(), true)
+		var prefix string
+		if global {
+			prefix = c.DistDir()
+		} else {
+			prefix = inst.MountPoint()
+		}
+		exitStatus := refreshLocalRepo(prefix, true)
 		if exitStatus == 0 {
 			d.OK()
 		} else {
