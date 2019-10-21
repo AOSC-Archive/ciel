@@ -123,6 +123,7 @@ func build() {
 	instName := flagInstance()
 	networkFlag := flagNetwork()
 	noBooting := flagNoBooting()
+	usingLocalRepo := false
 	parse()
 
 	i := &ciel.Ciel{BasePath: *basePath}
@@ -155,7 +156,11 @@ func build() {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	if _, err := os.Stat(path.Join(debsDirTarget, "InRelease")); err != nil {
+	aptConfigPath := path.Join(inst.MountPoint(), packaging.DefaultRepoConfig)
+	if _, err = os.Stat(aptConfigPath); err == nil {
+		usingLocalRepo = true
+	}
+	if _, err := os.Stat(path.Join(debsDirTarget, "InRelease")); err != nil && usingLocalRepo {
 		refreshLocalRepo(debsDir, false)
 	}
 
@@ -185,13 +190,11 @@ func build() {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	aptConfigPath := path.Join(inst.MountPoint(), packaging.DefaultRepoConfig)
-	if _, err = os.Stat(aptConfigPath); err != nil {
-		return
-	}
 
-	d.Println(d.C0(d.WHITE, "Refreshing local repository... "))
-	refreshLocalRepo(debsDir, false)
+	if usingLocalRepo {
+		d.Println(d.C0(d.WHITE, "Refreshing local repository... "))
+		refreshLocalRepo(debsDir, false)
+	}
 	//cmd = exec.Command("sh", "-c", "cp -p "+inst.MountPoint()+"/var/log/apt/history.log OUTPUT/")
 	//cmd.Stderr = os.Stderr
 	//err = cmd.Run()
