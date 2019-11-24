@@ -107,6 +107,19 @@ if [[ "$VARIANT" == sunxi64-* ]]; then
 	BASE_VARIANT="$(echo $VARIANT | cut -d - -f 2-)"
 	CALCULATED_RECIPE="${BASE_VARIANT^^}_RECIPE"
 fi
+
+# Special case for rk64-base
+if [[ "$VARIANT" == rk64-* ]]; then
+	if [[ ! "$DEVICE_NAME" ]]; then
+		echo "DEVICE_NAME environment variable not set!" >&2
+		exit 1
+	fi
+	BOOTABLE_RECIPE="linux+kernel+rk64 u-boot-aosc-utils u-boot-$DEVICE_NAME"
+	BOOTABLE_RECIPE+=" firmware-free firmware-nonfree"
+	BASE_VARIANT="$(echo $VARIANT | cut -d - -f 2-)"
+	CALCULATED_RECIPE="${BASE_VARIANT^^}_RECIPE"
+fi
+
 if (($USE_DKMS)); then
 	BOOTABLE_RECIPE+=" gcc dkms"
 fi
@@ -217,6 +230,24 @@ _recipe_sunxi64-mate_config(){
 		remote-fs.target smartd.service smbd.service sshd.service systemd-networkd-wait-online.service \
 		systemd-networkd.service systemd-networkd.socket systemd-resolved.service systemd-timesyncd.service \
 		udisks2.service upower.service"
+	if (($USE_DKMS)); then
+		ciel shell "systemctl enable dkms.service"
+	fi
+}
+_recipe_rk64-base_pre_install() {
+	ciel shell "echo deb https://repo.aosc.io/debs stable bsp-rk > /etc/apt/sources.list.d/rk.list"
+	ciel commit
+	ciel shell "apt-get update"
+}
+_recipe_rk64-base_config(){
+	# FIXME: preset.
+	ciel shell "systemctl enable ModemManager.service NetworkManager-dispatcher.service \
+		NetworkManager-wait-online.service NetworkManager.service \
+		apt-update.timer autovt@.service bluetooth.service \
+		fc-cache.service fcron.service fstrim.timer getty@.service \
+		gpm.service lvm2-lvmetad.service lvm2-monitor.service machines.target \
+		reboot.target remote-fs.target smartd.service sshd.service systemd-networkd-wait-online.service \
+		systemd-networkd.service systemd-networkd.socket systemd-resolved.service systemd-timesyncd.service"
 	if (($USE_DKMS)); then
 		ciel shell "systemctl enable dkms.service"
 	fi
