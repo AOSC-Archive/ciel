@@ -10,11 +10,13 @@ import (
 	"ciel/internal/abstract"
 )
 
+// constant definitions for packaging related variables
 const (
 	DefaultEditor     = "/usr/bin/editor"
 	DefaultRepoConfig = "/etc/apt/sources.list.d/ciel-local.list"
 )
 
+// EditSourceList : config function to let user manipulate the apt config inside the container
 func EditSourceList(global bool, i abstract.Instance, c abstract.Container) {
 	var root string
 	if global {
@@ -30,6 +32,7 @@ func EditSourceList(global bool, i abstract.Instance, c abstract.Container) {
 	cmd.Run()
 }
 
+// SetTreePath : config function to set the acbs search path
 func SetTreePath(global bool, i abstract.Instance, c abstract.Container, tree string) {
 	var root string
 	if global {
@@ -44,6 +47,7 @@ func SetTreePath(global bool, i abstract.Instance, c abstract.Container, tree st
 	d.ERR(err)
 }
 
+// DisableDNSSEC : config function to disable DNSSEC service
 func DisableDNSSEC(global bool, i abstract.Instance, c abstract.Container) {
 	var root string
 	if global {
@@ -58,6 +62,7 @@ func DisableDNSSEC(global bool, i abstract.Instance, c abstract.Container) {
 	d.ERR(err)
 }
 
+// SetMaintainer : config function to let user specify maintainer information
 func SetMaintainer(global bool, i abstract.Instance, c abstract.Container, person string) {
 	var root string
 	if global {
@@ -75,6 +80,7 @@ func SetMaintainer(global bool, i abstract.Instance, c abstract.Container, perso
 	d.ERR(err)
 }
 
+// InitLocalRepo : initialize local repository
 func InitLocalRepo(global bool, i abstract.Instance, c abstract.Container) {
 	var root string
 	if global {
@@ -88,6 +94,7 @@ func InitLocalRepo(global bool, i abstract.Instance, c abstract.Container) {
 	d.ERR(err)
 }
 
+// UnInitLocalRepo : remove local repository (configuration only)
 func UnInitLocalRepo(global bool, i abstract.Instance, c abstract.Container) {
 	var root string
 	if global {
@@ -96,7 +103,8 @@ func UnInitLocalRepo(global bool, i abstract.Instance, c abstract.Container) {
 		root = i.MountPoint()
 	}
 	d.ITEM("un-initialize local repository")
-	os.Remove(path.Join(root, DefaultRepoConfig))
+	err := os.Remove(path.Join(root, DefaultRepoConfig))
+	d.ERR(err)
 }
 
 func editor() string {
