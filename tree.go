@@ -7,6 +7,7 @@ import (
 	"ciel/internal/ciel"
 )
 
+// URL to the main abbs repository
 const (
 	GitAOSCOSABBS = "https://github.com/AOSC-Dev/aosc-os-abbs"
 )

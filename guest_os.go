@@ -21,6 +21,7 @@ import (
 	"ciel/systemd-api/nspawn"
 )
 
+// URL to the latest version of the tarball, currently hardcoded to amd64 architecture
 const (
 	LatestTarballURL = "https://releases.aosc.io/os-amd64/buildkit/aosc-os_buildkit_latest_amd64.tar.xz"
 )
@@ -39,8 +40,8 @@ func untarGuestOS() {
 		d.SECTION("Download OS")
 		d.ITEM("latest tarball url")
 		d.Println(d.C(d.CYAN, LatestTarballURL))
-		tarUrl, _ := url.Parse(LatestTarballURL)
-		_, DownloadTarball := filepath.Split(tarUrl.Path)
+		tarURL, _ := url.Parse(LatestTarballURL)
+		_, DownloadTarball := filepath.Split(tarURL.Path)
 		if DownloadTarball == "" {
 			DownloadTarball = "latest.tar.xz"
 		}

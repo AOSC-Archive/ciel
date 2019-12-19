@@ -10,7 +10,7 @@ import (
 	"strconv"
 	"strings"
 
-	"ciel/display"
+	d "ciel/display"
 	"ciel/internal/ciel"
 	"ciel/internal/container/instance"
 )
@@ -175,21 +175,19 @@ func _shellRun(inst *instance.Instance, network bool, boot bool, cmd string) (in
 		os.Remove(exitStatusFile)
 		if realExitStatus, err := strconv.Atoi(strings.TrimSpace(string(b))); err == nil {
 			return realExitStatus, nil
-		} else {
-			log.Println(err)
-			return exitStatus, nil
 		}
-	} else {
-		if os.IsNotExist(err) {
-			log.Println("session was accidentally terminated")
-		} else {
-			log.Println(err)
-		}
-		if exitStatus == 0 {
-			exitStatus = 1
-		}
+		log.Println(err)
 		return exitStatus, nil
 	}
+	if os.IsNotExist(err) {
+		log.Println("session was accidentally terminated")
+	} else {
+		log.Println(err)
+	}
+	if exitStatus == 0 {
+		exitStatus = 1
+	}
+	return exitStatus, nil
 }
 
 func stop() {

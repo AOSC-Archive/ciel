@@ -11,6 +11,7 @@ import (
 	"syscall"
 )
 
+// constants definitions for the plugin paths
 const (
 	LibExecDir   = Prefix + "/libexec"
 	PluginDir    = LibExecDir + "/ciel-plugin"
