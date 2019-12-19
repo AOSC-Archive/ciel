@@ -29,8 +29,9 @@ if [[ "$CIEL_LR_FIRST" == '1' ]]; then
     exit 0
 fi
 
-mkdir -p "$REPO_ROOT"
-dpkg-scanpackages "$REPO_ROOT" > "$REPO_ROOT/Packages"
+pushd "$REPO_ROOT/../" > /dev/null
+dpkg-scanpackages './debs' > "./debs/Packages"
+popd > /dev/null
 
 gpg --pinentry-mode loopback --passphrase='CIEL' --no-default-keyring --keyring "$GPG_KEYRING" --clearsign -az3 <<EOF > "$REPO_ROOT/InRelease"
 Origin: AOSC
