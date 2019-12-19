@@ -97,6 +97,8 @@ func buildConfig() {
 		} else {
 			d.FAILED_BECAUSE(fmt.Sprintf("2nd stage script exited with status %d", exitStatus))
 		}
+	} else {
+		packaging.UnInitLocalRepo(global, inst, c)
 	}
 }
 

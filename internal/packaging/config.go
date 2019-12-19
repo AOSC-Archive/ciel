@@ -88,6 +88,17 @@ func InitLocalRepo(global bool, i abstract.Instance, c abstract.Container) {
 	d.ERR(err)
 }
 
+func UnInitLocalRepo(global bool, i abstract.Instance, c abstract.Container) {
+	var root string
+	if global {
+		root = c.DistDir()
+	} else {
+		root = i.MountPoint()
+	}
+	d.ITEM("un-initialize local repository")
+	os.Remove(path.Join(root, DefaultRepoConfig))
+}
+
 func editor() string {
 	if s := os.Getenv("VISUAL"); s != "" {
 		return s
