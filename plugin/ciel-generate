@@ -174,7 +174,7 @@ _recipe_base_config() {
 		NetworkManager-wait-online.service NetworkManager.service \
 		apt-update.timer autovt@.service bluetooth.service  \
 		fc-cache.service fcron.service fstrim.timer getty@.service \
-		gpm.service lvm2-lvmetad.service lvm2-monitor.service machines.target \
+		gpm.service lvm2-monitor.service machines.target \
 		reboot.target remote-fs.target smartd.service sshd.service systemd-networkd-wait-online.service \
 		systemd-networkd.service systemd-networkd.socket systemd-resolved.service systemd-timesyncd.service"
 	if [[ "${BUILD_ARCH}" = "amd64" ]]; then
@@ -192,7 +192,7 @@ _recipe_sunxi-base_config(){
 		NetworkManager-wait-online.service NetworkManager.service \
 		apt-update.timer autovt@.service bluetooth.service \
 		fc-cache.service fcron.service fstrim.timer getty@.service \
-		gpm.service lvm2-lvmetad.service lvm2-monitor.service machines.target \
+		gpm.service lvm2-monitor.service machines.target \
 		reboot.target remote-fs.target smartd.service sshd.service systemd-networkd-wait-online.service \
 		systemd-networkd.service systemd-networkd.socket systemd-resolved.service systemd-timesyncd.service"
 }
@@ -207,7 +207,7 @@ _recipe_sunxi64-base_config(){
 		NetworkManager-wait-online.service NetworkManager.service \
 		apt-update.timer autovt@.service bluetooth.service \
 		fc-cache.service fcron.service fstrim.timer getty@.service \
-		gpm.service lvm2-lvmetad.service lvm2-monitor.service machines.target \
+		gpm.service lvm2-monitor.service machines.target \
 		reboot.target remote-fs.target smartd.service sshd.service systemd-networkd-wait-online.service \
 		systemd-networkd.service systemd-networkd.socket systemd-resolved.service systemd-timesyncd.service"
 	if (($USE_DKMS)); then
@@ -225,7 +225,7 @@ _recipe_sunxi64-mate_config(){
 		NetworkManager-wait-online.service NetworkManager.service accounts-daemon.service \
 		apt-update.timer autovt@.service bluetooth.service \
 		fc-cache.service fcron.service fstrim.timer \
-		getty@.service gpm.service lightdm.service lvm2-lvmetad.service lvm2-monitor.service \
+		getty@.service gpm.service lightdm.service lvm2-monitor.service \
 		machines.target reboot.target \
 		remote-fs.target smartd.service smbd.service sshd.service systemd-networkd-wait-online.service \
 		systemd-networkd.service systemd-networkd.socket systemd-resolved.service systemd-timesyncd.service \
@@ -245,7 +245,7 @@ _recipe_rk64-base_config(){
 		NetworkManager-wait-online.service NetworkManager.service \
 		apt-update.timer autovt@.service bluetooth.service \
 		fc-cache.service fcron.service fstrim.timer getty@.service \
-		gpm.service lvm2-lvmetad.service lvm2-monitor.service machines.target \
+		gpm.service lvm2-monitor.service machines.target \
 		reboot.target remote-fs.target smartd.service sshd.service systemd-networkd-wait-online.service \
 		systemd-networkd.service systemd-networkd.socket systemd-resolved.service systemd-timesyncd.service"
 	if (($USE_DKMS)); then
@@ -262,7 +262,7 @@ _recipe_budgie_config() {
 		NetworkManager-wait-online.service NetworkManager.service accounts-daemon.service \
 		apt-update.timer autovt@.service bluetooth.service \
 		fc-cache.service fcron.service fstrim.timer \
-		getty@.service gpm.service lightdm.service lvm2-lvmetad.service lvm2-monitor.service \
+		getty@.service gpm.service lightdm.service lvm2-monitor.service \
 		machines.target org.cups.cupsd.path org.cups.cupsd.service org.cups.cupsd.socket \
 		reboot.target remote-fs.target smartd.service smbd.service sshd.service systemd-networkd-wait-online.service \
 		systemd-networkd.service systemd-networkd.socket systemd-resolved.service systemd-timesyncd.service \
@@ -281,7 +281,7 @@ _recipe_cinnamon_config() {
 		NetworkManager-wait-online.service NetworkManager.service accounts-daemon.service \
 		apt-update.timer autovt@.service bluetooth.service \
 		fc-cache.service fcron.service fstrim.timer \
-		getty@.service gpm.service lightdm.service lvm2-lvmetad.service lvm2-monitor.service \
+		getty@.service gpm.service lightdm.service lvm2-monitor.service \
 		machines.target org.cups.cupsd.path org.cups.cupsd.service org.cups.cupsd.socket reboot.target \
 		remote-fs.target smartd.service smbd.service sshd.service systemd-networkd-wait-online.service \
 		systemd-networkd.service systemd-networkd.socket systemd-resolved.service systemd-timesyncd.service \
@@ -296,7 +296,7 @@ _recipe_gnome_config() {
 		NetworkManager-wait-online.service NetworkManager.service accounts-daemon.service \
 		apt-update.timer autovt@.service bluetooth.service \
 		fc-cache.service fcron.service fstrim.timer \
-		gdm.service getty@.service gpm.service httpd.service lvm2-lvmetad.service lvm2-monitor.service \
+		gdm.service getty@.service gpm.service httpd.service lvm2-monitor.service \
 		machines.target org.cups.cupsd.path org.cups.cupsd.service org.cups.cupsd.socket \
 		reboot.target remote-fs.target smartd.service smbd.service sshd.service systemd-networkd-wait-online.service \
 		systemd-networkd.service systemd-networkd.socket systemd-resolved.service systemd-timesyncd.service \
@@ -311,7 +311,7 @@ _recipe_i3wm_config() {
 		NetworkManager-wait-online.service NetworkManager.service accounts-daemon.service \
 		apt-update.timer autovt@.service bluetooth.service \
 		fc-cache.service fcron.service fstrim.timer \
-		getty@.service gpm.service lightdm.service lvm2-lvmetad.service lvm2-monitor.service \
+		getty@.service gpm.service lightdm.service lvm2-monitor.service \
 		machines.target org.cups.cupsd.path org.cups.cupsd.service org.cups.cupsd.socket reboot.target \
 		remote-fs.target smartd.service smbd.service sshd.service systemd-networkd-wait-online.service \
 		systemd-networkd.service systemd-networkd.socket systemd-resolved.service systemd-timesyncd.service \
@@ -326,7 +326,7 @@ _recipe_kde_config() {
 		NetworkManager-wait-online.service NetworkManager.service accounts-daemon.service \
 		apt-update.timer autovt@.service bluetooth.service \
 		fc-cache.service fcron.service fstrim.timer \
-		getty@.service gpm.service lvm2-lvmetad.service lvm2-monitor.service \
+		getty@.service gpm.service lvm2-monitor.service \
 		machines.target org.cups.cupsd.path org.cups.cupsd.service org.cups.cupsd.socket reboot.target \
 		remote-fs.target sddm.service smartd.service smbd.service sshd.service systemd-networkd-wait-online.service \
 		systemd-networkd.service systemd-networkd.socket systemd-resolved.service systemd-timesyncd.service \
@@ -341,7 +341,7 @@ _recipe_lxde_config() {
 		NetworkManager-wait-online.service NetworkManager.service accounts-daemon.service \
 		apt-update.timer autovt@.service bluetooth.service \
 		fc-cache.service fcron.service fstrim.timer \
-		getty@.service gpm.service lightdm.service lvm2-lvmetad.service lvm2-monitor.service \
+		getty@.service gpm.service lightdm.service lvm2-monitor.service \
 		machines.target org.cups.cupsd.path org.cups.cupsd.service org.cups.cupsd.socket reboot.target \
 		remote-fs.target smartd.service smbd.service sshd.service systemd-networkd-wait-online.service \
 		systemd-networkd.service systemd-networkd.socket systemd-resolved.service systemd-timesyncd.service \
@@ -356,7 +356,7 @@ _recipe_mate_config() {
 		NetworkManager-wait-online.service NetworkManager.service accounts-daemon.service \
 		apt-update.timer autovt@.service bluetooth.service \
 		fc-cache.service fcron.service fstrim.timer \
-		getty@.service gpm.service lightdm.service lvm2-lvmetad.service lvm2-monitor.service \
+		getty@.service gpm.service lightdm.service lvm2-monitor.service \
 		machines.target org.cups.cupsd.path org.cups.cupsd.service org.cups.cupsd.socket reboot.target \
 		remote-fs.target smartd.service smbd.service sshd.service systemd-networkd-wait-online.service \
 		systemd-networkd.service systemd-networkd.socket systemd-resolved.service systemd-timesyncd.service \
@@ -371,7 +371,7 @@ _recipe_xfce_config() {
 		NetworkManager-wait-online.service NetworkManager.service accounts-daemon.service \
 		apt-update.timer autovt@.service bluetooth.service \
 		fc-cache.service fcron.service fstrim.timer \
-		getty@.service gpm.service lightdm.service lvm2-lvmetad.service lvm2-monitor.service \
+		getty@.service gpm.service lightdm.service lvm2-monitor.service \
 		machines.target org.cups.cupsd.path org.cups.cupsd.service org.cups.cupsd.socket reboot.target \
 		remote-fs.target smartd.service smbd.service sshd.service systemd-networkd-wait-online.service \
 		systemd-networkd.service systemd-networkd.socket systemd-resolved.service systemd-timesyncd.service \
