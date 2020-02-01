@@ -140,7 +140,7 @@ I3WM_RECIPE="${BASE_RECIPE} ${DESKTOP_RECIPE} i3-distro-base i3-default-settings
              lightdm-gtk-greeter-settings arc-theme flat-remix-icon-theme \
              desktop-base alsa-utils"
 KDE_RECIPE="${BASE_RECIPE} ${DESKTOP_RECIPE} kde-base fcitx-base sddm mpv kdeplasma-addons \
-            alsa-utils"
+            alsa-utils plasma-distro-base"
 LXDE_RECIPE="${BASE_RECIPE} ${DESKTOP_RECIPE} lxde-base lxde-distro-base ibus-base \
              lightdm-gtk-greeter-settings lxde-default-settings \
              arc-icon-theme network-manager-applet \
