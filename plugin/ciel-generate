@@ -182,7 +182,7 @@ _recipe_base_config() {
 	fi
 }
 _recipe_sunxi-base_pre_install() {
-	ciel shell "echo deb https://repo.aosc.io/debs stable bsp-sunxi > /etc/apt/sources.list.d/sunxi.list"
+	ciel shell "apt-gen-list c +bsp-sunxi"
 	ciel commit
 	ciel shell "apt-get update"
 }
@@ -197,7 +197,7 @@ _recipe_sunxi-base_config(){
 		systemd-networkd.service systemd-networkd.socket systemd-resolved.service systemd-timesyncd.service"
 }
 _recipe_sunxi64-base_pre_install() {
-	ciel shell "echo deb https://repo.aosc.io/debs stable bsp-sunxi > /etc/apt/sources.list.d/sunxi.list"
+	ciel shell "apt-gen-list c +bsp-sunxi"
 	ciel commit
 	ciel shell "apt-get update"
 }
@@ -215,7 +215,7 @@ _recipe_sunxi64-base_config(){
 	fi
 }
 _recipe_sunxi64-mate_pre_install() {
-	ciel shell "echo deb https://repo.aosc.io/debs stable bsp-sunxi > /etc/apt/sources.list.d/sunxi.list"
+	ciel shell "apt-gen-list c +bsp-sunxi"
 	ciel commit
 	ciel shell "apt-get update"
 }
@@ -234,8 +234,48 @@ _recipe_sunxi64-mate_config(){
 		ciel shell "systemctl enable dkms.service"
 	fi
 }
+_recipe_sunxi64-gnome_pre_install() {
+	ciel shell "apt-gen-list c +bsp-sunxi"
+	ciel commit
+	ciel shell "apt-get update"
+}
+_recipe_sunxi64-gnome_config(){
+	# FIXME: preset.
+	ciel shell "systemctl enable ModemManager.service NetworkManager-dispatcher.service \
+		NetworkManager-wait-online.service NetworkManager.service accounts-daemon.service \
+		apt-update.timer autovt@.service bluetooth.service \
+		fc-cache.service fcron.service fstrim.timer \
+		gdm.service getty@.service gpm.service lvm2-monitor.service \
+		machines.target reboot.target \
+		remote-fs.target smartd.service smbd.service sshd.service systemd-networkd-wait-online.service \
+		systemd-networkd.service systemd-networkd.socket systemd-resolved.service systemd-timesyncd.service \
+		udisks2.service upower.service"
+	if (($USE_DKMS)); then
+		ciel shell "systemctl enable dkms.service"
+	fi
+}
+_recipe_sunxi64-kde_pre_install() {
+	ciel shell "apt-gen-list c +bsp-sunxi"
+	ciel commit
+	ciel shell "apt-get update"
+}
+_recipe_sunxi64-kde_config(){
+	# FIXME: preset.
+	ciel shell "systemctl enable ModemManager.service NetworkManager-dispatcher.service \
+		NetworkManager-wait-online.service NetworkManager.service accounts-daemon.service \
+		apt-update.timer autovt@.service bluetooth.service \
+		fc-cache.service fcron.service fstrim.timer \
+		getty@.service gpm.service lvm2-monitor.service \
+		machines.target reboot.target \
+		remote-fs.target sddm.service smartd.service smbd.service sshd.service systemd-networkd-wait-online.service \
+		systemd-networkd.service systemd-networkd.socket systemd-resolved.service systemd-timesyncd.service \
+		udisks2.service upower.service"
+	if (($USE_DKMS)); then
+		ciel shell "systemctl enable dkms.service"
+	fi
+}
 _recipe_rk64-base_pre_install() {
-	ciel shell "echo deb https://repo.aosc.io/debs stable bsp-rk > /etc/apt/sources.list.d/rk.list"
+	ciel shell "apt-gen-list c +bsp-rk"
 	ciel commit
 	ciel shell "apt-get update"
 }
