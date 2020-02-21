@@ -282,7 +282,7 @@ func factoryReset() {
 			`^/etc`,
 			`^/run`,
 			`^/usr`,
-			`^/var/lib/apt/gen/status\.json$`,
+			`^/var/lib/apt/gen`,
 			`^/var/lib/apt/extended_states`,
 			`^/var/lib/dpkg`,
 			`^/var/log/journal$`,
