@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"flag"
 	"fmt"
 	"log"
@@ -135,11 +134,6 @@ func build() {
 	inst := c.Instance(*instName)
 	inst.Mount()
 
-	rootShell, err := inst.Shell("root")
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	debsDir := path.Join(i.GetBasePath(), "OUTPUT", "debs")
 	dir, err := os.Getwd()
 	debsDirTarget := path.Join(dir, inst.MountPoint(), "debs")
@@ -166,23 +160,16 @@ func build() {
 		refreshLocalRepo(debsDir, false)
 	}
 
-	args := []string{
-		rootShell,
-		"--login",
-		"-c", `acbs-build ` + strings.Join(flag.Args(), " "),
-		// FIXME: 'strict mode' -- only one package, require Local DEB Repository
-	}
+	cmd := `acbs-build ` + strings.Join(flag.Args(), " ")
 
-	ctnInfo := buildContainerInfo(!*noBooting, *networkFlag)
-	runInfo := buildRunInfo(args)
-
-	exitStatus, err := inst.Run(
-		context.Background(),
-		ctnInfo,
-		runInfo,
+	exitStatus, err := _shellRun(
+		inst,
+		*networkFlag,
+		!*noBooting,
+		cmd,
 	)
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
 	}
 	if exitStatus != 0 {
 		os.Exit(exitStatus)
