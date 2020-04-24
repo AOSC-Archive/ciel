@@ -1,4 +1,6 @@
-// +build: linux
+// +build linux
+//go:generate ./generate.sh
+
 package main
 
 import (

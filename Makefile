@@ -30,9 +30,7 @@ deps: $(CIELPATH) $(SRCDIR)/go.mod $(SRCDIR)/go.sum
 	go mod vendor
 
 config:
-	cp $(SRCDIR)/_config.go $(SRCDIR)/config.go
-	sed 's,__VERSION__,$(VERSION),g' -i $(SRCDIR)/config.go
-	sed 's,__PREFIX__,$(PREFIX),g' -i $(SRCDIR)/config.go
+	go generate
 
 $(DISTDIR)/bin/ciel: deps config
 	export CC
