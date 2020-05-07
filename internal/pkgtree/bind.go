@@ -5,8 +5,8 @@ import (
 	"path"
 	"syscall"
 
-	"ciel/display"
-	"ciel/proc-api"
+	d "github.com/AOSC-Dev/ciel/display"
+	"github.com/AOSC-Dev/ciel/proc-api"
 )
 
 const (

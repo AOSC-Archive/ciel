@@ -8,9 +8,9 @@ import (
 	"path"
 	"strings"
 
-	"ciel/internal/abstract"
-	"ciel/internal/container/instance"
-	"ciel/internal/utils"
+	"github.com/AOSC-Dev/ciel/internal/abstract"
+	"github.com/AOSC-Dev/ciel/internal/container/instance"
+	"github.com/AOSC-Dev/ciel/internal/utils"
 )
 
 const (

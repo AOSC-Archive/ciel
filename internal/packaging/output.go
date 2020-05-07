@@ -1,12 +1,13 @@
 package packaging
 
 import (
-	d "ciel/display"
-	"ciel/internal/abstract"
-	"ciel/proc-api"
 	"os"
 	"path"
 	"syscall"
+
+	d "github.com/AOSC-Dev/ciel/display"
+	"github.com/AOSC-Dev/ciel/internal/abstract"
+	"github.com/AOSC-Dev/ciel/proc-api"
 )
 
 const (

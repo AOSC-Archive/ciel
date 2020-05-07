@@ -10,8 +10,8 @@ import (
 	"os"
 	"strings"
 
-	"ciel/display"
-	"ciel/internal/ciel"
+	d "github.com/AOSC-Dev/ciel/display"
+	"github.com/AOSC-Dev/ciel/internal/ciel"
 )
 
 var rawArgs []string

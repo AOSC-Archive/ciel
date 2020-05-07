@@ -4,7 +4,7 @@ import (
 	"flag"
 	"os"
 
-	"ciel/internal/ciel"
+	"github.com/AOSC-Dev/ciel/internal/ciel"
 )
 
 // URL to the main abbs repository

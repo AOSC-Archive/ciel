@@ -10,14 +10,16 @@ import (
 	"path"
 	"strings"
 
-	d "ciel/display"
-	"ciel/internal/abstract"
-	"ciel/internal/container/filesystem"
-	"ciel/ipc"
-	"ciel/overlayfs"
-	"ciel/proc-api"
-	"ciel/systemd-api/machined"
-	"ciel/systemd-api/nspawn"
+	"github.com/AOSC-Dev/ciel/ipc"
+	"github.com/AOSC-Dev/ciel/overlayfs"
+	"github.com/AOSC-Dev/ciel/proc-api"
+	"github.com/AOSC-Dev/ciel/systemd-api/machined"
+	"github.com/AOSC-Dev/ciel/systemd-api/nspawn"
+
+	"github.com/AOSC-Dev/ciel/internal/abstract"
+	"github.com/AOSC-Dev/ciel/internal/container/filesystem"
+
+	d "github.com/AOSC-Dev/ciel/display"
 )
 
 const (

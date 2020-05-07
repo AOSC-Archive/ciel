@@ -6,11 +6,11 @@ import (
 	"path"
 	"strings"
 
-	"ciel/internal/abstract"
-	"ciel/internal/container"
-	"ciel/internal/packaging"
-	"ciel/internal/pkgtree"
-	"ciel/internal/utils"
+	"github.com/AOSC-Dev/ciel/internal/abstract"
+	"github.com/AOSC-Dev/ciel/internal/container"
+	"github.com/AOSC-Dev/ciel/internal/packaging"
+	"github.com/AOSC-Dev/ciel/internal/pkgtree"
+	"github.com/AOSC-Dev/ciel/internal/utils"
 )
 
 const (

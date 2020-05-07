@@ -1,7 +1,7 @@
 package machined
 
 import (
-	"ciel/systemd-api"
+	"github.com/AOSC-Dev/ciel/systemd-api"
 	"github.com/godbus/dbus"
 )
 

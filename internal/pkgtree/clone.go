@@ -3,10 +3,11 @@ package pkgtree
 import (
 	"os/exec"
 
-	"ciel/internal/abstract"
 	"log"
 	"os"
 	"syscall"
+
+	"github.com/AOSC-Dev/ciel/internal/abstract"
 )
 
 type Tree struct {

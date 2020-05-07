@@ -7,7 +7,7 @@ import (
 	"strings"
 	"syscall"
 
-	"ciel/display"
+	d "github.com/AOSC-Dev/ciel/display"
 )
 
 type Instance struct {

@@ -11,11 +11,11 @@ import (
 	"strings"
 	"syscall"
 
-	d "ciel/display"
-	"ciel/internal/ciel"
-	"ciel/internal/container/instance"
-	"ciel/internal/packaging"
-	"ciel/internal/pkgtree"
+	d "github.com/AOSC-Dev/ciel/display"
+	"github.com/AOSC-Dev/ciel/internal/ciel"
+	"github.com/AOSC-Dev/ciel/internal/container/instance"
+	"github.com/AOSC-Dev/ciel/internal/packaging"
+	"github.com/AOSC-Dev/ciel/internal/pkgtree"
 )
 
 func buildConfig() {

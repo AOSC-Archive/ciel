@@ -1,7 +1,7 @@
 package pkgtree
 
 import (
-	"ciel/internal/abstract"
+	"github.com/AOSC-Dev/ciel/internal/abstract"
 )
 
 func (t *Tree) MountHandler(i abstract.Instance, mount bool) {

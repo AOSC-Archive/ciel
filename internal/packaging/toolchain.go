@@ -4,8 +4,9 @@ import (
 	"os"
 	"path"
 
-	"ciel/display"
-	"ciel/internal/abstract"
+	"github.com/AOSC-Dev/ciel/internal/abstract"
+
+	d "github.com/AOSC-Dev/ciel/display"
 )
 
 const (

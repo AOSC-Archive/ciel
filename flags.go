@@ -4,7 +4,7 @@ import (
 	"flag"
 	"os"
 
-	"ciel/systemd-api/nspawn"
+	"github.com/AOSC-Dev/ciel/systemd-api/nspawn"
 )
 
 func flagCielDir() *string {

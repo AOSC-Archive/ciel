@@ -1,4 +1,4 @@
-module ciel
+module github.com/AOSC-Dev/ciel
 
 go 1.13
 

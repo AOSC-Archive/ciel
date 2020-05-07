@@ -3,8 +3,9 @@ package main
 import (
 	"fmt"
 
-	"ciel/display"
-	"ciel/internal/ciel"
+	"github.com/AOSC-Dev/ciel/internal/ciel"
+
+	d "github.com/AOSC-Dev/ciel/display"
 )
 
 func list() {

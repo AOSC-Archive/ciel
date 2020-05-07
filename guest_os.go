@@ -15,10 +15,10 @@ import (
 	"strconv"
 	"strings"
 
-	d "ciel/display"
-	"ciel/internal/ciel"
-	"ciel/internal/container/instance"
-	"ciel/systemd-api/nspawn"
+	d "github.com/AOSC-Dev/ciel/display"
+	"github.com/AOSC-Dev/ciel/internal/ciel"
+	"github.com/AOSC-Dev/ciel/internal/container/instance"
+	"github.com/AOSC-Dev/ciel/systemd-api/nspawn"
 )
 
 // URL to the latest version of the tarball, currently hardcoded to amd64 architecture
