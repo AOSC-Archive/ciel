@@ -2,7 +2,7 @@ package machined
 
 import (
 	"github.com/AOSC-Dev/ciel/systemd-api"
-	"github.com/godbus/dbus"
+	"github.com/godbus/dbus/v5"
 )
 
 const Dest = "org.freedesktop.machine1"

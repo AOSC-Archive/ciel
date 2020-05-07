@@ -1,10 +1,11 @@
 package systemd
 
 import (
-	"github.com/godbus/dbus"
 	"log"
 	"os"
 	"strconv"
+
+	"github.com/godbus/dbus/v5"
 )
 
 var Conn *dbus.Conn
