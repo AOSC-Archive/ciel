@@ -9,11 +9,13 @@ import (
 	"path/filepath"
 	"strings"
 	"syscall"
+
+	"github.com/AOSC-Dev/ciel/config"
 )
 
 // constants definitions for the plugin paths
-const (
-	LibExecDir   = Prefix + "/libexec"
+var (
+	LibExecDir   = config.Prefix + "/libexec"
 	PluginDir    = LibExecDir + "/ciel-plugin"
 	PluginPrefix = "ciel-"
 )

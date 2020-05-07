@@ -1,3 +1,6 @@
+PROJ=ciel
+ORG_PATH=github.com/AOSC-Dev
+REPO_PATH=$(ORG_PATH)/$(PROJ)
 PREFIX:=/usr/local
 CC:=/usr/bin/cc
 CXX:=/usr/bin/c++
@@ -14,7 +17,7 @@ ARCH:=$(shell uname -m)
 GOSRC=$(GOPATH)/src
 GOBIN=$(GOPATH)/bin
 CIELPATH=$(GOSRC)/ciel
-
+LD_FLAGS="-w -X $(REPO_PATH)/config.Version=$(VERSION) -X $(REPO_PATH)/config.Prefix=$(PREFIX)"
 DISTDIR=$(SRCDIR)/instdir
 
 all: build
@@ -29,13 +32,10 @@ $(CIELPATH):
 deps: $(CIELPATH) $(SRCDIR)/go.mod $(SRCDIR)/go.sum
 	go mod vendor
 
-config:
-	go generate
-
-$(DISTDIR)/bin/ciel: deps config
+$(DISTDIR)/bin/ciel: deps
 	export CC
 	export CXX
-	go build -o $@ ciel
+	go build -o $@ -ldflags $(LD_FLAGS) $(REPO_PATH)/cmd/ciel
 
 plugin: plugin/*
 	cp -fR $^ $(DISTDIR)/libexec/ciel-plugin
@@ -52,4 +52,4 @@ install:
 	mkdir -p $(DESTDIR)/$(PREFIX)
 	cp -R $(DISTDIR)/* $(DESTDIR)/$(PREFIX)
 
-.PHONY: all deps config build plugin install clean
+.PHONY: all deps build plugin install clean

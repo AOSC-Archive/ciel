@@ -10,6 +10,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/AOSC-Dev/ciel/config"
 	d "github.com/AOSC-Dev/ciel/display"
 	"github.com/AOSC-Dev/ciel/internal/ciel"
 )
@@ -40,7 +41,7 @@ func parse() {
 func router(subCmd string) {
 	switch subCmd {
 	case "version":
-		fmt.Println("Ciel", Version)
+		fmt.Println("Ciel", config.Version)
 		return
 	case "help":
 		docHelp()
