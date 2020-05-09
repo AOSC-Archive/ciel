@@ -3,6 +3,7 @@ package packaging
 import (
 	"os"
 	"path"
+	"path/filepath"
 	"syscall"
 
 	d "github.com/AOSC-Dev/ciel/display"
@@ -28,7 +29,9 @@ func (t *Tree) Mount(mountPoint string) {
 	}
 	outputMountPoint := path.Join(mountPoint, OutputPath)
 	os.MkdirAll(outputMountPoint, 0755)
-	syscall.Mount(t.BasePath, outputMountPoint, "", syscall.MS_BIND, "")
+	if !proc.Mounted(outputMountPoint) {
+		syscall.Mount(t.BasePath, outputMountPoint, "", syscall.MS_BIND, "")
+	}
 }
 
 func (t *Tree) Unmount(mountPoint string) {
@@ -40,11 +43,19 @@ func (t *Tree) Unmount(mountPoint string) {
 		return
 	}
 	d.ITEM("unmount output")
-	err := syscall.Unmount(outputMountPoint, 0)
-	d.WARN(err)
+	result, err := filepath.Abs(outputMountPoint)
 	if err != nil {
+		d.WARN(err)
 		return
 	}
+	for proc.Mounted(result) {
+		err = syscall.Unmount(result, syscall.MNT_FORCE)
+		if err != nil {
+			d.WARN(err)
+			return
+		}
+	}
+	d.WARN(err)
 	d.ITEM("remove output mount point")
 	err = os.Remove(outputMountPoint)
 	d.WARN(err)
