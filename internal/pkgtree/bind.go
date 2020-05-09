@@ -19,7 +19,9 @@ func (t *Tree) Mount(mountPoint string) {
 	}
 	treeMountPoint := path.Join(mountPoint, TreePath)
 	os.MkdirAll(treeMountPoint, 0755)
-	syscall.Mount(t.BasePath, treeMountPoint, "", syscall.MS_BIND, "")
+	if !proc.Mounted(mountPoint) {
+		syscall.Mount(t.BasePath, treeMountPoint, "", syscall.MS_BIND, "")
+	}
 }
 
 func (t *Tree) Unmount(mountPoint string) {
