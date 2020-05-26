@@ -8,7 +8,7 @@ export CIEL_BATCH_MODE="true"
 BUILD_ARCH="$(dpkg-architecture -qDEB_BUILD_ARCH)"
 
 # Determine the recipe to build.
-VARIANT="$1"
+VARIANT="${1/+/_}"
 
 # FIXME: Handy variable.
 CALCULATED_RECIPE="${VARIANT^^}_RECIPE"
@@ -25,18 +25,18 @@ fi
 # Common denominators.
 PREREQ_RECIPE="systemd"
 if [[ "${BUILD_ARCH}" = arm* ]]; then
-    BOOTABLE_RECIPE="boot-base"
+    BOOTABLE_RECIPE="boot-base aosc-os-presets-base"
 else
-    BOOTABLE_RECIPE="boot-base kernel-base"
+    BOOTABLE_RECIPE="boot-base kernel-base linux+kernel aosc-os-presets-base"
 fi
 if "$SMALL_ARCH"; then
-    FONT_RECIPE="dejavu-fonts droid-fallback-fonts freefont liberation-fonts \
+    FONT_RECIPE="noto-cjk-fonts noto-fonts freefont liberation-fonts \
                  unifont"
 else
-    FONT_RECIPE="noto-cjk-fonts hanazono-fonts adobe-source-code-pro \
+    FONT_RECIPE="noto-cjk-fonts noto-fonts hanazono-fonts adobe-source-code-pro \
                  adobe-source-serif-pro croscore-fonts crosextra-fonts \
                  dejavu-fonts freefont liberation-fonts roboto-fonts \
-                 ttf-tibetan-machine-unicode ttf-ancient-fonts"
+                 ttf-tibetan-machine-unicode ttf-ancient-fonts unifont"
 fi
 
 # Define default browser.
@@ -51,11 +51,12 @@ BROWSER_RECIPE+=" thunderbird"
 # Available from all desktop variants.
 if "$SMALL_ARCH"; then
     DESKTOP_RECIPE="${BROWSER_RECIPE} ${FONT_RECIPE} \
-                    codec-base xdg-user-dirs xdg-user-dirs-gtk imchooser"
+                    codec-base xdg-user-dirs xdg-user-dirs-gtk imchooser \
+                    aosc-os-presets-desktop"
 else
     DESKTOP_RECIPE="${BROWSER_RECIPE} ${FONT_RECIPE} productivity-base \
                     print-base codec-base proofread-base xdg-user-dirs \
-                    xdg-user-dirs-gtk imchooser"
+                    xdg-user-dirs-gtk imchooser aosc-os-presets-desktop"
 fi
 
 USE_DKMS=0
@@ -131,19 +132,39 @@ BASE_RECIPE="${CONTAINER_RECIPE} ${BOOTABLE_RECIPE} alsa-utils"
 BUILDKIT_RECIPE="${CONTAINER_RECIPE} devel-base debug-base git autobuild3 acbs"
 CINNAMON_RECIPE="${BASE_RECIPE} ${DESKTOP_RECIPE} cinnamon-base cinnamon-distro-base ibus-base \
                  lightdm-gtk-greeter-settings gnome-packagekit gnome-software \
-                 cinnamon-default-settings alsa-utils"
+                 cinnamon-default-settings alsa-utils aosc-os-presets-cinnamon"
+CINNAMON_NVIDIA_RECIPE="${CINNAMON_RECIPE} nvidia"
+CINNAMON_NVIDIA340_RECIPE="${CINNAMON_RECIPE} nvidia+340 nvidia-libgl+340"
+CINNAMON_NVIDIA390_RECIPE="${CINNAMON_RECIPE} nvidia+390"
 GNOME_RECIPE="${BASE_RECIPE} ${DESKTOP_RECIPE} gnome-base ibus-base gnome-distro-base \
-              gnome-default-settings alsa-utils"
+              gnome-default-settings alsa-utils aosc-os-presets-gnome"
+GNOME_NVIDIA_RECIPE="${GNOME_RECIPE} nvidia"
+GNOME_NVIDIA340_RECIPE="${GNOME_RECIPE} nvidia+340 nvidia-libgl+340"
+GNOME_NVIDIA390_RECIPE="${GNOME_RECIPE} nvidia+390"
 KDE_RECIPE="${BASE_RECIPE} ${DESKTOP_RECIPE} kde-base fcitx-base sddm mpv kdeplasma-addons \
-            alsa-utils plasma-distro-base"
+            alsa-utils plasma-distro-base aosc-os-presets-plasma"
+KDE_NVIDIA_RECIPE="${KDE_RECIPE} nvidia"
+KDE_NVIDIA340_RECIPE="${KDE_RECIPE} nvidia+340 nvidia-libgl+340"
+KDE_NVIDIA390_RECIPE="${KDE_RECIPE} nvidia+390"
 LXDE_RECIPE="${BASE_RECIPE} ${DESKTOP_RECIPE} lxde-base lxde-distro-base ibus-base \
              lightdm-gtk-greeter-settings lxde-default-settings \
              arc-icon-theme network-manager-applet \
-             gnome-screenshot volumeicon alsa-utils"
+             gnome-screenshot volumeicon alsa-utils aosc-os-presets-lxde"
+LXDE_NVIDIA_RECIPE="${LXDE_RECIPE} nvidia"
+LXDE_NVIDIA340_RECIPE="${LXDE_RECIPE} nvidia+340 nvidia-libgl+340"
+LXDE_NVIDIA390_RECIPE="${LXDE_RECIPE} nvidia+390"
 MATE_RECIPE="${BASE_RECIPE} ${DESKTOP_RECIPE} mate-base mate-distro-base ibus-base \
-             lightdm-gtk-greeter-settings mpv mate-default-settings alsa-utils"
+             lightdm-gtk-greeter-settings mpv mate-default-settings alsa-utils \
+             aosc-os-presets-mate"
+MATE_NVIDIA_RECIPE="${MATE_RECIPE} nvidia"
+MATE_NVIDIA340_RECIPE="${MATE_RECIPE} nvidia+340 nvidia-libgl+340"
+MATE_NVIDIA390_RECIPE="${MATE_RECIPE} nvidia+390"
 XFCE_RECIPE="${BASE_RECIPE} ${DESKTOP_RECIPE} xfce-base xfce-distro-base ibus-base \
-             lightdm-gtk-greeter-settings mpv xfce4-default-settings alsa-utils"
+             lightdm-gtk-greeter-settings mpv xfce4-default-settings alsa-utils \
+             aosc-os-presets-xfce"
+XFCE_NVIDIA_RECIPE="${XFCE_RECIPE} nvidia"
+XFCE_NVIDIA340_RECIPE="${XFCE_RECIPE} nvidia+340 nvidia-libgl+340"
+XFCE_NVIDIA390_RECIPE="${XFCE_RECIPE} nvidia+390"
 
 # Common functions.
 _recipe_post() {
@@ -239,29 +260,101 @@ _recipe_container_config() {
 _recipe_cinnamon_config() {
 	ciel shell "systemctl preset-all"
 }
+_recipe_cinnamon_nvidia_config() {
+	ciel shell "systemctl preset-all"
+	ciel shell "systemctl enable nvidia-persistenced"
+}
+_recipe_cinnamon_nvidia340_config() {
+        ciel shell "systemctl preset-all"
+	ciel shell "systemctl enable nvidia-persistenced"
+}
+_recipe_cinnamon_nvidia390_config() {
+        ciel shell "systemctl preset-all"
+	ciel shell "systemctl enable nvidia-persistenced"
+}
 _recipe_gnome_config() {
 	ciel shell "systemctl preset-all"
+}
+_recipe_gnome_nvidia_config() {
+	ciel shell "systemctl preset-all"
+	ciel shell "systemctl enable nvidia-persistenced"
+}
+_recipe_gnome_nvidia340_config() {
+        ciel shell "systemctl preset-all"
+	ciel shell "systemctl enable nvidia-persistenced"
+}
+_recipe_gnome_nvidia390_config() {
+        ciel shell "systemctl preset-all"
+	ciel shell "systemctl enable nvidia-persistenced"
 }
 _recipe_kde_config() {
 	ciel shell "systemctl preset-all"
 }
+_recipe_kde_nvidia_config() {
+	ciel shell "systemctl preset-all"
+	ciel shell "systemctl enable nvidia-persistenced"
+}
+_recipe_kde_nvidia340_config() {
+	ciel shell "systemctl preset-all"
+	ciel shell "systemctl enable nvidia-persistenced"
+}
+_recipe_kde_nvidia390_config() {
+	ciel shell "systemctl preset-all"
+	ciel shell "systemctl enable nvidia-persistenced"
+}
 _recipe_lxde_config() {
 	ciel shell "systemctl preset-all"
+}
+_recipe_lxde_nvidia_config() {
+	ciel shell "systemctl preset-all"
+	ciel shell "systemctl enable nvidia-persistenced"
+}
+_recipe_lxde_nvidia340_config() {
+	ciel shell "systemctl preset-all"
+	ciel shell "systemctl enable nvidia-persistenced"
+}
+_recipe_lxde_nvidia390_config() {
+	ciel shell "systemctl preset-all"
+	ciel shell "systemctl enable nvidia-persistenced"
 }
 _recipe_mate_config() {
 	ciel shell "systemctl preset-all"
 }
+_recipe_mate_nvidia_config() {
+	ciel shell "systemctl preset-all"
+	ciel shell "systemctl enable nvidia-persistenced"
+}
+_recipe_mate_nvidia340_config() {
+	ciel shell "systemctl preset-all"
+	ciel shell "systemctl enable nvidia-persistenced"
+}
+_recipe_mate_nvidia390_config() {
+	ciel shell "systemctl preset-all"
+	ciel shell "systemctl enable nvidia-persistenced"
+}
 _recipe_xfce_config() {
 	ciel shell "systemctl preset-all"
+}
+_recipe_xfce_nvidia_config() {
+	ciel shell "systemctl preset-all"
+	ciel shell "systemctl enable nvidia-persistenced"
+}
+_recipe_xfce_nvidia340_config() {
+	ciel shell "systemctl preset-all"
+	ciel shell "systemctl enable nvidia-persistenced"
+}
+_recipe_xfce_nvidia390_config() {
+	ciel shell "systemctl preset-all"
+	ciel shell "systemctl enable nvidia-persistenced"
 }
 
 # Nike.
 set -e
 _recipe_pre_install
-if type _recipe_${1}_pre_install >/dev/null 2>&1; then
-	_recipe_${1}_pre_install
+if type _recipe_${VARIANT}_pre_install >/dev/null 2>&1; then
+	_recipe_${VARIANT}_pre_install
 fi
 _recipe_install
-_recipe_${1}_config
+_recipe_${VARIANT}_config
 _recipe_post
 set +e
