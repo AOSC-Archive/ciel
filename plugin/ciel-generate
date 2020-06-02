@@ -206,16 +206,16 @@ _recipe_sunxi64-base_config(){
 		ciel shell "systemctl enable dkms.service"
 	fi
 }
-_recipe_sunxi64-mate_pre_install() {
-	ciel shell "apt-gen-list c +bsp-sunxi"
-	ciel commit
-	ciel shell "apt-get update"
+_recipe_sunxi64-cinnamon_pre_install() {
+        ciel shell "apt-gen-list c +bsp-sunxi"
+        ciel commit
+        ciel shell "apt-get update"
 }
-_recipe_sunxi64-mate_config(){
-	ciel shell "systemctl preset-all"
-	if (($USE_DKMS)); then
-		ciel shell "systemctl enable dkms.service"
-	fi
+_recipe_sunxi64-cinnamon_config(){
+        ciel shell "systemctl preset-all"
+        if (($USE_DKMS)); then
+                ciel shell "systemctl enable dkms.service"
+        fi
 }
 _recipe_sunxi64-gnome_pre_install() {
 	ciel shell "apt-gen-list c +bsp-sunxi"
@@ -239,6 +239,39 @@ _recipe_sunxi64-kde_config(){
 		ciel shell "systemctl enable dkms.service"
 	fi
 }
+_recipe_sunxi64-lxde_pre_install() {
+        ciel shell "apt-gen-list c +bsp-sunxi"
+        ciel commit
+        ciel shell "apt-get update"
+}
+_recipe_sunxi64-lxde_config(){
+        ciel shell "systemctl preset-all"
+        if (($USE_DKMS)); then
+                ciel shell "systemctl enable dkms.service"
+        fi
+}
+_recipe_sunxi64-mate_pre_install() {
+        ciel shell "apt-gen-list c +bsp-sunxi"
+        ciel commit
+        ciel shell "apt-get update"
+}
+_recipe_sunxi64-mate_config(){
+        ciel shell "systemctl preset-all"
+        if (($USE_DKMS)); then
+                ciel shell "systemctl enable dkms.service"
+        fi
+}
+_recipe_sunxi64-xfce_pre_install() {
+        ciel shell "apt-gen-list c +bsp-sunxi"
+        ciel commit
+        ciel shell "apt-get update"
+}
+_recipe_sunxi64-xfce_config(){
+        ciel shell "systemctl preset-all"
+        if (($USE_DKMS)); then
+                ciel shell "systemctl enable dkms.service"
+        fi
+}
 _recipe_rk64-base_pre_install() {
 	ciel shell "apt-gen-list c +bsp-rk"
 	ciel commit
@@ -250,8 +283,73 @@ _recipe_rk64-base_config(){
 		ciel shell "systemctl enable dkms.service"
 	fi
 }
+_recipe_rk64-cinnamon_pre_install() {
+        ciel shell "apt-gen-list c +bsp-rk"
+        ciel commit
+        ciel shell "apt-get update"
+}
+_recipe_rk64-cinnamon_config(){
+        ciel shell "systemctl preset-all"
+        if (($USE_DKMS)); then
+                ciel shell "systemctl enable dkms.service"
+        fi
+}
+_recipe_rk64-gnome_pre_install() {
+        ciel shell "apt-gen-list c +bsp-rk"
+        ciel commit
+        ciel shell "apt-get update"
+}
+_recipe_rk64-gnome_config(){
+        ciel shell "systemctl preset-all"
+        if (($USE_DKMS)); then
+                ciel shell "systemctl enable dkms.service"
+        fi
+}
+_recipe_rk64-kde_pre_install() {
+        ciel shell "apt-gen-list c +bsp-rk"
+        ciel commit
+        ciel shell "apt-get update"
+}
+_recipe_rk64-kde_config(){
+        ciel shell "systemctl preset-all"
+        if (($USE_DKMS)); then
+                ciel shell "systemctl enable dkms.service"
+        fi
+}
+_recipe_rk64-lxde_pre_install() {
+        ciel shell "apt-gen-list c +bsp-rk"
+        ciel commit
+        ciel shell "apt-get update"
+}
+_recipe_rk64-lxde_config(){
+        ciel shell "systemctl preset-all"
+        if (($USE_DKMS)); then
+                ciel shell "systemctl enable dkms.service"
+        fi
+}
+_recipe_rk64-mate_pre_install() {
+        ciel shell "apt-gen-list c +bsp-rk"
+        ciel commit
+        ciel shell "apt-get update"
+}
+_recipe_rk64-mate_config(){
+        ciel shell "systemctl preset-all"
+        if (($USE_DKMS)); then
+                ciel shell "systemctl enable dkms.service"
+        fi
+}
+_recipe_rk64-xfce_pre_install() {
+        ciel shell "apt-gen-list c +bsp-rk"
+        ciel commit
+        ciel shell "apt-get update"
+}
+_recipe_rk64-xfce_config(){
+        ciel shell "systemctl preset-all"
+        if (($USE_DKMS)); then
+                ciel shell "systemctl enable dkms.service"
+        fi
+}
 _recipe_buildkit_config() {
-	# FIXME: apply this to all recipes later.
 	ciel shell "systemctl preset-all"
 }
 _recipe_container_config() {
