@@ -166,6 +166,18 @@ XFCE_NVIDIA_RECIPE="${XFCE_RECIPE} nvidia"
 XFCE_NVIDIA340_RECIPE="${XFCE_RECIPE} nvidia+340 nvidia-libgl+340"
 XFCE_NVIDIA390_RECIPE="${XFCE_RECIPE} nvidia+390"
 
+# Special case for Retro.
+if [[ "$VARIANT" == retro-* ]]; then
+	BOOTABLE_RECIPE="boot-base kernel-base aosc-os-presets-base"
+	FONT_RECIPE="unifont"
+	BROWSER_RECIPE="netsurf sylpheed"
+	DESKTOP_RECIPE="${BROWSER_RECIPE} ${FONT_RECIPE} \
+                        xdg-user-dirs aosc-os-presets-desktop"
+	BASE_RECIPE="${BOOTABLE_RECIPE} admin-base core-base editor-base \
+                     network-base systemd-base web-base util-base"
+	X11_RECIPE="${BASE_RECIPE} ${DESKTOP_RECIPE} retro-x11-base"
+fi
+
 # Common functions.
 _recipe_post() {
 	ciel factory-reset
