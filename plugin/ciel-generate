@@ -27,7 +27,7 @@ PREREQ_RECIPE="systemd"
 if [[ "${BUILD_ARCH}" = arm* ]]; then
     BOOTABLE_RECIPE="boot-base aosc-os-presets-base"
 else
-    BOOTABLE_RECIPE="boot-base kernel-base linux+kernel aosc-os-presets-base"
+    BOOTABLE_RECIPE="boot-base kernel-base aosc-os-presets-base"
 fi
 if "$SMALL_ARCH"; then
     FONT_RECIPE="noto-cjk-fonts noto-fonts freefont liberation-fonts \
