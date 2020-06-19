@@ -60,7 +60,7 @@ else
 fi
 
 USE_DKMS=0
-# Special case for sunxi-base
+# Special case for sunxi-base.
 if [[ "$VARIANT" == sunxi-* ]]; then
 	if [[ ! "$DEVICE_NAME" ]]; then
 		echo "DEVICE_NAME environment variable not set!" >&2
@@ -90,7 +90,7 @@ if [[ "$VARIANT" == sunxi-* ]]; then
 	CALCULATED_RECIPE="${BASE_VARIANT^^}_RECIPE"
 fi
 
-# Special case for sunxi64-base
+# Special case for sunxi64-base.
 if [[ "$VARIANT" == sunxi64-* ]]; then
 	if [[ ! "$DEVICE_NAME" ]]; then
 		echo "DEVICE_NAME environment variable not set!" >&2
