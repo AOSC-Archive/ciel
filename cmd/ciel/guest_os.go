@@ -284,6 +284,7 @@ func factoryReset() {
 			`^/usr`,
 			`^/var/lib/apt/gen`,
 			`^/var/lib/apt/extended_states`,
+			`^/var/lib/dkms`,
 			`^/var/lib/dpkg`,
 			`^/var/log/journal$`,
 			`^/root`,
