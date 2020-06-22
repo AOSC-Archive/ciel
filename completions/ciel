@@ -1,0 +1,74 @@
+#!/bin/bash
+
+subcmds="version init load-os load-tree update-os update-tree \
+    list add del shell config build rollback down mount stop run \
+    farewell doctor load-os update-os generate factory-reset commit \
+    release -batch -n -i -C"
+
+_ciel_list_instances() {
+    [ -d .ciel/container/instances ] || return
+    find .ciel/container/instances -maxdepth 1 -mindepth 1 -type d -printf '%f\n'
+}
+
+_ciel_list_packages() {
+    [ -d TREE ] || return
+    GROUPS="$(find "TREE/groups/" -maxdepth 1 -mindepth 1 -type f -printf 'groups/%f\n')"
+    COMPREPLY+=($(compgen -W "$GROUPS" -- "${1}"))
+    if [[ "$1" == *'/'* ]]; then
+        return
+    fi
+    COMPREPLY+=($(find "TREE" -maxdepth 2 -mindepth 2 -type d -not -path "TREE/.git" -name "${1}*" -printf '%f\n'))
+}
+
+_ciel() {
+    local cur prev words cword state
+    _init_completion || return
+
+    if [[ "$prev" = "ciel" ]]; then
+        COMPREPLY=($(compgen -W "$subcmds" -- "$cur"))
+        return
+    fi
+
+    for word in "${words[@]}"; do
+        if [[ "$word" == @(build) ]]; then
+            state="$word"
+            break
+        fi
+    done
+
+    case "$prev" in
+    # options with no argument
+        list | init | version | farewell | doctor | generate | update-os | update-tree)
+        COMPREPLY=()
+        ;;
+    # option(s) with file argument
+        load-os)
+        _filedir -f
+        ;;
+    # options with bare instance argument
+        add | del)
+        COMPREPLY=($(compgen -W "$(_ciel_list_instances)" -- "$cur"))
+        ;;
+    # options with -i instance argument
+        shell | config | build | rollback | down | mount | stop | run | factory-reset | commit)
+        COMPREPLY=($(compgen -W "-i" -- "$cur"))
+        if [[ "$prev" = 'build' ]]; then
+            _ciel_list_packages "$cur"
+        elif [[ "$prev" = 'config' ]]; then
+            COMPREPLY+=($(compgen -W "-g" -- "$cur"))
+        fi
+        ;;
+    # options after -i instance argument
+        -i)
+        COMPREPLY=($(compgen -W "$(_ciel_list_instances)" -- "$cur"))
+        return
+        ;;
+    esac
+
+    # continuous completion for packages
+    if [[ "$state" = 'build' ]]; then
+        _ciel_list_packages "$cur"
+    fi
+}
+
+complete -F _ciel ciel
