@@ -15,7 +15,7 @@ CALCULATED_RECIPE="${VARIANT^^}_RECIPE"
 
 # Common denominators.
 PREREQ_RECIPE="systemd"
-if [[ "${VARIANT}" != *sunxi* && "${VARIANT}" != *rk* ]]; then
+if [[ "${VARIANT}" = *sunxi* && "${VARIANT}" = *rk* ]]; then
     BOOTABLE_RECIPE="boot-base aosc-os-presets-base"
 else
     BOOTABLE_RECIPE="boot-base kernel-base aosc-os-presets-base"
