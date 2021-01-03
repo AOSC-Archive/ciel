@@ -52,11 +52,12 @@ BROWSER_RECIPE+=" thunderbird"
 if "$SMALL_ARCH"; then
     DESKTOP_RECIPE="${BROWSER_RECIPE} ${FONT_RECIPE} \
                     codec-base xdg-user-dirs xdg-user-dirs-gtk imchooser \
-                    aosc-os-presets-desktop"
+                    aosc-os-presets-desktop aosc-community-wallpapers"
 else
     DESKTOP_RECIPE="${BROWSER_RECIPE} ${FONT_RECIPE} productivity-base \
                     print-base codec-base proofread-base xdg-user-dirs \
-                    xdg-user-dirs-gtk imchooser aosc-os-presets-desktop"
+                    xdg-user-dirs-gtk imchooser aosc-os-presets-desktop \
+                    aosc-community-wallpapers"
 fi
 
 USE_DKMS=0
@@ -130,6 +131,7 @@ CONTAINER_RECIPE="admin-base core-base editor-base python-base network-base \
                   systemd-base web-base util-base"
 BASE_RECIPE="${CONTAINER_RECIPE} ${BOOTABLE_RECIPE} alsa-utils"
 BUILDKIT_RECIPE="${CONTAINER_RECIPE} devel-base debug-base git autobuild3 acbs"
+SERVER_RECIPE="${BASE_RECIPE} server-base"
 CINNAMON_RECIPE="${BASE_RECIPE} ${DESKTOP_RECIPE} cinnamon-base cinnamon-distro-base ibus-base \
                  lightdm-gtk-greeter-settings gnome-packagekit gnome-software \
                  cinnamon-default-settings alsa-utils aosc-os-presets-cinnamon"
