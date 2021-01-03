@@ -13,15 +13,6 @@ VARIANT="${1/+/_}"
 # FIXME: Handy variable.
 CALCULATED_RECIPE="${VARIANT^^}_RECIPE"
 
-# Determine "small" architectures.
-if [[ "${BUILD_ARCH}" != "amd64" && "${BUILD_ARCH}" != "ppc64" && \
-      "${BUILD_ARCH}" != "powerpc" && "${BUILD_ARCH}" != "mips64el" && \
-      "${BUILD_ARCH}" != "mipsel" ]]; then
-   SMALL_ARCH=true
-else
-   SMALL_ARCH=false
-fi
-
 # Common denominators.
 PREREQ_RECIPE="systemd"
 if [[ "${BUILD_ARCH}" = arm* ]]; then
@@ -29,15 +20,10 @@ if [[ "${BUILD_ARCH}" = arm* ]]; then
 else
     BOOTABLE_RECIPE="boot-base kernel-base aosc-os-presets-base"
 fi
-if "$SMALL_ARCH"; then
-    FONT_RECIPE="noto-cjk-fonts noto-fonts freefont liberation-fonts \
-                 unifont"
-else
-    FONT_RECIPE="noto-cjk-fonts noto-fonts hanazono-fonts adobe-source-code-pro \
-                 adobe-source-serif-pro croscore-fonts crosextra-fonts \
-                 dejavu-fonts freefont liberation-fonts roboto-fonts \
-                 ttf-tibetan-machine-unicode ttf-ancient-fonts unifont"
-fi
+FONT_RECIPE="noto-cjk-fonts noto-fonts hanazono-fonts adobe-source-code-pro \
+             adobe-source-serif-pro croscore-fonts crosextra-fonts \
+             dejavu-fonts freefont liberation-fonts roboto-fonts \
+             ttf-tibetan-machine-unicode ttf-ancient-fonts unifont"
 
 # Define default browser.
 # Firefox does not work well on PPC64.
@@ -49,16 +35,10 @@ fi
 BROWSER_RECIPE+=" thunderbird"
 
 # Available from all desktop variants.
-if "$SMALL_ARCH"; then
-    DESKTOP_RECIPE="${BROWSER_RECIPE} ${FONT_RECIPE} \
-                    codec-base xdg-user-dirs xdg-user-dirs-gtk imchooser \
-                    aosc-os-presets-desktop aosc-community-wallpapers"
-else
-    DESKTOP_RECIPE="${BROWSER_RECIPE} ${FONT_RECIPE} productivity-base \
-                    print-base codec-base proofread-base xdg-user-dirs \
-                    xdg-user-dirs-gtk imchooser aosc-os-presets-desktop \
-                    aosc-community-wallpapers"
-fi
+DESKTOP_RECIPE="${BROWSER_RECIPE} ${FONT_RECIPE} productivity-base \
+                print-base codec-base proofread-base xdg-user-dirs \
+                xdg-user-dirs-gtk imchooser aosc-os-presets-desktop \
+                aosc-community-wallpapers"
 
 USE_DKMS=0
 # Special case for sunxi-base.
